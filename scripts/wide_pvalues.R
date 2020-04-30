@@ -5,7 +5,7 @@ library("here")
 
 #' ## P value stats
 #' Import dataset
-imported <- read_csv(here("output/parsed_suppfiles.csv"))
+imported <- read_csv(here("data/parsed_suppfiles.csv"))
 imported <- imported %>% 
   mutate(accession = str_extract(id, "GSE\\d+")) %>% 
   select(accession, everything())
@@ -50,7 +50,7 @@ wide %>%
 
 #' ## Experiment metadata
 #' Importing experiment metadata (dates and etc) 
-document_summaries <- read_csv("output/document_summaries.csv")
+document_summaries <- read_csv("data/document_summaries.csv")
 range(document_summaries$PDAT)
 
 #' Number of unique GEO sets during period.
@@ -69,14 +69,14 @@ imported %>%
 
 
 #' Importing publications metadata
-publications <- read_csv("output/publications.csv", col_types = str_c(rep("c", 26), collapse = "")) %>% 
+publications <- read_csv("data/publications.csv", col_types = str_c(rep("c", 26), collapse = "")) %>% 
   rename(PubMedIds = Id)
 
 #' Single-cell experiments
-single_cell <- read_csv("output/single-cell.csv")
+single_cell <- read_csv("data/single-cell.csv")
 
 #' Citations
-citations <- read_csv("output/scopus_citedbycount.csv")
+citations <- read_csv("data/scopus_citedbycount.csv")
 
 #' Merging publications with citations
 pubs <- publications %>% 
@@ -99,6 +99,7 @@ pvals_wide <- document_summaries %>%
     filter_var == "fpkm" & str_detect(Set, "p_value") ~ "cuffdiff",
     TRUE ~ "unknown"
   ))
+write_csv(pvals_wide, "output/pvals_wide.csv")
 range(pvals_wide$PDAT)
 
 pvals_wide %>% 
