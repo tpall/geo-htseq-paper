@@ -32,6 +32,7 @@ wide <- full_join(before, after) %>%
 #   spk_add_deps()
 
 #' Conversion
+#+ echo=FALSE
 wide %>% 
   count(Class, Class_after) %>% 
   group_by(Class) %>% 
@@ -40,13 +41,35 @@ wide %>%
   knitr::kable() %>% 
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE)
 
+#' Number of p-value sets per GEO accession
+#+
+wide %>% 
+  count(accession) %>% 
+  arrange(desc(n))
+
+
 #' ## Experiment metadata
 #' Importing experiment metadata (dates and etc) 
 document_summaries <- read_csv("output/document_summaries.csv")
 range(document_summaries$PDAT)
 
+#' Number of unique GEO sets during period.
+#+
+n_distinct(document_summaries$Accession)
+
+#' Number of GEO sets with supplementary files that were imported.
+#+
+n_distinct(imported$accession)
+
+#' Number of files with GEO sets.
+#'+
+imported %>% 
+  filter(note == "no pvalues" | Type == "raw") %>% 
+  select(accession, id, Type, note)
+
+
 #' Importing publications metadata
-publications <- read_csv("output/publications.csv") %>% 
+publications <- read_csv("output/publications.csv", col_types = str_c(rep("c", 26), collapse = "")) %>% 
   rename(PubMedIds = Id)
 
 #' Single-cell experiments
