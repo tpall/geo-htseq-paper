@@ -76,7 +76,7 @@ publications <- read_csv("data/publications.csv", col_types = str_c(rep("c", 26)
 single_cell <- read_csv("data/single-cell.csv")
 
 #' Citations
-citations <- read_csv("data/scopus_citedbycount.csv")
+citations <- read_csv("data/scopus_citedbycount.csv", col_types = cols(PubMedIds = col_character()))
 
 #' Merging publications with citations
 pubs <- publications %>% 
