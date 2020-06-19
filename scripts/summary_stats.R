@@ -30,13 +30,21 @@ acc_year <- document_summaries %>%
   select(Accession, PDAT) %>% 
   mutate(year = year(PDAT))
 
-suppfilenames %>% 
+conformity <- suppfilenames %>% 
   mutate(Accession = str_extract(suppfilenames, "GSE\\d+")) %>% 
   left_join(acc_year) %>% 
   mutate(
     conforms = !str_detect(str_to_lower(suppfilenames), 
                            "raw.tar|bam|sam|bed")
-  ) %>% 
+  ) 
+#' Total number of GEOs conforming
+conformity %>% 
+  filter(conforms) %>% 
+  pull(Accession) %>% 
+  n_distinct()
+
+#' Number of GEOs conforming per year
+conformity %>% 
   group_by(year) %>% 
   count(conforms) %>% 
   mutate(
