@@ -54,6 +54,17 @@ spots <- spots %>%
   full_join(platforms, .) %>% 
   select(colnames(spots))
 
+spots %>% 
+  pull(library_layout) %>% 
+  unique()
+
+offset <- spots %>% 
+  filter(!(library_layout %in% c("PAIRED", "SINGLE")))
+
+spots %>% 
+  filter((library_layout %in% c("PAIRED", "SINGLE"))) %>% 
+  select(starts_with("library"), platform, model) %>% 
+  map(unique)
 
 #' Summarize merged spots data
 #+
