@@ -35,17 +35,22 @@ hist_data_plots <- hist_data %>%
   mutate(QC_thr = map_dbl(hist, qc_threshold, fdr = 0.05),
          QC_plot = map2(hist, QC_thr, plot_qc_hist))
 
-hist_data_plots$QC_plot
+class_counts <- parsed_suppfiles %>% 
+  count(Class, name = "N")
 
 tibble_output <- tibble(
-  text = hist_data_plots$Class,
-  ggplot = NA,
+  Class = hist_data_plots$Class,
+  `Fraction [95% CI]` = c("0.24 [0.23; 0.25]", "0.31 [0.30; 0.32]", "0.12 [0.11; 0.12]", "0.34 [0.32; 0.35]", "0.002 [0; 0.003]"),
+  Example = NA,
   .rows = length(hist_data_plots$Class)) %>%
+  left_join(class_counts) %>% 
+  arrange(desc(N)) %>% 
+  select(Class, N, `Fraction [95% CI]`, Example) %>% 
   gt() %>%
   text_transform(
-    locations = cells_body(vars(ggplot)),
+    locations = cells_body(vars(Example)),
     fn = function(x) {
-      map(hist_data_plots$QC_plot, ggplot_image, height = px(100), aspect_ratio = 1.5)
+      map(hist_data_plots$QC_plot, ggplot_image, height = px(50), aspect_ratio = 1.5)
     }
     )
 
