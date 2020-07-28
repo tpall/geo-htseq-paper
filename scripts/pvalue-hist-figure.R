@@ -1,4 +1,5 @@
 library(tidyverse)
+library(gt)
 
 parsed_suppfiles <- read_csv("data/parsed_suppfiles.csv") %>% 
   filter(str_detect(Type, "raw")) %>% 
@@ -38,20 +39,29 @@ hist_data_plots <- hist_data %>%
 class_counts <- parsed_suppfiles %>% 
   count(Class, name = "N")
 
-tibble_output <- tibble(
-  Class = hist_data_plots$Class,
-  `Fraction [95% CI]` = c("0.24 [0.23; 0.25]", "0.31 [0.30; 0.32]", "0.12 [0.11; 0.12]", "0.34 [0.32; 0.35]", "0.002 [0; 0.003]"),
-  Example = NA,
-  .rows = length(hist_data_plots$Class)) %>%
+plot_data <- hist_data_plots %>% 
+  select(Class, QC_plot) %>% 
   left_join(class_counts) %>% 
+  left_join(
+    tibble(
+      Class = c("anti-conservative", "bimodal", "conservative", "other", "uniform"),
+      `Fraction [95% CI]` = c("0.24 [0.23; 0.25]", "0.31 [0.30; 0.32]", "0.12 [0.11; 0.12]", "0.34 [0.32; 0.35]", "0.002 [0; 0.003]"),
+      Example = NA
+      )
+    ) %>% 
   arrange(desc(N)) %>% 
-  select(Class, N, `Fraction [95% CI]`, Example) %>% 
+  select(Class, N, `Fraction [95% CI]`, Example, QC_plot) %>% 
+  ungroup()
+
+tibble_output <- plot_data %>%
+  select(-QC_plot) %>% 
   gt() %>%
   text_transform(
     locations = cells_body(vars(Example)),
     fn = function(x) {
-      map(hist_data_plots$QC_plot, ggplot_image, height = px(50), aspect_ratio = 1.5)
+      map(plot_data$QC_plot, ggplot_image, height = px(30), aspect_ratio = 1.5)
     }
     )
 
-tibble_output
+tibble_output %>% 
+  gtsave("output/hist_examples.png", expand = 10)
