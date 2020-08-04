@@ -23,7 +23,12 @@ plot_qc_hist <- function(counts, t) {
 }
 
 set.seed(12)
-hist_data <- parsed_suppfiles %>% 
+suppfiles_sample <- parsed_suppfiles %>% 
+  group_by(Accession) %>% 
+  sample_n(1) %>% 
+  ungroup()
+
+hist_data <- suppfiles_sample %>%
   filter((Class %in% c("bimodal", "conservative", "other", "uniform")) | (Class %in% c("anti-conservative") & pi0 >= 0.8)) %>% 
   group_by(Class) %>% 
   sample_n(1)
@@ -36,7 +41,7 @@ hist_data_plots <- hist_data %>%
   mutate(QC_thr = map_dbl(hist, qc_threshold, fdr = 0.05),
          QC_plot = map2(hist, QC_thr, plot_qc_hist))
 
-class_counts <- parsed_suppfiles %>% 
+class_counts <- suppfiles_sample %>% 
   count(Class, name = "N")
 
 plot_data <- hist_data_plots %>% 
