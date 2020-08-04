@@ -35,8 +35,9 @@ conformity <- suppfilenames %>%
   left_join(acc_year) %>% 
   mutate(
     conforms = !str_detect(str_to_lower(suppfilenames), 
-                           "raw.tar|bam|sam|bed")
-  ) 
+                           "readme|filelist|raw.tar|\\.bam|\\.sam|\\.bed|\\.fa(sta)?|(big)?wig")
+  )
+
 #' Total number of GEOs conforming
 conformity %>% 
   filter(conforms) %>% 
@@ -51,7 +52,20 @@ conformity %>%
     cumsum = cumsum(n),
     perc = n / cumsum
   ) %>% 
-  filter(conforms)
+  filter(conforms) %>% 
+  na.omit()
+
+
+conformity_acc <- conformity %>% 
+  group_by(Accession, year) %>% 
+  summarise(
+    conforms = case_when(
+      any(conforms) ~ 1,
+      TRUE ~ 0
+  ))
+
+library(brms)
+fit <- brm(conforms ~ year, data = conformity_acc, family = bernoulli())
 
 #' Number of sets with p-values
 parsed_suppfiles <- read_csv("data/parsed_suppfiles.csv") %>% 

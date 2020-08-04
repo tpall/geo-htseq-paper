@@ -14,7 +14,7 @@ qc_threshold <- function(x, fdr) {
 plot_qc_hist <- function(counts, t) {
   ggplot() +
     geom_col(aes(x = seq(0, 1, length.out = length(counts)), y = counts)) +
-    geom_hline(yintercept = t, color = "red") +
+    geom_hline(yintercept = t, color = "red", size = 3) +
     theme_minimal() +
     theme(axis.title = element_blank(),
           axis.text = element_blank(),
@@ -22,7 +22,7 @@ plot_qc_hist <- function(counts, t) {
           panel.grid.minor = element_blank())
 }
 
-set.seed(12)
+set.seed(13)
 suppfiles_sample <- parsed_suppfiles %>% 
   group_by(Accession) %>% 
   sample_n(1) %>% 
@@ -44,15 +44,24 @@ hist_data_plots <- hist_data %>%
 class_counts <- suppfiles_sample %>% 
   count(Class, name = "N")
 
+library(brms)
+library(tidybayes)
+fit <- brm(Class ~ 1, data = suppfiles_sample, family = categorical())
+pe <- posterior_epred(fit)
+classes_props <- pe[1:4000, 1, 1:5] %>% 
+  as_tibble() %>% 
+  map(mean_hdi) %>% 
+  bind_rows(.id = "Class") %>% 
+  mutate_at(vars(y, ymin, ymax), signif, digits = 2) %>% 
+  mutate(`Fraction [95% CI]` = str_c(y, " [", ymin, "; ", ymax, "]"),
+         Example = NA) %>% 
+  select(Class, `Fraction [95% CI]`, Example)
+
 plot_data <- hist_data_plots %>% 
   select(Class, QC_plot) %>% 
   left_join(class_counts) %>% 
   left_join(
-    tibble(
-      Class = c("anti-conservative", "bimodal", "conservative", "other", "uniform"),
-      `Fraction [95% CI]` = c("0.24 [0.23; 0.25]", "0.31 [0.30; 0.32]", "0.12 [0.11; 0.12]", "0.34 [0.32; 0.35]", "0.002 [0; 0.003]"),
-      Example = NA
-      )
+    classes_props
     ) %>% 
   arrange(desc(N)) %>% 
   select(Class, N, `Fraction [95% CI]`, Example, QC_plot) %>% 
