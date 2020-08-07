@@ -6,6 +6,20 @@ parsed_suppfiles <- read_csv("data/parsed_suppfiles.csv") %>%
   mutate(Accession = str_extract(id, "GSE\\d+")) %>% 
   select(Accession, everything())
 
+
+files_to_check <- parsed_suppfiles %>% 
+  filter(Type == "raw") %>% 
+  filter(near(pi0, 1)) %>% 
+  select(id, pi0, FDR_pval, Set) %>% 
+  pull(id) %>% 
+  str_split(" from ") %>% 
+  flatten_chr()
+
+files_to_check[str_detect(files_to_check, "^GSE")] %>% 
+  unique() %>% 
+  str_c("output/suppl/", .) %>% 
+  write_lines("output/files_to_check_pi0.txt")
+
 qc_threshold <- function(x, fdr) {
   bins <- length(x)
   qbinom(1 - 1 / bins * fdr, sum(x), 1 / bins)
@@ -34,9 +48,9 @@ hist_data <- suppfiles_sample %>%
   sample_n(1)
 
 hist_data_plots <- hist_data %>% 
-  mutate(hist = str_split(hist, "[^0-9]+"),
-         hist = map(hist, as.numeric),
-         hist = map(hist, na.omit)) %>% 
+  mutate(hist = str_remove_all(hist, "[:punct:]"),
+         hist = str_split(hist, " "),
+         hist = map(hist, as.numeric)) %>% 
   select(Accession, id, Class, hist) %>%
   mutate(QC_thr = map_dbl(hist, qc_threshold, fdr = 0.05),
          QC_plot = map2(hist, QC_thr, plot_qc_hist))
