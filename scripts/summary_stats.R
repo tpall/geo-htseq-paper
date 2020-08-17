@@ -19,7 +19,7 @@ document_summaries %>%
   mutate(cumsum = cumsum(n),
          perc = n / cumsum)
 
-#' Supplementary files. We throw out also filelist.txt files.
+#' Supplementary files. We will throw out also all 'filelist.txt' files.
 #+
 suppfilenames <- read_lines("data/suppfilenames.txt") %>% 
   tibble(suppfilenames = .) %>% 
@@ -32,12 +32,17 @@ acc_year <- document_summaries %>%
   select(Accession, PDAT) %>% 
   mutate(year = year(PDAT))
 
+#' We right join to keep only subset from our time frame.
 conformity <- suppfilenames %>% 
   mutate(Accession = str_extract(suppfilenames, "GSE\\d+")) %>% 
-  full_join(acc_year) %>%
+  right_join(acc_year) %>%
   mutate(
-    conforms = !(is.na(suppfilenames) | str_detect(str_to_lower(suppfilenames), "readme|raw.tar|\\.bam$|\\.sam$|\\.bed$|\\.fa(sta)?"))
+    conforms = !(is.na(suppfilenames) | str_detect(str_to_lower(suppfilenames), "readme|_raw.tar$|\\.bam$|\\.sam$|\\.bed$|\\.fa(sta)?"))
   )
+
+#' Total number of files conforming
+conformity %>% 
+  filter(conforms)
 
 #' Total number of GEOs conforming
 conformity %>% 
@@ -77,26 +82,76 @@ p +
   labs(x = "Year", y = "Proportion of submissions conforming\nwith GEO submission guidelines") +
   scale_x_continuous(breaks = seq(2006, 2019, by = 2))
 
-#' Number of sets with p-values
-parsed_suppfiles <- read_csv("data/parsed_suppfiles.csv") %>% 
+#' Number of sets with p-values, 
+parsed_suppfiles <- read_csv("data/parsed_suppfiles.csv")
+
+raw_sets <- parsed_suppfiles %>% 
   filter(is.na(Type) | str_detect(Type, "raw")) %>% 
+  filter(!str_detect(id, "_RAW.tar")) %>% 
   mutate(Accession = str_extract(id, "GSE\\d+")) %>% 
   select(Accession, everything())
-parsed_suppfiles %>% 
+
+#' Number of unique GEO ids imported
+raw_sets %>% 
   pull(Accession) %>% 
   n_distinct()
 
-parsed_suppfiles %>% 
-  pull(Accession) %>% 
+#' Number of unique files imported
+raw_sets %>% 
+  pull(id) %>% 
   n_distinct()
 
-#' Files which we were able to import.
-#+
-parsed_suppfiles %>% 
+#' notes
+raw_sets %>% 
+  count(note) %>% 
+  pull(note)
+
+#' Files which we were able  to import.
+raw_sets %>% 
   mutate(imported = case_when(
     str_detect(str_to_lower(note), "error|i\\/o operation|not determine delim|codec can't decode|empty table|missing optional dependency") ~ "fail",
     is.na(note) ~ "yes",
     TRUE ~ "yes"
   )) %>% 
+  group_by(Accession, id) %>% 
+  summarise(
+    imported = case_when(
+      any(imported == "yes") ~ 1,
+      TRUE ~ 0
+    )) %>% 
+  ungroup() %>% 
   count(imported)
 
+#' P values
+#+
+pvalues <- raw_sets %>% 
+  filter(Type == "raw")
+
+#' Number of distinct GEO-s with p values
+n_distinct(pvalues$Accession)
+
+#' Summary stats of p values per GEO
+pvalues %>% 
+  count(Accession) %>% 
+  summarise_at("n", list(mean = mean, median = median, max = max))
+
+#' GEOs with single or 1-3 sets
+#+
+pvalues %>% 
+  count(Accession) %>% 
+  count(n) %>% 
+  summarise(p = nn / sum(nn),
+            ps = cumsum(p))
+
+#' Sample 1 pvalue set per accession
+set.seed(11)
+pvalues_acc <- pvalues %>% 
+  group_by(Accession) %>% 
+  sample_n(1) %>% 
+  ungroup()
+
+pvalues_acc %>% 
+  count(Class) %>% 
+  summarise(Class, 
+            n,
+            p = signif(n / sum(n), 2))
