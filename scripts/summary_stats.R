@@ -1,7 +1,7 @@
 library(tidyverse)
 library(lubridate)
 
-theme_set(theme_classic())
+theme_set(theme_classic(base_size = 8))
 
 #' Number of unique GEOs
 #+
@@ -80,7 +80,9 @@ fit <- brm(conforms ~ year, data = conformity_acc, family = bernoulli())
 p <- plot(conditional_effects(fit), plot = FALSE)$year
 p + 
   labs(x = "Year", y = "Proportion of submissions conforming\nwith GEO submission guidelines") +
-  scale_x_continuous(breaks = seq(2006, 2019, by = 2))
+  scale_x_continuous(breaks = seq(2006, 2019, by = 2)) +
+  scale_y_continuous(limits = c(0, 1))
+ggsave("plots/conforming_per_year.png", height = 7, width = 11, dpi = 300, units = "cm")
 
 #' Number of sets with p-values, 
 parsed_suppfiles <- read_csv("data/parsed_suppfiles.csv")
@@ -155,3 +157,19 @@ pvalues_acc %>%
   summarise(Class, 
             n,
             p = signif(n / sum(n), 2))
+
+pvalues_acc %>% 
+  count(Set) %>% 
+  arrange(desc(n))
+
+pvalues_acc_year <- pvalues_acc %>% 
+  left_join(acc_year)
+
+fit2 <- brm(Class ~ year, data = pvalues_acc_year, family = categorical())
+p <- plot(conditional_effects(fit2, categorical = TRUE), plot = FALSE)$year
+p + 
+  labs(x = "Year", y = "Proportion of GEO\nsubmissions") +
+  scale_x_continuous(breaks = seq(2010, 2019, by = 2)) +
+  theme(legend.position = "bottom",
+        legend.title = element_blank())
+ggsave("plots/class_per_year.png", height = 7, width = 11, dpi = 300, units = "cm")
