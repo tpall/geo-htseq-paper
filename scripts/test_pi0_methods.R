@@ -18,7 +18,26 @@ names(pvalues) <- basename(files)
 pi0 <- pvalues %>% 
   map(summarise_all, propTrueNull, method = "hist")
 
-anti_conservative <- read_csv("data/parsed_suppfiles.csv") %>% 
+supp_smo <- read_csv("data/parsed_suppfiles.csv")
+supp_lfdr <- read_csv("~/Downloads/parsed_suppfiles.csv")
+document_summaries <- read_csv("data/document_summaries.csv")
+
+gses <- setdiff(supp_smo$id, supp_lfdr$id) %>% 
+  str_extract("GSE\\d+") %>% 
+  unique()
+length(gses)
+
+document_summaries %>% 
+  filter(Accession %in% gses) %>% 
+  pull(PDAT) %>% 
+  range()
+
+supp_smo %>% 
+  filter(Type == "raw", !is.na(Set))
+supp_lfdr %>% 
+  filter(Type == "raw", !is.na(Set))
+
+anti_conservative <- supp_smo %>% 
   filter(Type == "raw", !is.na(pi0)) %>% 
   mutate(Accession = str_extract(id, "GSE\\d+")) %>% 
   select(Accession, everything())
@@ -32,7 +51,7 @@ anti_conservative %>%
   geom_histogram(aes(pi0), binwidth = 0.05) +
   labs(title = "smoother")
 
-anti_conservative_lfdr <- read_csv("~/Downloads/parsed_suppfiles.csv") %>% 
+anti_conservative_lfdr <- supp_lfdr %>% 
   filter(Type == "raw", !is.na(pi0)) %>% 
   mutate(Accession = str_extract(id, "GSE\\d+")) %>% 
   select(Accession, everything())
