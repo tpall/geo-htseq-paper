@@ -1,6 +1,7 @@
 library(tidyverse)
 library(gt)
 
+
 parsed_suppfiles <- read_csv("data/parsed_suppfiles.csv") %>% 
   filter(str_detect(Type, "raw")) %>% 
   mutate(Accession = str_extract(id, "GSE\\d+")) %>% 
@@ -15,15 +16,18 @@ files_to_check <- parsed_suppfiles %>%
   str_split(" from ") %>% 
   flatten_chr()
 
+
 files_to_check[str_detect(files_to_check, "^GSE")] %>% 
   unique() %>% 
   str_c("output/suppl/", .) %>% 
   write_lines("output/files_to_check_pi0.txt")
 
+
 qc_threshold <- function(x, fdr) {
   bins <- length(x)
   qbinom(1 - 1 / bins * fdr, sum(x), 1 / bins)
 }
+
 
 plot_qc_hist <- function(counts, t) {
   ggplot() +
@@ -36,16 +40,19 @@ plot_qc_hist <- function(counts, t) {
           panel.grid.minor = element_blank())
 }
 
-set.seed(13)
+
+set.seed(15)
 suppfiles_sample <- parsed_suppfiles %>% 
   group_by(Accession) %>% 
   sample_n(1) %>% 
   ungroup()
 
+
 hist_data <- suppfiles_sample %>%
   filter((Class %in% c("bimodal", "conservative", "other", "uniform")) | (Class %in% c("anti-conservative") & pi0 >= 0.8)) %>% 
   group_by(Class) %>% 
   sample_n(1)
+
 
 hist_data_plots <- hist_data %>% 
   mutate(hist = str_remove_all(hist, "[:punct:]"),
@@ -55,8 +62,10 @@ hist_data_plots <- hist_data %>%
   mutate(QC_thr = map_dbl(hist, qc_threshold, fdr = 0.05),
          QC_plot = map2(hist, QC_thr, plot_qc_hist))
 
+
 class_counts <- suppfiles_sample %>% 
   count(Class, name = "N")
+
 
 library(brms)
 library(tidybayes)
@@ -71,6 +80,7 @@ classes_props <- pe[1:4000, 1, 1:5] %>%
          Example = NA) %>% 
   select(Class, `Fraction [95% CI]`, Example)
 
+
 plot_data <- hist_data_plots %>% 
   select(Class, QC_plot) %>% 
   left_join(class_counts) %>% 
@@ -80,6 +90,7 @@ plot_data <- hist_data_plots %>%
   arrange(desc(N)) %>% 
   select(Class, N, `Fraction [95% CI]`, Example, QC_plot) %>% 
   ungroup()
+
 
 tibble_output <- plot_data %>%
   select(-QC_plot) %>% 
@@ -91,5 +102,7 @@ tibble_output <- plot_data %>%
     }
     )
 
+
 tibble_output %>% 
-  gtsave("output/hist_examples.png", expand = 10)
+  gtsave("output/hist_examples.png", 
+         expand = 10)
