@@ -47,10 +47,12 @@ suppfiles_sample <- parsed_suppfiles %>%
   sample_n(1) %>% 
   ungroup()
 
+
 hist_examples <- list(Class = c("conservative", "anti-conservative", "uniform", "bimodal", "other"), 
-     id = c("GSE80737_SC20-20_20-28_batch_DE.txt.gz", "GSE89511_diff.geneFpkm.exon.glm.LogFc.0.exc.Gapdh.RPMI8226_MCL1.txt.gz", "GSE102826_model_fc.txt.gz", "GSE115649_P20WT_P20M_results.csv.gz", "GSE98869_diffexp.tsv.gz"), 
-     Set = c("pvalue", "vec.v.cd86.pvalue", "p.value (mutunc5 - control)", "pvalue", "pvalue")) %>% 
+     id = c("GSE63555_Gene_expression_cuffdiff_fpkm.txt.gz", "GSE89511_diff.geneFpkm.exon.glm.LogFc.0.exc.Gapdh.RPMI8226_MCL1.txt.gz", "GSE102826_model_fc.txt.gz", "GSE115649_P20WT_P20M_results.csv.gz", "GSE98869_diffexp.tsv.gz"), 
+     Set = c("p_value", "vec.v.cd86.pvalue", "p.value (mutunc5 - control)", "pvalue", "pvalue")) %>% 
   as_tibble()
+
 
 hist_data <- parsed_suppfiles %>% 
   inner_join(hist_examples)
