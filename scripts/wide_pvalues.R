@@ -24,12 +24,14 @@ wide <- full_join(before, after) %>%
 
 
 #' Generate html table: beware of very large table!
-# tab <- wide %>% 
-#   mutate_at(vars(starts_with("hist")), ~map(.x, ~as.integer(unlist(str_extract_all(.x, "\\d+"))))) %>% 
-#   mutate_at(vars(starts_with("hist")), ~map(.x, spk_chr, type = "bar")) %>%
-#   formattable() %>%
-#   formattable::as.htmlwidget() %>%
-#   spk_add_deps()
+tab <- wide %>%
+  mutate_at(vars(starts_with("hist")), ~map(.x, ~as.integer(unlist(str_extract_all(.x, "\\d+"))))) %>%
+  mutate_at(vars(starts_with("hist")), ~map(.x, ~spk_chr(.x, type = "bar", chartRangeMin = 0, chartRangeMax = max(.x)))) %>%
+  mutate_at(vars(starts_with("pi0")), prettyNum, digits = 2) %>% 
+  formattable() %>%
+  formattable::as.htmlwidget() %>%
+  spk_add_deps()
+
 
 #' Conversion
 #+ echo=FALSE
