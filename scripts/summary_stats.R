@@ -99,20 +99,17 @@ raw_sets %>%
   pull(Accession) %>% 
   n_distinct()
 
+#' Number of unique files downloaded
+raw_sets %>% 
+  select(Accession, id) %>% 
+  mutate(file = str_remove(id, "^.+ from ")) %>% 
+  pull(file) %>% 
+  n_distinct()
+
 #' Number of unique files imported
 raw_sets %>% 
   pull(id) %>% 
   n_distinct()
-
-
-raw_sets %>% 
-  select(Accession, id) %>% 
-  filter(str_detect(id, "from"))
-
-raw_sets %>% 
-  select(Accession, id) %>% 
-  mutate(file = str_remove(id, "^.+ from ")) %>% 
-  filter(!str_detect(file, "^GSE"))
 
 
 #' notes
@@ -120,7 +117,7 @@ raw_sets %>%
   count(note) %>% 
   pull(note)
 
-#' Files which we were able  to import.
+#' Files which we were able to import.
 raw_sets %>% 
   mutate(imported = case_when(
     str_detect(str_to_lower(note), "error|i\\/o operation|not determine delim|codec can't decode|empty table|missing optional dependency") ~ "fail",
