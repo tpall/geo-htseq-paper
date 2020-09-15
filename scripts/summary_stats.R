@@ -1,5 +1,6 @@
 library(tidyverse)
 library(lubridate)
+library(brms)
 
 theme_set(theme_classic(base_size = 8))
 
@@ -34,7 +35,7 @@ acc_year <- document_summaries %>%
 
 #' We right join to keep only subset from our time frame.
 conformity <- suppfilenames %>% 
-  mutate(Accession = str_extract(suppfilenames, "GSE\\d+")) %>% 
+  mutate(Accession = str_to_upper(str_extract(suppfilenames, "GS[Ee]\\d+"))) %>% 
   right_join(acc_year) %>%
   mutate(
     conforms = !(is.na(suppfilenames) | str_detect(str_to_lower(suppfilenames), "readme|_raw.tar$|\\.bam$|\\.sam$|\\.bed$|\\.fa(sta)?"))
@@ -42,7 +43,8 @@ conformity <- suppfilenames %>%
 
 #' Total number of files conforming
 conformity %>% 
-  filter(conforms)
+  filter(conforms) %>% 
+  nrow()
 
 #' Total number of GEOs conforming
 conformity %>% 
@@ -69,16 +71,15 @@ total_conforming <- conformity_acc %>%
 #+
 conformity_acc %>% 
   group_by(year) %>% 
-  na.omit() %>% 
   summarise(conforms = sum(conforms),
             n = n(),
             perc = conforms / n)
 
 
-library(brms)
 fit <- brm(conforms ~ year, data = conformity_acc, family = bernoulli())
 p <- plot(conditional_effects(fit), plot = FALSE)$year
 p + 
+  geom_smooth(color = "black") +
   labs(x = "Year", y = "Proportion of submissions conforming\nwith GEO submission guidelines") +
   scale_x_continuous(breaks = seq(2006, 2019, by = 2)) +
   scale_y_continuous(limits = c(0, 1))
@@ -90,7 +91,7 @@ parsed_suppfiles <- read_csv("data/parsed_suppfiles.csv")
 raw_sets <- parsed_suppfiles %>% 
   filter(is.na(Type) | str_detect(Type, "raw")) %>% 
   filter(!str_detect(id, "_RAW.tar")) %>% 
-  mutate(Accession = str_extract(id, "GSE\\d+")) %>% 
+  mutate(Accession = str_to_upper(str_extract(id, "GS[Ee]\\d+"))) %>% 
   select(Accession, everything())
 
 #' Number of unique GEO ids imported
@@ -102,6 +103,17 @@ raw_sets %>%
 raw_sets %>% 
   pull(id) %>% 
   n_distinct()
+
+
+raw_sets %>% 
+  select(Accession, id) %>% 
+  filter(str_detect(id, "from"))
+
+raw_sets %>% 
+  select(Accession, id) %>% 
+  mutate(file = str_remove(id, "^.+ from ")) %>% 
+  filter(!str_detect(file, "^GSE"))
+
 
 #' notes
 raw_sets %>% 
@@ -145,12 +157,18 @@ pvalues %>%
   summarise(p = nn / sum(nn),
             ps = cumsum(p))
 
-#' Sample 1 pvalue set per accession
+#' Sample 1 p value set per accession
 set.seed(11)
 pvalues_acc <- pvalues %>% 
   group_by(Accession) %>% 
   sample_n(1) %>% 
   ungroup()
+
+#' Save table ids for figure
+#+
+pvalues_acc %>% 
+  select(id, Set) %>% 
+  write_csv("output/pvalues_acc.csv")
 
 pvalues_acc %>% 
   count(Class) %>% 
