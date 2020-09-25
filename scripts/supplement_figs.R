@@ -8,18 +8,19 @@
 #' ---
 
 #+ include=FALSE
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, comment = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE)
 
 
 #+ libs
 library(readr)
 library(dplyr)
 library(ggplot2)
-library(svglite)
+library(extrafont)
+library(cowplot)
 library(patchwork)
 library(brms)
 library(here)
-old <- theme_set(theme_classic())
+old <- theme_set(theme_cowplot(font_size = 8, font_family = "Helvetica"))
 
 #'
 #+ params
@@ -33,7 +34,7 @@ pvalues_sample <- read_csv(here("output/pvalues_sample.csv")) %>%
   rename(de_tool = analysis_platform)
 sequencing_metadata <- read_csv(here("output/sequencing_metadata_unique_platform.csv"))
 
-#+ fig.cap = "The increasing proportion of anti-conservative histograms. Binomial logistic model: anticons  ~ year, N = 2109."
+#+ fig.cap = "The increasing proportion of anti-conservative histograms. Binomial logistic model: $anticons ~ year$, N = 2109."
 f <- anticons ~ year
 family <- bernoulli()
 data <- pvalues_sample
@@ -43,21 +44,21 @@ mod <- brm(formula = f,
            family = family, 
            chains = chains, 
            cores = cores, 
-           refresh = refresh)
+           refresh = refresh,
+           file = here("models/anticons_year.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "year", 
                               conditions = conditions, 
                               re_formula = NULL),
           plot = FALSE)
-pp <- p$year + 
+p$year + 
   geom_smooth(color = "black") +
   scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
   labs(y = "Proportion of anti-conservative p histograms",
        x = "Year")
-ggsave(here("plots/Figure_S1.png"), plot = pp, height = 7, width = 11, dpi = 300, units = "cm")
 
 #' 
-#+ fig.cap="A 2-level binomial logistic model anticons ~ year + (year | de_tool) reveals that all data analysis platforms are associated with temporally increasing anti-conservative p histograms, N = 2109."
+#+ fig.cap="A 2-level binomial logistic model $anticons ~ year + (year | de_tool)$ reveals that all differential expression analysis tools are associated with temporally increasing anti-conservative p histograms, N = 2109."
 f <- anticons ~ year + (year | de_tool)
 mod <- brm(formula = f, 
            data = data, 
@@ -65,23 +66,23 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           control = list(adapt_delta = 0.95, max_treedepth = 12))
-de_tool <- unique(data$platform)
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/anticons_year__year_detool.rds"))
+de_tool <- unique(data$de_tool)
 conditions <- data.frame(de_tool = de_tool, row.names = de_tool)
 p <- plot(conditional_effects(mod, 
                               effects = "year", 
                               conditions = conditions, 
                               re_formula = NULL),
           plot = FALSE)
-pp <- p$year + 
+p$year + 
   geom_smooth(color = "black") +
   scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
   labs(y = "Proportion of anti-conservative p histograms",
        x = "Year")
-ggsave(here("plots/Figure_S2.png"), plot = pp, height = 7, width = 11, dpi = 300, units = "cm")
 
 #' 
-#+ fig.cap="A 2-level binomial logistic model anticons ~ year + (year  | model) reveals that all sequencing platforms are associated with temporally increasing anti-conservative p histograms, N = 1718. Only GEO-s utilizing single sequencing platform were used for model fitting."
+#+ fig.cap="A 2-level binomial logistic model $anticons ~ year + (year  | model)$ reveals that all sequencing instrument models are associated with temporally increasing anti-conservative p histograms, N = 1718. Only GEO submissions utilizing single sequencing platform were used for model fitting."
 data <- pvalues_sample %>% 
   inner_join(sequencing_metadata)
 f <- anticons ~ year + (year | model)
@@ -92,7 +93,8 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           control = list(adapt_delta = 0.99, max_treedepth = 12))
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/anticons_year__year_model.rds"))
 model <- na.omit(unique(data$model))
 conditions <- data.frame(model, row.names = model)
 p <- plot(conditional_effects(mod, 
@@ -100,18 +102,25 @@ p <- plot(conditional_effects(mod,
                               conditions = conditions, 
                               re_formula = NULL),
           plot = FALSE)
-pp <- p$year + 
+p$year + 
   geom_smooth(color = "black") +
   scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
   labs(y = "Proportion of anti-conservative p histograms",
        x = "Year")
-ggsave(here("plots/Figure_S3.svg"), plot = pp)
 
-
-#' ## Figure S4. No single data analysis platform dominates the field. 
-#' Y-axis shows the proportion of analysis platforms, X-axis shows year of GEO submission.
-#+
-
+#'
+#+ fig.cap="No single data analysis platform dominates the field. Y-axis shows the proportion of analysis platforms, x-axis shows publication year of GEO submission."
+data %>% 
+  count(year, de_tool) %>% 
+  add_count(year, name = "total", wt = n) %>% 
+  mutate(Proportion = n / total) %>% 
+  ggplot() +
+    geom_line(aes(year, Proportion, color = de_tool), size = 1) +
+  scale_color_viridis_d() +
+  scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
+  labs(x = "Year") +
+  theme(legend.title = element_blank(),
+        legend.position = "bottom")
 
 #' ## Figure S5. Binomial logistic models for proportion of anti-conservative p histograms. 
 #' A. Simple model anticons~platform. 
