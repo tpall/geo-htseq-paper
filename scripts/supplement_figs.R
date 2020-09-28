@@ -413,7 +413,7 @@ mod %>%
   scale_x_continuous(limits = c(0, 1))
 
 #' 
-#+  FigS10, fig.cap="Modeling dependency of pi0 on library layout: $pi0 \\sim (1 | librarylayout)$."
+#+  FigS10, fig.cap="Modeling dependency of pi0 on library layout: $pi0 \\sim (1 | librarylayout)$, N = 396."
 f <- pi0 ~ (1 | library_layout)
 mod <- brm(formula = f, 
            data = data, 
@@ -433,7 +433,7 @@ mod %>%
   scale_x_continuous(limits = c(0, 1))
 
 #' 
-#+ FigS11, fig.cap="Modeling dependency of pi0 on library layout: $pi0 \\sim (1 | library_source)$."
+#+ FigS11, fig.cap="Modeling dependency of pi0 on library layout: $pi0 \\sim (1 | library_source)$, N = 396."
 f <- pi0 ~ (1 | library_source)
 mod <- brm(formula = f, 
            data = data, 
@@ -452,31 +452,83 @@ mod %>%
   labs(x = "pi0", y = "Library source") +
   scale_x_continuous(limits = c(0, 1))
 
-#' ## Figure S12. Modeling dependency of proportion of anti-conservative histograms on 
-#' sequencing platform: anticons~(1|model).
 #' 
-#+
+#+ FigS12, fig.cap="Modeling dependency of proportion of anti-conservative histograms on sequencing platform: $anticons \\sim (1  | model)$, N = 1718."
 f <- anticons ~ (1 | model)
 family <- bernoulli()
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores,
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/anticons__1_model.rds"))
+mod %>%
+  spread_draws(b_Intercept, r_model[condition,]) %>%
+  median_hdi(condition_mean = b_Intercept + r_model) %>%
+  mutate_at(vars(condition_mean, .lower,  .upper), inv_logit_scaled) %>% 
+  ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() +
+  labs(x = "Proportion of anti-conservative p histograms", y = "Sequencing instrument model") +
+  scale_x_continuous(limits = c(0, 1))
 
-
-#' ## Figure S13. Modeling dependency of proportion of anti-conservative histograms on 
-#' library strategy: anticons~(1| library_strategy).
 #' 
-#+
+#+ FigS13, fig.cap="Modeling dependency of proportion of anti-conservative histograms on library strategy: $anticons \\sim (1  | librarystrategy)$, N = 1718."
 f <- anticons ~ (1 | library_strategy)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores,
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/anticons__1_librarystrategy.rds"))
+mod %>%
+  spread_draws(b_Intercept, r_library_strategy[condition,]) %>%
+  median_hdi(condition_mean = b_Intercept + r_library_strategy) %>%
+  mutate_at(vars(condition_mean, .lower,  .upper), inv_logit_scaled) %>% 
+  ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() +
+  labs(x = "Proportion of anti-conservative p histograms", y = "Library strategy") +
+  scale_x_continuous(limits = c(0, 1))
 
-
-#' ## Figure S14. Modelling dependency of proportion of anti-conservative histograms on 
-#' library selection: anticons~(1| library_selection).
 #' 
-#+
+#+ FigS14, fig.cap="Modelling dependency of proportion of anti-conservative histograms on library selection: $anticons \\sim (1 | libraryselection)$, N = 1718."
 f <- anticons ~ (1 | library_selection)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores,
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/anticons__1_libraryselection.rds"))
+mod %>%
+  spread_draws(b_Intercept, r_library_selection[condition,]) %>%
+  median_hdi(condition_mean = b_Intercept + r_library_selection) %>%
+  mutate_at(vars(condition_mean, .lower,  .upper), inv_logit_scaled) %>% 
+  ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() +
+  labs(x = "Proportion of anti-conservative p histograms", y = "Library_selection") +
+  scale_x_continuous(limits = c(0, 1))
 
-#' ## Figure S15. Modeling dependency of proportion of anti-conservative histograms on 
-#' library layout: anticons~(1| library_layout).
 #' 
-#+
+#+ FigS15, fig.cap="Modeling dependency of proportion of anti-conservative histograms on library layout: $anticons \\sim (1 | librarylayout)$, N = 1718."
 f <- anticons ~ (1 | library_layout)
-
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores,
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/anticons__1_librarylayout.rds"))
+mod %>%
+  spread_draws(b_Intercept, r_library_layout[condition,]) %>%
+  median_hdi(condition_mean = b_Intercept + r_library_layout) %>%
+  mutate_at(vars(condition_mean, .lower,  .upper), inv_logit_scaled) %>% 
+  ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() +
+  labs(x = "Proportion of anti-conservative p histograms", y = "Library layout")
 
