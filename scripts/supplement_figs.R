@@ -3,8 +3,9 @@
 #' date: ""
 #' author: ""
 #' output:
-#'    bookdown::html_document2:
+#'    bookdown::pdf_document2:
 #'        number_sections: FALSE
+#'        toc: FALSE
 #' ---
 
 #+ include=FALSE
@@ -34,7 +35,7 @@ pvalues_sample <- read_csv(here("output/pvalues_sample.csv")) %>%
   rename(de_tool = analysis_platform)
 sequencing_metadata <- read_csv(here("output/sequencing_metadata_unique_platform.csv"))
 
-#+ fig.cap = "The increasing proportion of anti-conservative histograms. Binomial logistic model: $anticons ~ year$, N = 2109."
+#+ fig.cap = "The increasing proportion of anti-conservative histograms. Binomial logistic model: $anticons \\sim year$, N = 2109."
 f <- anticons ~ year
 family <- bernoulli()
 data <- pvalues_sample
@@ -58,7 +59,7 @@ p$year +
        x = "Year")
 
 #' 
-#+ fig.cap="A 2-level binomial logistic model $anticons ~ year + (year | de_tool)$ reveals that all differential expression analysis tools are associated with temporally increasing anti-conservative p histograms, N = 2109."
+#+ fig.cap="A 2-level binomial logistic model $anticons \\sim year + (year | DEtool)$ reveals that all differential expression analysis tools are associated with temporally increasing anti-conservative p histograms, N = 2109."
 f <- anticons ~ year + (year | de_tool)
 mod <- brm(formula = f, 
            data = data, 
@@ -82,7 +83,7 @@ p$year +
        x = "Year")
 
 #' 
-#+ fig.cap="A 2-level binomial logistic model $anticons ~ year + (year  | model)$ reveals that all sequencing instrument models are associated with temporally increasing anti-conservative p histograms, N = 1718. Only GEO submissions utilizing single sequencing platform were used for model fitting."
+#+ FigS3, fig.cap="A 2-level binomial logistic model $anticons \\sim year + (year  | model)$ reveals that all sequencing instrument models are associated with temporally increasing anti-conservative p histograms, N = 1718. Only GEO submissions utilizing single sequencing platform were used for model fitting."
 data <- pvalues_sample %>% 
   inner_join(sequencing_metadata)
 f <- anticons ~ year + (year | model)
@@ -109,7 +110,7 @@ p$year +
        x = "Year")
 
 #'
-#+ fig.cap="No single data analysis platform dominates the field. Y-axis shows the proportion of analysis platforms, x-axis shows publication year of GEO submission."
+#+ FigS4, fig.cap="No single data analysis platform dominates the field. Y-axis shows the proportion of analysis platforms, x-axis shows publication year of GEO submission, N = 1733."
 data %>% 
   count(year, de_tool) %>% 
   add_count(year, name = "total", wt = n) %>% 
@@ -122,37 +123,135 @@ data %>%
   theme(legend.title = element_blank(),
         legend.position = "bottom")
 
-#' ## Figure S5. Binomial logistic models for proportion of anti-conservative p histograms. 
-#' A. Simple model anticons~platform. 
-#+
-f <- anticons ~ platform
 
+#+ FigS5a
+f <- anticons ~ de_tool
+data <- pvalues_sample
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           file = here("models/anticons_detool.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool",
+                              re_formula = NULL),
+          plot = FALSE)
+pa <- p$de_tool + 
+  labs(y = "Proportion of anti-conservative\np histograms",
+       x = "DE analysis tool")
 
-#' B. Simple model fitted on complete data. 
 #'
-#+ 
-data <- "all_pvalues"
+#+ FigS5b
+data <- pvalues %>% 
+  rename(de_tool = analysis_platform)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           file = here("models/anticons_detool_all.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool",
+                              re_formula = NULL),
+          plot = FALSE)
+pb <- p$de_tool + 
+  labs(y = "Proportion of anti-conservative p histograms",
+       x = "DE analysis tool") + 
+  theme(axis.title.y = element_blank())
 
-#' C. Model conditioned on year of GEO submission: anticons~year + platform. 
 #' 
-#+
-f <- anticons ~ year + platform
-data <- "pvalues_sample"
+#+ FigS5c
+f <- anticons ~ year + de_tool
+data <- pvalues_sample
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           file = here("models/anticons_year_detool.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool",
+                              re_formula = NULL),
+          plot = FALSE)
+pc <- p$de_tool + 
+  labs(y = "Proportion of anti-conservative p histograms",
+       x = "DE analysis tool") + 
+  theme(axis.title.y = element_blank())
 
-#' D. Model conditioned on studied organism (human/mouse/other): anticons~organism + platform. 
 #' 
-#+
-f <- anticons ~ organism + platform
+#+ FigS5d
+data <- pvalues_sample %>% 
+  inner_join(sequencing_metadata) %>% 
+  mutate(organism = case_when(
+    tax_id == 9606 ~ "human",
+    tax_id == 10090 ~ "mouse",
+    TRUE ~ "other"
+  ))
+f <- anticons ~ organism + de_tool
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           file = here("models/anticons_organism_detool.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool",
+                              re_formula = NULL),
+          plot = FALSE)
+pd <- p$de_tool + 
+  labs(y = "Proportion of anti-conservative\np histograms",
+       x = "DE analysis tool")
 
-#' E. Varying intercept model anticons~platform + (1|model) where “model” stands for sequencing platform. 
 #' 
-#+
-f <- anticons ~ platform + (1 | model)
+#+ FigS5e
+f <- anticons ~ de_tool + (1 | model)
+data <- pvalues_sample %>% 
+  inner_join(sequencing_metadata)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/anticons_detool__1_model.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool",
+                              re_formula = NULL),
+          plot = FALSE)
+pe <- p$de_tool + 
+  labs(y = "Proportion of anti-conservative p histograms",
+       x = "DE analysis tool") + 
+  theme(axis.title.y = element_blank())
 
-#' F. Varying intercept/slope model anticons~platform + (platform|model).
 #' 
-#+
-f <- anticons ~ platform + (platform | model)
+#+ FigS5f
+f <- anticons ~ de_tool + (de_tool | model)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/anticons_detool__detool_model.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool",
+                              re_formula = NULL),
+          plot = FALSE)
+pf <- p$de_tool + 
+  labs(y = "Proportion of anti-conservative p histograms",
+       x = "DE analysis tool") + 
+  theme(axis.title.y = element_blank())
+
+#+ FigS5, fig.cap="Binomial logistic models for proportion of anti-conservative p histograms. A, simple model $anticons \\sim DEtool$. B, simple model $anticons \\sim DEtool$ fitted on complete data, N = 6267. C, model conditioned on year of GEO submission: $anticons \\sim year + DEtool$, N = 2109. D, model conditioned on studied organism (human/mouse/other): $anticons \\sim organism + DEtool$, N = 1733. E, varying intercept model $anticons \\sim DEtool + (1 | model)$ where 'model' stands for sequencing instrument model, N = 1718. F, varying intercept and slope model $anticons \\sim DEtool + (DEtool | model)$. B, C, E, and F y-axis labels are same as in A and D."
+(pa + pb + pc) / (pd + pe + pf) + plot_annotation(tag_levels = "A")
+
 
 #' ## Figure S6. Robust (student-t likelihood) modeling of pi0. 
 #' A. Simple model pi0~platform fitted on complete data. 
