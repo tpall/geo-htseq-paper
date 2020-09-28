@@ -20,6 +20,7 @@ library(extrafont)
 library(cowplot)
 library(patchwork)
 library(brms)
+library(tidybayes)
 library(here)
 old <- theme_set(theme_cowplot(font_size = 8, font_family = "Helvetica"))
 
@@ -30,7 +31,8 @@ cores <- chains
 refresh = 0
 
 #+ data
-pvalues <- read_csv(here("output/pvalues.csv"))
+pvalues <- read_csv(here("output/pvalues.csv")) %>% 
+  rename(de_tool = analysis_platform)
 pvalues_sample <- read_csv(here("output/pvalues_sample.csv")) %>% 
   rename(de_tool = analysis_platform)
 sequencing_metadata <- read_csv(here("output/sequencing_metadata_unique_platform.csv"))
@@ -144,8 +146,7 @@ pa <- p$de_tool +
 
 #'
 #+ FigS5b
-data <- pvalues %>% 
-  rename(de_tool = analysis_platform)
+data <- pvalues
 mod <- brm(formula = f, 
            data = data, 
            family = family, 
@@ -252,60 +253,204 @@ pf <- p$de_tool +
 #+ FigS5, fig.cap="Binomial logistic models for proportion of anti-conservative p histograms. A, simple model $anticons \\sim DEtool$. B, simple model $anticons \\sim DEtool$ fitted on complete data, N = 6267. C, model conditioned on year of GEO submission: $anticons \\sim year + DEtool$, N = 2109. D, model conditioned on studied organism (human/mouse/other): $anticons \\sim organism + DEtool$, N = 1733. E, varying intercept model $anticons \\sim DEtool + (1 | model)$ where 'model' stands for sequencing instrument model, N = 1718. F, varying intercept and slope model $anticons \\sim DEtool + (DEtool | model)$. B, C, E, and F y-axis labels are same as in A and D."
 (pa + pb + pc) / (pd + pe + pf) + plot_annotation(tag_levels = "A")
 
-
-#' ## Figure S6. Robust (student-t likelihood) modeling of pi0. 
-#' A. Simple model pi0~platform fitted on complete data. 
 #' 
-#+
-f <- pi0 ~ platform
+#+ FigS6a
+f <- pi0 ~ de_tool
 family <- student()
-data <- "all_pvalues"
+data <- pvalues
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           file = here("models/pi0_detool.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool",
+                              re_formula = NULL),
+          plot = FALSE)
+pa <- p$de_tool + 
+  labs(x = "DE analysis tool")
 
-#' C. Model conditioned on year of GEO submission: pi0~year + platform. 
 #' 
-#+
-f <- pi0 ~ year + platform
-data <- "pvalues_sample"
+#+ FigS6b
+f <- pi0 ~ year + de_tool
+data <- pvalues_sample
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           file = here("models/pi0_year_detool.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool",
+                              re_formula = NULL),
+          plot = FALSE)
+pb <- p$de_tool + 
+  labs(x = "DE analysis tool")
 
-#' D. Model conditioned on studied organism (human/mouse/other): pi0~organism + platform. 
 #' 
-#+
-f <- pi0 ~ organism + platform
+#+ FigS6c
+data <- pvalues_sample %>% 
+  inner_join(sequencing_metadata) %>% 
+  mutate(organism = case_when(
+    tax_id == 9606 ~ "human",
+    tax_id == 10090 ~ "mouse",
+    TRUE ~ "other"
+  ))
+f <- pi0 ~ organism + de_tool
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           file = here("models/pi0_organism_detool.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool",
+                              re_formula = NULL),
+          plot = FALSE)
+pc <- p$de_tool + 
+  labs(x = "DE analysis tool")
 
-#' E. Varying intercept model pi0~platform + (1|model) where “model” stands for sequencing platform. 
 #' 
-#+
-f <- pi0 ~ platform + (1 | model)
+#+ FigS6d
+f <- pi0 ~ de_tool + (1 | model)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/pi0_detool__1_model.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool",
+                              re_formula = NULL),
+          plot = FALSE)
+pd <- p$de_tool + 
+  labs(x = "DE analysis tool")
 
-#' F. Varying intercept/slope model pi0~platform + (platform|model).
+#' .
 #' 
-#+
-f <- pi0 ~ platform + (platform | model)
+#+ FigS6e
+f <- pi0 ~ de_tool + (de_tool | model)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/pi0_detool__detool_model.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool",
+                              re_formula = NULL),
+          plot = FALSE)
+pe <- p$de_tool + 
+  labs(x = "DE analysis tool")
 
-#' ## Figure S7. Modeling dependency of pi0 on sequencing platform: pi0~(1|model).
+#+ FigS6, fig.cap="Robust (student-t likelihood) modeling of pi0. A, simple model $pi0 \\sim DEtool$ fitted on complete data, N = 1567. B, model conditioned on year of GEO submission: $pi0 \\sim year + DEtool$, N = 488. C, model conditioned on studied organism (human/mouse/other): $pi0 \\sim organism + DEtool$, N = 400. D, varying intercept model $pi0 \\sim DEtool + (1|model)$ where 'model' stands for sequencing instrument model, N = 396. E, varying intercept/slope model $pi0 \\sim DEtool + (DEtool | model)$, N = 396."
+(pa + pb + pc) / (pd + pe + plot_spacer()) + plot_annotation(tag_levels = "A")
+
 #' 
-#+
+#+ FigS7, fig.cap="Modeling dependency of pi0 on sequencing instrument model: $pi0 \\sim (1 | model)$, N = 396."
 f <- pi0 ~ (1 | model)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/pi0__1_model.rds"))
+mod %>%
+  spread_draws(b_Intercept, r_model[condition,]) %>%
+  median_hdi(condition_mean = b_Intercept + r_model) %>%
+  ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() +
+  labs(x = "pi0", y = "Sequencing instrument model") +
+  scale_x_continuous(limits = c(0, 1))
 
-#' ## Figure S8. Modeling dependency of pi0 on library strategy: pi0~(1| library_strategy).
 #' 
-#+
+#+ FigS8, fig.cap="Modeling dependency of pi0 on library strategy: $pi0 \\sim (1| librarystrategy)$."
 f <- pi0 ~ (1 | library_strategy)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/pi0__1_librarystrategy.rds"))
+mod %>%
+  spread_draws(b_Intercept, r_library_strategy[condition,]) %>%
+  median_hdi(condition_mean = b_Intercept + r_library_strategy) %>%
+  ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() +
+  labs(x = "pi0", y = "Library strategy") +
+  scale_x_continuous(limits = c(0, 1))
 
-#' Figure S9. Modeling dependency of pi0 on library selection: pi0~(1| library_selection).
+#' Figure S9. 
 #' 
-#+
+#+ FigS9, fig.cap="Modeling dependency of pi0 on library selection: $pi0 \\sim (1| libraryselection)$, N = 396."
 f <- pi0 ~ (1 | library_selection)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/pi0__1_libraryselection.rds"))
+mod %>%
+  spread_draws(b_Intercept, r_library_selection[condition,]) %>%
+  median_hdi(condition_mean = b_Intercept + r_library_selection) %>%
+  ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() +
+  labs(x = "pi0", y = "Library selection") +
+  scale_x_continuous(limits = c(0, 1))
 
-#' ## Figure S10. Modeling dependency of pi0 on library layout: pi0~(1| library_layout).
 #' 
-#+
+#+  FigS10, fig.cap="Modeling dependency of pi0 on library layout: $pi0 \\sim (1 | librarylayout)$."
 f <- pi0 ~ (1 | library_layout)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores,
+           iter = 4000, 
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/pi0__1_librarylayout.rds"))
+mod %>%
+  spread_draws(b_Intercept, r_library_layout[condition,]) %>%
+  median_hdi(condition_mean = b_Intercept + r_library_layout) %>%
+  ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() +
+  labs(x = "pi0", y = "Library layout") +
+  scale_x_continuous(limits = c(0, 1))
 
-#' ## Figure S11. Modeling dependency of pi0 on library layout: pi0~(1| library_source).
 #' 
-#+
+#+ FigS11, fig.cap="Modeling dependency of pi0 on library layout: $pi0 \\sim (1 | library_source)$."
 f <- pi0 ~ (1 | library_source)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores,
+           iter = 4000, 
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/pi0__1_librarysource.rds"))
+mod %>%
+  spread_draws(b_Intercept, r_library_source[condition,]) %>%
+  median_hdi(condition_mean = b_Intercept + r_library_source) %>%
+  ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() +
+  labs(x = "pi0", y = "Library source") +
+  scale_x_continuous(limits = c(0, 1))
 
 #' ## Figure S12. Modeling dependency of proportion of anti-conservative histograms on 
 #' sequencing platform: anticons~(1|model).
