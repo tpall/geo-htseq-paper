@@ -17,6 +17,7 @@ library(readr)
 library(dplyr)
 library(ggplot2)
 library(extrafont)
+library(stringr)
 library(cowplot)
 library(patchwork)
 library(brms)
@@ -70,8 +71,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("models/anticons_year__year_detool.rds"))
-de_tool <- unique(data$de_tool)
-conditions <- data.frame(de_tool = de_tool, row.names = de_tool)
+conditions <- make_conditions(data, vars = "de_tool")
+row.names(conditions) <- conditions$de_tool
 p <- plot(conditional_effects(mod, 
                               effects = "year", 
                               conditions = conditions, 
@@ -97,8 +98,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("models/anticons_year__year_model.rds"))
-model <- na.omit(unique(data$model))
-conditions <- data.frame(model, row.names = model)
+conditions <- make_conditions(data, vars = "model")
+row.names(conditions) <- str_wrap(conditions$model, width = 20)
 p <- plot(conditional_effects(mod, 
                               effects = "year", 
                               conditions = conditions, 
@@ -117,7 +118,7 @@ data %>%
   add_count(year, name = "total", wt = n) %>% 
   mutate(Proportion = n / total) %>% 
   ggplot() +
-    geom_line(aes(year, Proportion, color = de_tool), size = 1) +
+  geom_line(aes(year, Proportion, color = de_tool), size = 1) +
   scale_color_viridis_d() +
   scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
   labs(x = "Year") +
