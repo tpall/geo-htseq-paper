@@ -3,13 +3,13 @@
 #' date: ""
 #' author: ""
 #' output:
-#'    bookdown::pdf_document2:
+#'    bookdown::pdf_book:
 #'        number_sections: FALSE
 #'        toc: FALSE
 #' ---
 
 #+ include=FALSE
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, comment = FALSE, warning = FALSE)
 
 
 #+ libs
@@ -51,8 +51,7 @@ mod <- brm(formula = f,
            file = here("models/anticons_year.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "year", 
-                              conditions = conditions, 
-                              re_formula = NULL),
+                              conditions = conditions),
           plot = FALSE)
 p$year + 
   geom_smooth(color = "black") +
@@ -137,8 +136,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            file = here("models/anticons_detool.rds"))
 p <- plot(conditional_effects(mod, 
-                              effects = "de_tool",
-                              re_formula = NULL),
+                              effects = "de_tool"),
           plot = FALSE)
 pa <- p$de_tool + 
   labs(y = "Proportion of anti-conservative\np histograms",
@@ -155,8 +153,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            file = here("models/anticons_detool_all.rds"))
 p <- plot(conditional_effects(mod, 
-                              effects = "de_tool",
-                              re_formula = NULL),
+                              effects = "de_tool"),
           plot = FALSE)
 pb <- p$de_tool + 
   labs(y = "Proportion of anti-conservative p histograms",
@@ -175,8 +172,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            file = here("models/anticons_year_detool.rds"))
 p <- plot(conditional_effects(mod, 
-                              effects = "de_tool",
-                              re_formula = NULL),
+                              effects = "de_tool"),
           plot = FALSE)
 pc <- p$de_tool + 
   labs(y = "Proportion of anti-conservative p histograms",
@@ -201,8 +197,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            file = here("models/anticons_organism_detool.rds"))
 p <- plot(conditional_effects(mod, 
-                              effects = "de_tool",
-                              re_formula = NULL),
+                              effects = "de_tool"),
           plot = FALSE)
 pd <- p$de_tool + 
   labs(y = "Proportion of anti-conservative\np histograms",
@@ -222,8 +217,7 @@ mod <- brm(formula = f,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("models/anticons_detool__1_model.rds"))
 p <- plot(conditional_effects(mod, 
-                              effects = "de_tool",
-                              re_formula = NULL),
+                              effects = "de_tool"),
           plot = FALSE)
 pe <- p$de_tool + 
   labs(y = "Proportion of anti-conservative p histograms",
@@ -242,8 +236,7 @@ mod <- brm(formula = f,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("models/anticons_detool__detool_model.rds"))
 p <- plot(conditional_effects(mod, 
-                              effects = "de_tool",
-                              re_formula = NULL),
+                              effects = "de_tool"),
           plot = FALSE)
 pf <- p$de_tool + 
   labs(y = "Proportion of anti-conservative p histograms",
@@ -266,8 +259,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            file = here("models/pi0_detool.rds"))
 p <- plot(conditional_effects(mod, 
-                              effects = "de_tool",
-                              re_formula = NULL),
+                              effects = "de_tool"),
           plot = FALSE)
 pa <- p$de_tool + 
   labs(x = "DE analysis tool")
@@ -284,8 +276,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            file = here("models/pi0_year_detool.rds"))
 p <- plot(conditional_effects(mod, 
-                              effects = "de_tool",
-                              re_formula = NULL),
+                              effects = "de_tool"),
           plot = FALSE)
 pb <- p$de_tool + 
   labs(x = "DE analysis tool")
@@ -308,8 +299,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            file = here("models/pi0_organism_detool.rds"))
 p <- plot(conditional_effects(mod, 
-                              effects = "de_tool",
-                              re_formula = NULL),
+                              effects = "de_tool"),
           plot = FALSE)
 pc <- p$de_tool + 
   labs(x = "DE analysis tool")
@@ -326,13 +316,11 @@ mod <- brm(formula = f,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("models/pi0_detool__1_model.rds"))
 p <- plot(conditional_effects(mod, 
-                              effects = "de_tool",
-                              re_formula = NULL),
+                              effects = "de_tool"),
           plot = FALSE)
 pd <- p$de_tool + 
   labs(x = "DE analysis tool")
 
-#' .
 #' 
 #+ FigS6e
 f <- pi0 ~ de_tool + (de_tool | model)
@@ -345,8 +333,7 @@ mod <- brm(formula = f,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("models/pi0_detool__detool_model.rds"))
 p <- plot(conditional_effects(mod, 
-                              effects = "de_tool",
-                              re_formula = NULL),
+                              effects = "de_tool"),
           plot = FALSE)
 pe <- p$de_tool + 
   labs(x = "DE analysis tool")
@@ -392,7 +379,6 @@ mod %>%
   labs(x = "pi0", y = "Library strategy") +
   scale_x_continuous(limits = c(0, 1))
 
-#' Figure S9. 
 #' 
 #+ FigS9, fig.cap="Modeling dependency of pi0 on library selection: $pi0 \\sim (1| libraryselection)$, N = 396."
 f <- pi0 ~ (1 | library_selection)
@@ -531,4 +517,3 @@ mod %>%
   ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
   geom_pointinterval() +
   labs(x = "Proportion of anti-conservative p histograms", y = "Library layout")
-
