@@ -216,3 +216,4 @@ pvalues_sample %>%
   summarise(Class, 
             n,
             p = signif(n / sum(n), 2))
+

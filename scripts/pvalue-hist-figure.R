@@ -40,17 +40,16 @@ plot_qc_hist <- function(counts, t) {
           panel.grid.minor = element_blank())
 }
 
-
-set.seed(11)
+pvalues_acc <- read_csv("output/pvalues_acc.csv")
 suppfiles_sample <- parsed_suppfiles %>% 
-  group_by(Accession) %>% 
-  sample_n(1) %>% 
-  ungroup()
+  inner_join(pvalues_acc)
 
 
-hist_examples <- list(Class = c("conservative", "anti-conservative", "uniform", "bimodal", "other"), 
-     id = c("GSE63555_Gene_expression_cuffdiff_fpkm.txt.gz", "GSE89511_diff.geneFpkm.exon.glm.LogFc.0.exc.Gapdh.RPMI8226_MCL1.txt.gz", "GSE102826_model_fc.txt.gz", "GSE115649_P20WT_P20M_results.csv.gz", "GSE98869_diffexp.tsv.gz"), 
-     Set = c("p_value", "vec.v.cd86.pvalue", "p.value (mutunc5 - control)", "pvalue", "pvalue")) %>% 
+hist_examples <- list(
+  Class = c("conservative", "anti-conservative", "uniform", "bimodal", "other"), 
+  id = c("GSE63555_Gene_expression_cuffdiff_fpkm.txt.gz", "GSE89511_diff.geneFpkm.exon.glm.LogFc.0.exc.Gapdh.RPMI8226_MCL1.txt.gz", "GSE102826_model_fc.txt.gz", "GSE115649_P20WT_P20M_results.csv.gz", "GSE98869_diffexp.tsv.gz"),
+  Set = c("p_value", "vec.v.cd86.pvalue", "p.value (mutunc5 - control)", "pvalue", "pvalue")
+) %>% 
   as_tibble()
 
 
