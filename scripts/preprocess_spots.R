@@ -3,19 +3,18 @@ library(dplyr)
 library(stringr)
 library(here)
 
-spots_raw <- read_csv(here("data/spots.csv"), col_types = cols(tax_id = col_character())) %>% 
+spots_raw <- read_csv(here("data/spots.csv")) %>% 
   rename_all(str_to_lower)
+probs <- problems(spots_raw)
+
+spots_raw <- spots_raw %>% 
+  mutate_all(as.character)
 
 #' Fix missing columns
-columns_off <- spots_raw %>% 
-  filter(organism == "RNA-Seq")
+columns_off <- spots_raw[probs$row, ]
 colnames(columns_off) <- c(setdiff(colnames(columns_off), "sample_name"), "sample_name")
-columns_off <- columns_off %>% 
-  mutate_at("spots", as.numeric) %>% 
-  mutate_at("tax_id", as.character)
 
-columns_ok <- spots_raw %>% 
-  filter(organism != "RNA-Seq")
+columns_ok <- spots_raw[-probs$row, ]
 
 spots_col_fix <- bind_rows(columns_ok, columns_off)
 
@@ -33,15 +32,17 @@ seq_platform <- spots_col_fix %>%
   ))
 
 spots <- seq_platform %>% 
+  mutate_at("spots", as.numeric) %>% 
   group_by(geo_accession, library_strategy, library_source, library_selection, library_layout, platform, model, tax_id) %>% 
   summarise_at("spots", list(reads = mean)) %>% 
   ungroup()
 
-spots_unique_platform <- spots %>% 
+sequencing_metadata_unique_platform <- spots %>% 
   group_by(Accession = geo_accession) %>% 
   add_count() %>% 
   ungroup() %>% 
   filter(n == 1) %>% 
   select(Accession, everything()) %>% 
   select(-geo_accession, -n)
-write_csv(spots_unique_platform, here("output/spots_unique_platform.csv"))
+
+write_csv(sequencing_metadata_unique_platform, here("output/sequencing_metadata_unique_platform.csv"))
