@@ -18,6 +18,9 @@ From: tpall/singularity-r:4.0.3
     libgdal-dev \
     libgsl-dev \
     libnode-dev \
+    libnlopt-dev \
+    libfontconfig1-dev \
+    libmagick++-dev \
   && install2.r --error \
     --deps TRUE \
     --skipinstalled \
