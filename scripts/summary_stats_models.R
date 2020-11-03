@@ -6,6 +6,7 @@ library(ggplot2)
 library(extrafont)
 library(cowplot)
 library(patchwork)
+library(viridisLite)
 library(brms)
 library(tidybayes)
 library(here)
@@ -13,8 +14,7 @@ old <- theme_set(theme_cowplot(font_size = 8, font_family = "Helvetica"))
 
 #+ params
 chains <- 4
-cores <- chains
-refresh = 1
+refresh <- 1
 
 #+ data
 conformity_acc <- read_csv(here("output/conformity_acc.csv"))
@@ -24,8 +24,8 @@ pvalues_sample <- read_csv(here("output/pvalues_sample.csv")) %>%
   rename(de_tool = analysis_platform)
 sequencing_metadata <- read_csv(here("output/sequencing_metadata_unique_platform.csv"))
 
-#' Figure 1
-#+
+#'
+#+ fig1
 f <- conforms ~ year
 family <- bernoulli()
 data <- conformity_acc
@@ -43,7 +43,7 @@ p +
 ggsave("plots/conforming_per_year.png", height = 7, width = 11, dpi = 300, units = "cm")
 
 #'
-#+
+#+ fig3
 f <- Class ~ year + (year | de_tool)
 family <- categorical()
 data <- pvalues_sample
@@ -51,7 +51,7 @@ mod <- brm(formula = f,
            data = data, 
            family = family, 
            chains = chains, 
-           cores = cores, 
+           cores = chains, 
            refresh = refresh,
            iter = 3000,
            file = here("models/Class_year__year_detool.rds"))
@@ -74,12 +74,11 @@ p3a <- p$`year:cats__` +
 f <- Class ~ de_tool
 family <- categorical()
 data <- pvalues_sample
-conditions <- NULL
 mod <- brm(formula = f, 
            data = data, 
            family = family, 
            chains = chains, 
-           cores = cores, 
+           cores = chains, 
            refresh = refresh,
            iter = 3000,
            file = here("models/Class_detool.rds"))
@@ -94,14 +93,13 @@ p3b <- p$`de_tool:cats__` + theme(axis.title.x = element_blank())
 #+
 f <- pi0 ~ de_tool
 family <- student()
-conditions <- NULL #make_conditions(data, vars = "de_tool")
 mod <- brm(formula = f, 
            data = data, 
            family = family, 
            chains = chains, 
-           cores = cores, 
+           cores = chains, 
            refresh = refresh,
-           file = here("models/pi0_year.rds"))
+           file = here("models/pi0_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               conditions = conditions,
                               re_formula = NA),

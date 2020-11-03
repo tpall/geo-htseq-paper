@@ -75,18 +75,6 @@ conformity_acc %>%
             n = n(),
             perc = conforms / n)
 
-#' Figure 1
-#' Model in scripts/summary_stats_models.R
-fit <- brm(conforms ~ year, data = conformity_acc, family = bernoulli(), file = "models/conforms_year.rds")
-p <- plot(conditional_effects(fit), plot = FALSE)$year
-p + 
-  geom_smooth(color = "black") +
-  labs(x = "Year", y = "Proportion of submissions conforming\nwith GEO submission guidelines") +
-  scale_x_continuous(breaks = seq(2006, 2019, by = 2)) +
-  scale_y_continuous(limits = c(0, 1))
-ggsave("plots/conforming_per_year.png", height = 7, width = 11, dpi = 300, units = "cm")
-
-
 #' Number of sets with p-values, 
 parsed_suppfiles_raw <- read_csv(here("data/parsed_suppfiles.csv"))
 parsed_suppfiles <- parsed_suppfiles_raw %>% 

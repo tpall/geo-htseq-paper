@@ -72,7 +72,7 @@ class_counts <- suppfiles_sample %>%
 
 library(brms)
 library(tidybayes)
-fit <- brm(Class ~ 1, data = suppfiles_sample, family = categorical())
+fit <- brm(Class ~ 1, data = suppfiles_sample, family = categorical(), file = "models/Class_1.rds")
 pe <- posterior_epred(fit)
 classes_props <- pe[1:4000, 1, 1:5] %>% 
   as_tibble() %>% 
