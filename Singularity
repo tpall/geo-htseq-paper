@@ -21,6 +21,10 @@ From: tpall/singularity-r:4.0.3
     libnlopt-dev \
     libfontconfig1-dev \
     libmagick++-dev \
+    cargo \
+    jags \
+    libharfbuzz-dev \
+    libfribidi-dev
   && install2.r --error \
     --deps TRUE \
     --skipinstalled \
