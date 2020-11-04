@@ -25,8 +25,7 @@ From: tpall/singularity-r:4.0.3
     jags \
     libharfbuzz-dev \
     libfribidi-dev \
-  && install2.r --error \
-    --deps TRUE \
+  && install2.r --deps TRUE \
     --skipinstalled \
     readr \
     dplyr \
@@ -38,7 +37,6 @@ From: tpall/singularity-r:4.0.3
     extrafont \
     cowplot \
     patchwork \
-    gifski \
     viridisLite \
     brms \
     tidybayes \
