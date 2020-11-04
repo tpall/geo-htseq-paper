@@ -7,8 +7,6 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
-    env:
-      CONTAINER: container.sif
     steps:
 
     - name: Set up Go 1.12
@@ -49,8 +47,8 @@ jobs:
 
     - name: Pull Container
       run: |
-       singularity pull --name ${CONTAINER} shub://tpall/htseq-paper-singularity
+       singularity pull --name container.sif shub://tpall/htseq-paper-singularity
 
     - name: Test Container
       run: |
-       singularity exec ${CONTAINER} Rscript scripts/pvalue-hist-figure.R
+       singularity exec container.sif Rscript scripts/pvalue-hist-figure.R
