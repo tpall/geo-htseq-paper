@@ -24,7 +24,7 @@ From: tpall/singularity-r:4.0.3
     cargo \
     jags \
     libharfbuzz-dev \
-    libfribidi-dev
+    libfribidi-dev \
   && install2.r --error \
     --deps TRUE \
     --skipinstalled \
@@ -33,6 +33,8 @@ From: tpall/singularity-r:4.0.3
     ggplot2 \
     stringr \
     lubridate \
+    purrr \
+    gt \
     extrafont \
     cowplot \
     patchwork \

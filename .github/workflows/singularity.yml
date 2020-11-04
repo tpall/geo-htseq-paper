@@ -58,3 +58,9 @@ jobs:
            echo "Present working directory: $PWD"
            ls
        fi
+    
+    - name: Test Container
+      env:
+        OUTPUT_CONTAINER: container.sif
+      run: |
+       singularity exec ${OUTPUT_CONTAINER} Rscript scripts/pvalue-hist-figure.R
