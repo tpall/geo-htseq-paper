@@ -1,4 +1,9 @@
-library(tidyverse)
+library(dplyr)
+library(readr)
+library(purrr)
+library(ggplot2)
+library(stringr)
+library(tidyr)
 library(lubridate)
 library(brms)
 library(here)
@@ -7,7 +12,7 @@ theme_set(theme_classic(base_size = 8))
 
 #' Number of unique GEOs
 #+
-document_summaries <- read_csv("data/document_summaries.csv")
+document_summaries <- read_csv(here("data/document_summaries.csv"))
 document_summaries %>% 
   filter(PDAT<="2019-12-31") %>% 
   pull(Accession) %>% 
@@ -23,7 +28,7 @@ document_summaries %>%
 
 #' Supplementary files. We will throw out also all 'filelist.txt' files.
 #+
-suppfilenames <- read_lines("data/suppfilenames.txt") %>% 
+suppfilenames <- read_lines(here("data/suppfilenames.txt")) %>% 
   tibble(suppfilenames = .) %>% 
   filter(
     str_detect(suppfilenames, "suppl"),
@@ -123,7 +128,7 @@ pvalues <- parsed_suppfiles %>%
     Class == "anti-conservative" ~ 1,
     TRUE ~ 0
   ))
-write_csv(pvalues, "output/pvalues.csv")
+write_csv(pvalues, here("output/pvalues.csv"))
 
 #' Number of unique GEO ids imported
 geo_import <- parsed_suppfiles %>% 
@@ -197,7 +202,7 @@ write_csv(pvalues_sample, here("output/pvalues_sample.csv"))
 #+
 pvalues_sample %>% 
   select(id, Set) %>% 
-  write_csv("output/pvalues_acc.csv")
+  write_csv(here("output/pvalues_acc.csv"))
 
 pvalues_sample %>% 
   count(Class) %>% 

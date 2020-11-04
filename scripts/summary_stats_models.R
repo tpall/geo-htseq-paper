@@ -33,14 +33,14 @@ mod <- brm(formula = f,
            data = data, 
            family = family, 
            refresh = refresh,
-           file = "models/conforms_year.rds")
+           file = here("models/conforms_year.rds"))
 p <- plot(conditional_effects(mod), plot = FALSE)$year
 p + 
   geom_smooth(color = "black") +
   labs(x = "Year", y = "Proportion of submissions conforming\nwith GEO submission guidelines") +
   scale_x_continuous(breaks = seq(2006, 2019, by = 2)) +
   scale_y_continuous(limits = c(0, 1))
-ggsave("plots/conforming_per_year.png", height = 7, width = 11, dpi = 300, units = "cm")
+ggsave(here("plots/conforming_per_year.png"), height = 7, width = 11, dpi = 300, units = "cm")
 
 #'
 #+ fig3
@@ -142,4 +142,4 @@ p4a <- pvalues_sample %>%
 p4 <- (p4a + p4b) / p4c + 
   plot_layout(heights = c(1, 2)) +
   plot_annotation(tag_levels = "A")
-ggsave("plots/figure_4.png", p4)
+ggsave(here("plots/figure_4.png"), p4)
