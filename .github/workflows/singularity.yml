@@ -7,6 +7,8 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
+    env:
+      CONTAINER: container.sif
     steps:
 
     - name: Set up Go 1.12
@@ -45,22 +47,10 @@ jobs:
     - name: Check out code for the container build
       uses: actions/checkout@v1
 
-    - name: Build Container
-      env:
-        SINGULARITY_RECIPE: Singularity
-        OUTPUT_CONTAINER: container.sif
+    - name: Pull Container
       run: |
-       ls 
-       if [ -f "${SINGULARITY_RECIPE}" ]; then
-            sudo -E singularity build ${OUTPUT_CONTAINER} ${SINGULARITY_RECIPE}
-       else
-           echo "${SINGULARITY_RECIPE} is not found."
-           echo "Present working directory: $PWD"
-           ls
-       fi
-    
+       singularity pull --name ${CONTAINER} shub://tpall/htseq-paper-singularity
+
     - name: Test Container
-      env:
-        OUTPUT_CONTAINER: container.sif
       run: |
-       singularity exec ${OUTPUT_CONTAINER} Rscript scripts/pvalue-hist-figure.R
+       singularity exec ${CONTAINER} Rscript scripts/pvalue-hist-figure.R

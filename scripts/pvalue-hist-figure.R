@@ -1,5 +1,7 @@
 library(tidyverse)
 library(gt)
+library(brms)
+library(tidybayes)
 
 
 parsed_suppfiles <- read_csv("data/parsed_suppfiles.csv") %>% 
@@ -69,9 +71,6 @@ hist_data_plots <- hist_data %>%
 class_counts <- suppfiles_sample %>% 
   count(Class, name = "N")
 
-
-library(brms)
-library(tidybayes)
 fit <- brm(Class ~ 1, data = suppfiles_sample, family = categorical(), file = "models/Class_1.rds")
 pe <- posterior_epred(fit)
 classes_props <- pe[1:4000, 1, 1:5] %>% 
