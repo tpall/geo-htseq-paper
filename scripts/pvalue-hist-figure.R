@@ -2,9 +2,10 @@ library(tidyverse)
 library(gt)
 library(brms)
 library(tidybayes)
+library(here)
 
 
-parsed_suppfiles <- read_csv("data/parsed_suppfiles.csv") %>% 
+parsed_suppfiles <- read_csv(here("data/parsed_suppfiles.csv")) %>% 
   filter(str_detect(Type, "raw")) %>% 
   mutate(Accession = str_extract(id, "GSE\\d+")) %>% 
   select(Accession, everything())
@@ -22,7 +23,7 @@ files_to_check <- parsed_suppfiles %>%
 files_to_check[str_detect(files_to_check, "^GSE")] %>% 
   unique() %>% 
   str_c("output/suppl/", .) %>% 
-  write_lines("output/files_to_check_pi0.txt")
+  write_lines(here("output/files_to_check_pi0.txt"))
 
 
 qc_threshold <- function(x, fdr) {
@@ -42,7 +43,7 @@ plot_qc_hist <- function(counts, t) {
           panel.grid.minor = element_blank())
 }
 
-pvalues_acc <- read_csv("output/pvalues_acc.csv")
+pvalues_acc <- read_csv(here("output/pvalues_acc.csv"))
 suppfiles_sample <- parsed_suppfiles %>% 
   inner_join(pvalues_acc)
 
@@ -106,5 +107,5 @@ tibble_output <- plot_data %>%
 
 
 tibble_output %>% 
-  gtsave("plots/hist_examples.png", 
+  gtsave(here("plots/hist_examples.png"), 
          expand = 10)
