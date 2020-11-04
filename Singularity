@@ -26,7 +26,7 @@ From: tpall/singularity-r:4.0.3
     libharfbuzz-dev \
     libfribidi-dev \
   && Rscript -e 'install.packages("devtools", dependencies = c("Depends", "Imports", "LinkingTo"))' \
-  && Rscript -e 'devtools::install_github("r-rust/gifski")' \
+  && Rscript -e 'devtools::install_github("r-rust/gifski@v0.8.3")' \
   && install2.r --error \
     --deps TRUE \
     --skipinstalled \
