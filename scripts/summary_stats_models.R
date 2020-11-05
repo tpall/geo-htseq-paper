@@ -16,7 +16,8 @@ old <- theme_set(theme_cowplot(font_size = 8, font_family = "Helvetica"))
 
 #+ params
 chains <- 4
-refresh <- 1
+cores <- chains
+refresh = 0
 rstan_options(auto_write = TRUE, javascript = FALSE)
 
 #+ data
@@ -36,6 +37,8 @@ mod <- brm(formula = f,
            data = data, 
            family = family, 
            refresh = refresh,
+           chains = chains,
+           cores = cores,
            file = here("models/conforms_year.rds"))
 p <- plot(conditional_effects(mod), plot = FALSE)$year
 p + 
@@ -54,7 +57,7 @@ mod <- brm(formula = f,
            data = data, 
            family = family, 
            chains = chains, 
-           cores = chains, 
+           cores = cores, 
            refresh = refresh,
            iter = 3000,
            file = here("models/Class_year__year_detool.rds"))
@@ -81,7 +84,7 @@ mod <- brm(formula = f,
            data = data, 
            family = family, 
            chains = chains, 
-           cores = chains, 
+           cores = cores, 
            refresh = refresh,
            iter = 3000,
            file = here("models/Class_detool.rds"))
@@ -100,7 +103,7 @@ mod <- brm(formula = f,
            data = data, 
            family = family, 
            chains = chains, 
-           cores = chains, 
+           cores = cores, 
            refresh = refresh,
            file = here("models/pi0_detool.rds"))
 p <- plot(conditional_effects(mod, 
@@ -116,8 +119,8 @@ prior <- c(prior(normal(0, 0.5), class = b), prior(lkj(3), class = cor), prior(s
 mod <- brm(formula = f, 
            data = data, 
            family = family, 
-           chains = 1, 
-           cores = 1, 
+           chains = chains, 
+           cores = cores, 
            refresh = refresh,
            prior = prior,
            iter = 3000,

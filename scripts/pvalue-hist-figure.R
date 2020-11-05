@@ -10,6 +10,9 @@ library(rstan)
 library(tidybayes)
 library(here)
 
+chains <- 4
+cores <- chains
+refresh = 0
 rstan_options(auto_write = TRUE, javascript = FALSE)
 
 parsed_suppfiles <- read_csv(here("data/parsed_suppfiles.csv")) %>% 
@@ -82,6 +85,9 @@ class_counts <- suppfiles_sample %>%
 fit <- brm(Class ~ 1, 
            data = suppfiles_sample, 
            family = categorical(), 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
            file = here("models/Class_1.rds"))
 
 pe <- posterior_epred(fit)
