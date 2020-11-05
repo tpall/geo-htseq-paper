@@ -10,7 +10,7 @@ library(rstan)
 library(tidybayes)
 library(here)
 
-rstan_options(javascript = FALSE)
+rstan_options(auto_write = TRUE, javascript = FALSE)
 
 parsed_suppfiles <- read_csv(here("data/parsed_suppfiles.csv")) %>% 
   filter(str_detect(Type, "raw")) %>% 

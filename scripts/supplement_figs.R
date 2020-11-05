@@ -32,7 +32,7 @@ old <- theme_set(theme_cowplot(font_size = 8, font_family = "Helvetica"))
 chains <- 4
 cores <- chains
 refresh = 0
-rstan_options(javascript = FALSE)
+rstan_options(auto_write = TRUE, javascript = FALSE)
 
 #+ data
 pvalues <- read_csv(here("output/pvalues.csv")) %>% 
