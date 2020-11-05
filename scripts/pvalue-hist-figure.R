@@ -5,6 +5,7 @@ library(ggplot2)
 library(tidyr)
 library(gt)
 library(brms)
+library(rstan)
 library(tidybayes)
 library(here)
 
