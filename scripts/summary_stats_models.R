@@ -15,6 +15,7 @@ old <- theme_set(theme_cowplot(font_size = 8, font_family = "Helvetica"))
 #+ params
 chains <- 4
 refresh <- 1
+rstan_options(javascript = FALSE)
 
 #+ data
 conformity_acc <- read_csv(here("output/conformity_acc.csv"))

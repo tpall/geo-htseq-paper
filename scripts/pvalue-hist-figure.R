@@ -1,9 +1,14 @@
-library(tidyverse)
+library(readr)
+library(stringr)
+library(purrr)
+library(ggplot2)
+library(tidyr)
 library(gt)
 library(brms)
 library(tidybayes)
 library(here)
 
+rstan_options(javascript = FALSE)
 
 parsed_suppfiles <- read_csv(here("data/parsed_suppfiles.csv")) %>% 
   filter(str_detect(Type, "raw")) %>% 
@@ -72,7 +77,11 @@ hist_data_plots <- hist_data %>%
 class_counts <- suppfiles_sample %>% 
   count(Class, name = "N")
 
-fit <- brm(Class ~ 1, data = suppfiles_sample, family = categorical(), file = "models/Class_1.rds")
+fit <- brm(Class ~ 1, 
+           data = suppfiles_sample, 
+           family = categorical(), 
+           file = here("models/Class_1.rds"))
+
 pe <- posterior_epred(fit)
 classes_props <- pe[1:4000, 1, 1:5] %>% 
   as_tibble() %>% 
