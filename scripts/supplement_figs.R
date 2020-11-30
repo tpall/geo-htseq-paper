@@ -521,3 +521,25 @@ mod %>%
   ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
   geom_pointinterval() +
   labs(x = "Proportion of anti-conservative p histograms", y = "Library layout")
+
+#' 
+#+ FigS16, fig.cap="Modeling dependency of proportion of anti-conservative histograms on library source: $anticons \\sim (1 | librarysource)$, N = 1718."
+f <- anticons ~ (1 | library_source)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores,
+           refresh = refresh,
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("models/anticons__1_librarysource.rds"))
+mod %>%
+  spread_draws(b_Intercept, r_library_source[condition,]) %>%
+  median_hdi(condition_mean = b_Intercept + r_library_source) %>%
+  mutate_at(vars(condition_mean, .lower,  .upper), inv_logit_scaled) %>% 
+  ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() +
+  labs(x = "Proportion of anti-conservative p histograms", y = "Library source")
+
+data %>% 
+  count(anticons, library_source)
