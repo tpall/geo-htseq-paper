@@ -6,10 +6,12 @@
 #'    bookdown::pdf_book:
 #'        number_sections: FALSE
 #'        toc: FALSE
+#'        includes:
+#'            in_header: preamble.tex
 #' ---
 
 #+ include=FALSE
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, comment = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE)
 
 
 #+ libs
@@ -88,7 +90,7 @@ p$year +
        x = "Year")
 
 #' 
-#+ FigS3, fig.cap="A 2-level binomial logistic model $anticons \\sim year + (year  | model)$ reveals that all sequencing instrument models are associated with temporally increasing anti-conservative p histograms, N = 1718. Only GEO submissions utilizing single sequencing platform were used for model fitting."
+#+ FigS3, fig.height=8, fig.cap="A 2-level binomial logistic model $anticons \\sim year + (year  | model)$ reveals that all sequencing instrument models are associated with temporally increasing anti-conservative p histograms, N = 1718. Only GEO submissions utilizing single sequencing platform were used for model fitting."
 data <- pvalues_sample %>% 
   inner_join(sequencing_metadata)
 f <- anticons ~ year + (year | model)
