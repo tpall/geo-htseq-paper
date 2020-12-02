@@ -59,6 +59,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           control = list(adapt_delta = 0.99),
            iter = 3000,
            file = here("models/Class_year__year_detool.rds"))
 conditions <- make_conditions(data, vars = "de_tool")
@@ -72,7 +73,9 @@ p <- plot(conditional_effects(mod,
 p3a <- p$`year:cats__` + 
   scale_x_continuous(breaks = seq(2009, 2019, by = 2)) +
   labs(y = "Proportion",
-       x = "Year")
+       x = "Year") +
+  theme(legend.title = element_blank(),
+        legend.position = c(0.7, 0.2))
 
 #'
 #'
@@ -86,13 +89,19 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           control = list(adapt_delta = 0.99),
            iter = 3000,
            file = here("models/Class_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               categorical = TRUE, 
                               effects = "de_tool"), 
           plot = FALSE)
-p3b <- p$`de_tool:cats__` + theme(axis.title.x = element_blank())
+p3b <- p$`de_tool:cats__` + theme(
+  axis.title.x = element_blank(), 
+  legend.title = element_blank(),
+  legend.position = "bottom")
+p3 <- p3a + p3b + plot_annotation(tag_levels = "A") +  plot_layout(guides = 'auto')
+ggsave(here("plots/figure_3.png"), p3)
 
 #'
 #'
