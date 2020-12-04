@@ -7,7 +7,7 @@ library(ggplot2)
 library(extrafont)
 library(cowplot)
 library(patchwork)
-library(viridisLite)
+library(viridis)
 library(brms)
 library(rstan)
 library(tidybayes)
@@ -46,7 +46,7 @@ p +
   labs(x = "Year", y = "Proportion of submissions conforming\nwith GEO submission guidelines") +
   scale_x_continuous(breaks = seq(2006, 2019, by = 2)) +
   scale_y_continuous(limits = c(0, 1))
-ggsave(here("plots/conforming_per_year.png"), height = 7, width = 11, dpi = 300, units = "cm")
+ggsave(here("plots/conforming_per_year.png"), height = 6, width = 10, dpi = 300, units = "cm")
 
 #'
 #+ fig3
@@ -72,10 +72,12 @@ p <- plot(conditional_effects(mod,
           plot = FALSE)
 p3a <- p$`year:cats__` + 
   scale_x_continuous(breaks = seq(2009, 2019, by = 2)) +
+  facet_wrap(~de_tool, nrow = 1) +
   labs(y = "Proportion",
        x = "Year") +
   theme(legend.title = element_blank(),
-        legend.position = c(0.7, 0.2))
+        legend.position = "bottom")
+p3a$layers[[1]]$aes_params$alpha <- 0.2
 
 #'
 #'
@@ -94,14 +96,16 @@ mod <- brm(formula = f,
            file = here("models/Class_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               categorical = TRUE, 
-                              effects = "de_tool"), 
+                              effects = "de_tool",
+                              re_formula = NULL), 
           plot = FALSE)
-p3b <- p$`de_tool:cats__` + theme(
-  axis.title.x = element_blank(), 
-  legend.title = element_blank(),
-  legend.position = "bottom")
-p3 <- p3a + p3b + plot_annotation(tag_levels = "A") +  plot_layout(guides = 'auto')
-ggsave(here("plots/figure_3.png"), p3)
+p3b <- p$`de_tool:cats__` + 
+  theme(axis.title.x = element_blank(), 
+        legend.title = element_blank(),
+        legend.position = "bottom")
+p3b$layers[[1]]$aes_params$size <- 1
+p3 <- p3a / p3b + plot_annotation(tag_levels = "A") +  plot_layout(guides = 'auto')
+ggsave(here("plots/figure_3.png"), p3, width = 18, height = 12, units = "cm", dpi = 300)
 
 #'
 #'
@@ -116,11 +120,12 @@ mod <- brm(formula = f,
            refresh = refresh,
            file = here("models/pi0_detool.rds"))
 p <- plot(conditional_effects(mod, 
-                              conditions = conditions,
-                              re_formula = NA),
+                              effects = "de_tool",
+                              re_formula = NULL),
           plot = FALSE)
 p4b <- p$de_tool +
   theme(axis.title.x = element_blank())
+p4b$layers[[1]]$aes_params$size <- 1
 
 #+
 f <- pi0 ~ year + (year | de_tool)
@@ -145,8 +150,9 @@ p <- plot(conditional_effects(mod,
           plot = FALSE)
 p4c <- p$year + 
   facet_wrap(~ de_tool) +
+  geom_smooth(color = "black") +
   scale_x_continuous(breaks = seq(2009, 2019, 2))
-
+p4c$layers[[1]]$aes_params$alpha <- 0.2
 
 p4a <- pvalues_sample %>% 
   filter(Class == "anti-conservative") %>% 
@@ -157,4 +163,4 @@ p4a <- pvalues_sample %>%
 p4 <- (p4a + p4b) / p4c + 
   plot_layout(heights = c(1, 2)) +
   plot_annotation(tag_levels = "A")
-ggsave(here("plots/figure_4.png"), p4)
+ggsave(here("plots/figure_4.png"), p4, width = 18, height = 12, units = "cm", dpi = 300)
