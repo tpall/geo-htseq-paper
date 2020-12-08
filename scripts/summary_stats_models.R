@@ -46,21 +46,27 @@ p +
   labs(x = "Year", y = "Proportion of submissions conforming\nwith GEO submission guidelines") +
   scale_x_continuous(breaks = seq(2006, 2019, by = 2)) +
   scale_y_continuous(limits = c(0, 1))
-ggsave(here("plots/conforming_per_year.png"), height = 6, width = 10, dpi = 300, units = "cm")
+ggsave(here("plots/figure_1.png"), height = 6, width = 10, dpi = 300, units = "cm")
 
 #'
 #+ fig3
 f <- Class ~ year + (year | de_tool)
 family <- categorical()
 data <- pvalues_sample
+get_prior(f, data, family)
+priors <- c(
+  set_prior("lkj(3)", class = "cor"),
+  set_prior("student_t(3, 0, 5)", class = "b")
+  )
 mod <- brm(formula = f, 
            data = data, 
            family = family, 
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           prior = priors,
            control = list(adapt_delta = 0.99),
-           iter = 3000,
+           iter = 8000,
            file = here("models/Class_year__year_detool.rds"))
 conditions <- make_conditions(data, vars = "de_tool")
 rownames(conditions) <- conditions$de_tool
