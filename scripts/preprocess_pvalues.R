@@ -8,7 +8,7 @@ library(tidyr)
 library(lubridate)
 library(here)
 
-theme_set(theme_classic(base_size = 8))
+old <- theme_set(theme_cowplot(font_size = 12, font_family = "Helvetica"))
 
 #' Number of unique GEOs
 #+
