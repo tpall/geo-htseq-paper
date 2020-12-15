@@ -2,17 +2,14 @@ library(stats) # masks filter
 library(dplyr)
 library(readr)
 library(purrr)
-library(ggplot2)
 library(stringr)
 library(tidyr)
 library(lubridate)
 library(here)
 
-old <- theme_set(theme_cowplot(font_size = 12, font_family = "Helvetica"))
-
 #' Number of unique GEOs
 #+
-document_summaries <- read_csv(here("data/document_summaries.csv"))
+document_summaries <- read_csv(here("resources/data/document_summaries.csv"))
 document_summaries %>% 
   filter(PDAT<="2019-12-31") %>% 
   pull(Accession) %>% 
@@ -28,7 +25,7 @@ document_summaries %>%
 
 #' Supplementary files. We will throw out also all 'filelist.txt' files.
 #+
-suppfilenames <- read_lines(here("data/suppfilenames.txt")) %>% 
+suppfilenames <- read_lines(here("resources/data/suppfilenames.txt")) %>% 
   tibble(suppfilenames = .) %>% 
   filter(
     str_detect(suppfilenames, "suppl"),
@@ -65,7 +62,7 @@ conformity_acc <- conformity %>%
       TRUE ~ 0
   )) %>% 
   ungroup()
-write_csv(conformity_acc, here("output/conformity_acc.csv"))
+write_csv(conformity_acc, here("results/conformity_acc.csv"))
 
 #' Total number of conforming GEO accessions.
 #+
@@ -81,7 +78,7 @@ conformity_acc %>%
             perc = conforms / n)
 
 #' Number of sets with p-values, 
-parsed_suppfiles_raw <- read_csv(here("data/parsed_suppfiles.csv"))
+parsed_suppfiles_raw <- read_csv(here("resources/data/parsed_suppfiles.csv"))
 parsed_suppfiles <- parsed_suppfiles_raw %>% 
   filter(!str_detect(id, "_RAW.tar")) %>% 
   mutate(Accession = str_to_upper(str_extract(id, "GS[Ee]\\d+"))) %>% 
@@ -128,7 +125,7 @@ pvalues <- parsed_suppfiles %>%
     Class == "anti-conservative" ~ 1,
     TRUE ~ 0
   ))
-write_csv(pvalues, here("output/pvalues.csv"))
+write_csv(pvalues, here("results/pvalues.csv"))
 
 #' Number of unique GEO ids imported
 geo_import <- parsed_suppfiles %>% 
@@ -196,13 +193,13 @@ pvalues_sample <- pvalues %>%
   group_by(Accession) %>% 
   sample_n(1) %>% 
   ungroup()
-write_csv(pvalues_sample, here("output/pvalues_sample.csv"))
+write_csv(pvalues_sample, here("results/pvalues_sample.csv"))
 
 #' Save table ids for figure
 #+
 pvalues_sample %>% 
   select(id, Set) %>% 
-  write_csv(here("output/pvalues_acc.csv"))
+  write_csv(here("results/pvalues_acc.csv"))
 
 pvalues_sample %>% 
   count(Class) %>% 

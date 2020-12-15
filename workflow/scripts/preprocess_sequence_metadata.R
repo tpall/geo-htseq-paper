@@ -3,7 +3,7 @@ library(dplyr)
 library(stringr)
 library(here)
 
-spots_raw <- read_csv(here("data/spots.csv")) %>% 
+spots_raw <- read_csv(here("resources/data/spots.csv")) %>% 
   rename_all(str_to_lower)
 probs <- problems(spots_raw)
 
@@ -45,4 +45,4 @@ sequencing_metadata_unique_platform <- spots %>%
   select(Accession, everything()) %>% 
   select(-geo_accession, -n)
 
-write_csv(sequencing_metadata_unique_platform, here("output/sequencing_metadata_unique_platform.csv"))
+write_csv(sequencing_metadata_unique_platform, here("results/sequencing_metadata_unique_platform.csv"))

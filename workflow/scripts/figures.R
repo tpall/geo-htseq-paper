@@ -14,6 +14,7 @@ library(viridis)
 library(brms)
 library(rstan)
 library(tidybayes)
+library(magick)
 library(here)
 old <- theme_set(theme_cowplot(font_size = 8, font_family = "Helvetica"))
 
@@ -24,12 +25,12 @@ refresh = 200
 rstan_options(auto_write = TRUE, javascript = FALSE)
 
 #+ data
-conformity_acc <- read_csv(here("output/conformity_acc.csv"))
-pvalues <- read_csv(here("output/pvalues.csv")) %>% 
+conformity_acc <- read_csv(here("results/conformity_acc.csv"))
+pvalues <- read_csv(here("results/pvalues.csv")) %>% 
   rename(de_tool = analysis_platform)
-pvalues_sample <- read_csv(here("output/pvalues_sample.csv")) %>% 
+pvalues_sample <- read_csv(here("results/pvalues_sample.csv")) %>% 
   rename(de_tool = analysis_platform)
-sequencing_metadata <- read_csv(here("output/sequencing_metadata_unique_platform.csv"))
+sequencing_metadata <- read_csv(here("results/sequencing_metadata_unique_platform.csv"))
 
 #'
 #+ fig1
@@ -42,7 +43,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            chains = chains,
            cores = cores,
-           file = here("models/conforms_year.rds"))
+           file = here("results/models/conforms_year.rds"))
 p <- plot(conditional_effects(mod), plot = FALSE)$year
 p + 
   geom_smooth(color = "black") +
@@ -53,13 +54,13 @@ ggsave(here("figures/figure_1.tiff"), height = 6, width = 10, dpi = 300, units =
 
 #' 
 #+ fig2
-parsed_suppfiles <- read_csv(here("data/parsed_suppfiles.csv")) %>% 
+parsed_suppfiles <- read_csv(here("resources/data/parsed_suppfiles.csv")) %>% 
   filter(str_detect(Type, "raw")) %>% 
   mutate(Accession = str_extract(id, "GSE\\d+")) %>% 
   select(Accession, everything())
 
 
-pvalues_acc <- read_csv(here("output/pvalues_acc.csv"))
+pvalues_acc <- read_csv(here("results/pvalues_acc.csv"))
 suppfiles_sample <- parsed_suppfiles %>% 
   inner_join(pvalues_acc)
 
@@ -76,7 +77,7 @@ files_to_check <- parsed_suppfiles %>%
 files_to_check[str_detect(files_to_check, "^GSE")] %>% 
   unique() %>% 
   str_c("output/suppl/", .) %>% 
-  write_lines(here("output/files_to_check_pi0.txt"))
+  write_lines(here("results/files_to_check_pi0.txt"))
 
 
 qc_threshold <- function(x, fdr) {
@@ -126,7 +127,7 @@ fit <- brm(Class ~ 1,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           file = here("models/Class_1.rds"))
+           file = here("results/models/Class_1.rds"))
 
 pe <- posterior_epred(fit)
 classes_props <- pe[1:4000, 1, 1:5] %>% 
@@ -162,9 +163,10 @@ tibble_output <- plot_data %>%
 
 
 tibble_output %>% 
-  gtsave(here("figures/figure_2.tiff"), 
+  gtsave(here("figures/figure_2.png"), 
          expand = 10)
-
+fig_2 <- image_read(here("figures/figure_2.png"))
+image_write(fig_2, path = here("figures/figure_2.tiff"), format = "tiff")
 
 #'
 #+ fig3
@@ -189,7 +191,7 @@ mod <- brm(formula = f,
            prior = priors,
            control = list(adapt_delta = 0.99),
            iter = 4000,
-           file = here("models/Class_year__year_detool_year_muunif2.8k.rds"))
+           file = here("results/models/Class_year__year_detool_year_muunif2.8k.rds"))
 conditions <- make_conditions(data, vars = "de_tool")
 rownames(conditions) <- conditions$de_tool
 p <- plot(conditional_effects(mod, 
@@ -226,7 +228,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            control = list(adapt_delta = 0.99),
            iter = 2000,
-           file = here("models/Class_detool_2018-19_priors_muunif.rds"))
+           file = here("results/models/Class_detool_2018-19_priors_muunif.rds"))
 p <- plot(conditional_effects(mod, 
                               categorical = TRUE, 
                               effects = "de_tool",
@@ -252,7 +254,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           file = here("models/pi0_detool.rds"))
+           file = here("results/models/pi0_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool",
                               re_formula = NULL),
@@ -273,7 +275,7 @@ mod <- brm(formula = f,
            prior = prior,
            iter = 3000,
            control = list(adapt_delta = 0.99, max_treedepth = 15),
-           file = here("models/pi0_year__year_detool.rds"))
+           file = here("results/models/pi0_year__year_detool.rds"))
 
 conditions <- make_conditions(data, vars = "de_tool")
 rownames(conditions) <- conditions$de_tool
