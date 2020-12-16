@@ -9,7 +9,7 @@ library(here)
 
 #' Number of unique GEOs
 #+
-document_summaries <- read_csv(here("resources/data/document_summaries.csv"))
+document_summaries <- read_csv(here("results/data/document_summaries.csv"))
 document_summaries %>% 
   filter(PDAT<="2019-12-31") %>% 
   pull(Accession) %>% 
@@ -25,7 +25,7 @@ document_summaries %>%
 
 #' Supplementary files. We will throw out also all 'filelist.txt' files.
 #+
-suppfilenames <- read_lines(here("resources/data/suppfilenames.txt")) %>% 
+suppfilenames <- read_lines(here("results/data/suppfilenames.txt")) %>% 
   tibble(suppfilenames = .) %>% 
   filter(
     str_detect(suppfilenames, "suppl"),
@@ -78,7 +78,7 @@ conformity_acc %>%
             perc = conforms / n)
 
 #' Number of sets with p-values, 
-parsed_suppfiles_raw <- read_csv(here("resources/data/parsed_suppfiles.csv"))
+parsed_suppfiles_raw <- read_csv(here("results/data/parsed_suppfiles.csv"))
 parsed_suppfiles <- parsed_suppfiles_raw %>% 
   filter(!str_detect(id, "_RAW.tar")) %>% 
   mutate(Accession = str_to_upper(str_extract(id, "GS[Ee]\\d+"))) %>% 
