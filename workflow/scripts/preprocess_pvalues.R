@@ -232,7 +232,6 @@ pvalues_sample %>%
   select(id, Set) %>% 
   write_csv(here("results/pvalues_acc.csv"))
 
-
 if (!exists("snakemake")) {
   pvalues_sample %>% 
     count(Class) %>% 
