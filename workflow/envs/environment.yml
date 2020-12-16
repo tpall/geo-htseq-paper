@@ -1,0 +1,24 @@
+name: geo-htseq-paper-env
+channels:
+  - bioconda
+  - conda-forge
+  - r
+dependencies:
+  - r-dplyr
+  - r-readr
+  - r-purrr
+  - r-stringr
+  - r-tidyr
+  - r-lubridate
+  - r-here
+  - r-ggplot2
+  - r-gt
+  - r-extrafont
+  - r-cowplot
+  - r-patchwork
+  - r-viridis
+  - r-brms
+  - r-rstan
+  - r-tidybayes
+  - r-magick
+  - r-glue

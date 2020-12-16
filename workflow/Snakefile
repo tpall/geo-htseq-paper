@@ -1,0 +1,51 @@
+
+rule all:
+    input:
+        "results/pvalues.csv",
+
+
+rule download:
+    output:
+        "results/geo-htseq-until-2019-12-31.tar.gz",
+    log:
+        "results/log/download.log",
+    shell:
+        "curl -o {output} https://zenodo.org/record/4046422/files/geo-htseq-until-2019-12-31.tar.gz?download=1 2> {log}"
+
+
+rule unpack:
+    input:
+        rules.download.output[0],
+    output:
+        "results/data/document_summaries.csv",
+        "results/data/publications.csv",
+        "results/data/single-cell.csv",
+        "results/data/suppfilenames.txt",
+        "results/data/parsed_suppfiles.csv",
+        "results/data/scopus_citedbycount.csv",
+        "results/data/spots.csv",
+        "results/data/suppfilenames_filtered.txt",
+    log:
+        "results/log/unpack.log",
+    shadow:
+        "minimal"
+    shell:
+        "(tar -xzvf {input} "
+        " && mkdir -p $(dirname {output[0]})"
+        " && cp output/* $(dirname {output[0]})) 2> {log}"
+
+
+rule preprocess_pvalues:
+    input:
+        "resources/data/document_summaries.csv",
+        "resources/data/suppfilenames.txt",
+        "resources/data/parsed_suppfiles.csv",
+    output:
+        "results/conformity_acc.csv",
+        "results/pvalues.csv",
+        "results/pvalues_sample.csv",
+        "results/pvalues_acc.csv",
+    conda:
+        "workflow/envs/environment.yml"
+    script:
+        "workflow/scripts/preprocess_pvalues.R"
