@@ -25,24 +25,4 @@ From: tpall/singularity-r:latest
     jags \
     libharfbuzz-dev \
     libfribidi-dev \
-  && install2.r --deps TRUE \
-    --skipinstalled \
-    dplyr \
-    readr \
-    purrr \
-    stringr \
-    tidyr \
-    lubridate \
-    here \
-    ggplot2 \
-    gt \
-    extrafont \
-    cowplot \
-    patchwork \
-    viridis \
-    brms \
-    rstan \
-    tidybayes \
-    magick \
-    glue \
-    bh
+  && Rscript -e 'install.packages(c("dplyr","readr","purrr","stringr","tidyr","lubridate","here","ggplot2","gt","extrafont","cowplot","patchwork","viridis","brms","rstan","tidybayes","magick","glue","bh"),type="source", dependencies=c("Depends", "Imports", "LinkingTo"))'
