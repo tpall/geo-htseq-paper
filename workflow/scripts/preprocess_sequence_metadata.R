@@ -1,9 +1,14 @@
+if (exists("snakemake")) {
+  log <- file(snakemake@log[[1]], open="wt")
+  sink(log, type = "message")
+}
+
 library(readr)
 library(dplyr)
 library(stringr)
 library(here)
 
-spots_raw <- read_csv(here("resources/data/spots.csv")) %>% 
+spots_raw <- read_csv(here("results/data/spots.csv")) %>% 
   rename_all(str_to_lower)
 probs <- problems(spots_raw)
 

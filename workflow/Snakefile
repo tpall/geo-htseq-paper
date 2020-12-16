@@ -1,7 +1,8 @@
 
 rule all:
     input:
-        "results/pvalues.csv",
+        "results/pvalues.csv", 
+        "results/sequencing_metadata_unique_platform.csv",
 
 
 rule download:
@@ -53,3 +54,14 @@ rule preprocess_pvalues:
         "scripts/preprocess_pvalues.R"
 
 
+rule preprocess_sequence_metadata:
+    input:
+        "results/data/spots.csv",
+    output:
+        "results/sequencing_metadata_unique_platform.csv",
+    log:
+        "results/log/preprocess_sequence_metadata.log",
+    conda:
+        "workflow/envs/environment.yml"
+    script:
+        "scripts/preprocess_sequence_metadata.R"
