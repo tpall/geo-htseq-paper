@@ -1,8 +1,9 @@
 
 rule all:
     input:
-        "results/pvalues.csv", 
+        "results/pvalues.csv",
         "results/sequencing_metadata_unique_platform.csv",
+        expand("figures/figure_{n}.tiff", n = [1,2,3,4])
 
 
 rule download:
@@ -49,7 +50,7 @@ rule preprocess_pvalues:
     log:
         "results/log/preprocess_pvalues.log",
     conda:
-        "workflow/envs/environment.yml"
+        "envs/environment.yml"
     script:
         "scripts/preprocess_pvalues.R"
 
@@ -62,6 +63,33 @@ rule preprocess_sequence_metadata:
     log:
         "results/log/preprocess_sequence_metadata.log",
     conda:
-        "workflow/envs/environment.yml"
+        "envs/environment.yml"
     script:
         "scripts/preprocess_sequence_metadata.R"
+
+
+rule figures:
+    input:
+        "results/conformity_acc.csv",
+        "results/pvalues_sample.csv",
+        "results/sequencing_metadata_unique_platform.csv",
+        "results/data/parsed_suppfiles.csv",
+        "results/pvalues_acc.csv",
+    output:
+        "results/models/conforms_year.rds",
+        "figures/figure_1.tiff",
+        "results/files_to_check_pi0.txt",
+        "results/models/Class_1.rds",
+        "figures/figure_2.tiff",
+        "results/models/Class_year__year_detool_year_muunif2.8k.rds",
+        "results/models/Class_detool_2018-19_priors_muunif.rds",
+        "figures/figure_3.tiff",
+        "results/models/pi0_detool.rds",
+        "results/models/pi0_year__year_detool.rds",
+        "figures/figure_4.tiff",
+    log:
+        "results/log/figures.log",
+    conda:
+        "envs/environment.yml"
+    script:
+        "scripts/figures.R"

@@ -1,3 +1,7 @@
+if (exists("snakemake")) {
+  log <- file(snakemake@log[[1]], open="wt")
+  sink(log, type = "message")
+}
 
 #+ libs
 library(stats) # masks filter
@@ -45,16 +49,16 @@ mod <- brm(formula = f,
            cores = cores,
            file = here("results/models/conforms_year.rds"))
 p <- plot(conditional_effects(mod), plot = FALSE)$year
-p + 
+p <- p + 
   geom_smooth(color = "black") +
   labs(x = "Year", y = "Proportion of submissions conforming\nwith GEO submission guidelines") +
   scale_x_continuous(breaks = seq(2006, 2019, by = 2)) +
   scale_y_continuous(limits = c(0, 1))
-ggsave(here("figures/figure_1.tiff"), height = 6, width = 10, dpi = 300, units = "cm")
+ggsave(here("figures/figure_1.tiff"), plot = p, height = 6, width = 10, dpi = 300, units = "cm")
 
 #' 
 #+ fig2
-parsed_suppfiles <- read_csv(here("resources/data/parsed_suppfiles.csv")) %>% 
+parsed_suppfiles <- read_csv(here("results/data/parsed_suppfiles.csv")) %>% 
   filter(str_detect(Type, "raw")) %>% 
   mutate(Accession = str_extract(id, "GSE\\d+")) %>% 
   select(Accession, everything())
@@ -240,7 +244,7 @@ p3b <- p$`de_tool:cats__` +
         legend.position = "bottom")
 p3b$layers[[1]]$aes_params$size <- 1
 p3 <- p3a / p3b + plot_annotation(tag_levels = "A") +  plot_layout(guides = 'auto')
-ggsave(here("figures/figure_3.tiff"), p3, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/figure_3.tiff"), plot = p3, width = 18, height = 12, units = "cm", dpi = 300)
 
 #'
 #'
@@ -299,4 +303,4 @@ p4a <- pvalues_sample %>%
 p4 <- (p4a + p4b) / p4c + 
   plot_layout(heights = c(1, 2)) +
   plot_annotation(tag_levels = "A")
-ggsave(here("figures/figure_4.tiff"), p4, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/figure_4.tiff"), plot = p4, width = 18, height = 12, units = "cm", dpi = 300)

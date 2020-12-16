@@ -1,5 +1,5 @@
 BootStrap: shub
-From: tpall/singularity-r:4.0.3
+From: tpall/singularity-r:latest
 
 %labels
   Maintainer tpall
@@ -27,17 +27,22 @@ From: tpall/singularity-r:4.0.3
     libfribidi-dev \
   && install2.r --deps TRUE \
     --skipinstalled \
-    readr \
     dplyr \
-    ggplot2 \
-    stringr \
-    lubridate \
+    readr \
     purrr \
+    stringr \
+    tidyr \
+    lubridate \
+    here \
+    ggplot2 \
     gt \
     extrafont \
     cowplot \
     patchwork \
-    viridisLite \
+    viridis \
     brms \
+    rstan \
     tidybayes \
-    here
+    magick \
+    glue \
+    bh
