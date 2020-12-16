@@ -25,4 +25,6 @@ From: tpall/singularity-r:latest
     jags \
     libharfbuzz-dev \
     libfribidi-dev \
-  && Rscript -e 'install.packages(c("dplyr","readr","purrr","stringr","tidyr","lubridate","here","ggplot2","gt","extrafont","cowplot","patchwork","viridis","brms","rstan","tidybayes","magick","glue","BH","Rcpp", "RcppArmadillo"),type="source", dependencies=c("Depends", "Imports", "LinkingTo"))'
+    git \
+    curl \
+  && Rscript -e 'install.packages(c("dplyr","readr","purrr","stringr","tidyr","lubridate","here","ggplot2","gt","extrafont","cowplot","patchwork","viridis","brms","rstan","tidybayes","magick","glue","BH","Rcpp","RcppArmadillo","rmarkdown","bookdown"),type="source", dependencies=c("Depends", "Imports", "LinkingTo"))'
