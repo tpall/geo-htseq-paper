@@ -1,4 +1,9 @@
-library(stats) # masks filter
+if (exists("snakemake")) {
+  log <- file(snakemake@log[[1]], open="wt")
+  sink(log, type = "message")
+}
+
+library(stats) # load first otherwise masks dplyr filter
 library(dplyr)
 library(readr)
 library(purrr)
@@ -10,18 +15,22 @@ library(here)
 #' Number of unique GEOs
 #+
 document_summaries <- read_csv(here("results/data/document_summaries.csv"))
-document_summaries %>% 
-  filter(PDAT<="2019-12-31") %>% 
-  pull(Accession) %>% 
-  n_distinct()
+if (!exists("snakemake")) {
+  document_summaries %>% 
+    filter(PDAT<="2019-12-31") %>% 
+    pull(Accession) %>% 
+    n_distinct()
+}
 
-document_summaries %>% 
-  filter(PDAT<="2019-12-31") %>% 
-  group_by(year(PDAT)) %>% 
-  count() %>% 
-  ungroup() %>% 
-  mutate(cumsum = cumsum(n),
-         perc = n / cumsum)
+if (!exists("snakemake")) {
+  document_summaries %>% 
+    filter(PDAT<="2019-12-31") %>% 
+    group_by(year(PDAT)) %>% 
+    count() %>% 
+    ungroup() %>% 
+    mutate(cumsum = cumsum(n),
+           perc = n / cumsum)
+}
 
 #' Supplementary files. We will throw out also all 'filelist.txt' files.
 #+
@@ -45,13 +54,17 @@ conformity <- suppfilenames %>%
   )
 
 #' Total number of files conforming
-sum(conformity$conforms)
+if (!exists("snakemake")) {
+  sum(conformity$conforms)
+}
 
 #' Total number of GEOs conforming
-conformity %>% 
-  filter(conforms) %>% 
-  pull(Accession) %>% 
-  n_distinct()
+if (!exists("snakemake")) {
+  conformity %>% 
+    filter(conforms) %>% 
+    pull(Accession) %>% 
+    n_distinct()
+}
 
 #' Number of GEOs conforming per year
 conformity_acc <- conformity %>% 
@@ -60,7 +73,7 @@ conformity_acc <- conformity %>%
     conforms = case_when(
       any(conforms) ~ 1,
       TRUE ~ 0
-  )) %>% 
+    )) %>% 
   ungroup()
 write_csv(conformity_acc, here("results/conformity_acc.csv"))
 
@@ -71,11 +84,13 @@ total_conforming <- conformity_acc %>%
 
 #' Conforming GEO submissions per year.
 #+
-conformity_acc %>% 
-  group_by(year) %>% 
-  summarise(conforms = sum(conforms),
-            n = n(),
-            perc = conforms / n)
+if (!exists("snakemake")) {
+  conformity_acc %>% 
+    group_by(year) %>% 
+    summarise(conforms = sum(conforms),
+              n = n(),
+              perc = conforms / n)
+}
 
 #' Number of sets with p-values, 
 parsed_suppfiles_raw <- read_csv(here("results/data/parsed_suppfiles.csv"))
@@ -101,7 +116,7 @@ pi0 <- parsed_suppfiles %>%
 hist <- parsed_suppfiles %>% 
   filter(Type == "raw") %>% 
   select(Accession, id, Set, FDR_pval, hist)
-  
+
 pvalues <- parsed_suppfiles %>% 
   filter(!is.na(Type)) %>% 
   select(Accession, id, Set, Type, Class) %>%
@@ -130,62 +145,78 @@ write_csv(pvalues, here("results/pvalues.csv"))
 #' Number of unique GEO ids imported
 geo_import <- parsed_suppfiles %>% 
   filter(is.na(Type) | str_detect(Type, "raw"))
-geo_import %>% 
-  pull(Accession) %>% 
-  n_distinct()
+if (!exists("snakemake")) {
+  geo_import %>% 
+    pull(Accession) %>% 
+    n_distinct()
+}
+
 
 #' Number of unique files downloaded
-geo_import %>% 
-  select(Accession, id) %>% 
-  mutate(file = str_remove(id, "^.+ from ")) %>% 
-  pull(file) %>% 
-  n_distinct()
+if (!exists("snakemake")) {
+  geo_import %>% 
+    select(Accession, id) %>% 
+    mutate(file = str_remove(id, "^.+ from ")) %>% 
+    pull(file) %>% 
+    n_distinct()
+}
 
 #' Number of unique files imported
-geo_import %>% 
-  pull(id) %>% 
-  n_distinct()
-
+if (!exists("snakemake")) {
+  geo_import %>% 
+    pull(id) %>% 
+    n_distinct()
+}
 
 #' notes
-geo_import %>% 
-  count(note) %>% 
-  pull(note)
+if (!exists("snakemake")) {
+  geo_import %>% 
+    count(note) %>% 
+    pull(note)
+}
 
 #' Files which we were able to import.
-geo_import %>% 
-  mutate(imported = case_when(
-    str_detect(str_to_lower(note), "error|i\\/o operation|not determine delim|codec can't decode|empty table|missing optional dependency") ~ "fail",
-    is.na(note) ~ "yes",
-    TRUE ~ "yes"
-  )) %>% 
-  group_by(Accession, id) %>% 
-  summarise(
-    imported = case_when(
-      any(imported == "yes") ~ 1,
-      TRUE ~ 0
+if (!exists("snakemake")) {
+  geo_import %>% 
+    mutate(imported = case_when(
+      str_detect(str_to_lower(note), "error|i\\/o operation|not determine delim|codec can't decode|empty table|missing optional dependency") ~ "fail",
+      is.na(note) ~ "yes",
+      TRUE ~ "yes"
     )) %>% 
-  ungroup() %>% 
-  count(imported)
+    group_by(Accession, id) %>% 
+    summarise(
+      imported = case_when(
+        any(imported == "yes") ~ 1,
+        TRUE ~ 0
+      )) %>% 
+    ungroup() %>% 
+    count(imported)
+}
 
 #' P values
 #+
 
 #' Number of distinct GEO-s with p values
-n_distinct(pvalues$Accession)
+if (!exists("snakemake")) {
+  n_distinct(pvalues$Accession)
+}
 
 #' Summary stats of p values per GEO
-pvalues %>% 
-  count(Accession) %>% 
-  summarise_at("n", list(mean = mean, median = median, max = max))
+if (!exists("snakemake")) {
+  pvalues %>% 
+    count(Accession) %>% 
+    summarise_at("n", list(mean = mean, median = median, max = max))
+}
 
 #' GEOs with single or 1-3 sets
 #+
-pvalues %>% 
-  count(Accession) %>% 
-  count(n) %>% 
-  mutate(p = nn / sum(nn),
-         ps = cumsum(p))
+if (!exists("snakemake")) {
+  pvalues %>% 
+    count(Accession) %>% 
+    count(n) %>% 
+    mutate(p = nn / sum(nn),
+           ps = cumsum(p))
+}
 
 #' Sample 1 p value set per accession
 set.seed(11)
@@ -201,9 +232,11 @@ pvalues_sample %>%
   select(id, Set) %>% 
   write_csv(here("results/pvalues_acc.csv"))
 
-pvalues_sample %>% 
-  count(Class) %>% 
-  summarise(Class, 
-            n,
-            p = signif(n / sum(n), 2))
 
+if (!exists("snakemake")) {
+  pvalues_sample %>% 
+    count(Class) %>% 
+    summarise(Class, 
+              n,
+              p = signif(n / sum(n), 2))
+}

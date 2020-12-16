@@ -45,7 +45,11 @@ rule preprocess_pvalues:
         "results/pvalues.csv",
         "results/pvalues_sample.csv",
         "results/pvalues_acc.csv",
+    log:
+        "results/log/preprocess_pvalues.log",
     conda:
         "workflow/envs/environment.yml"
     script:
-        "workflow/scripts/preprocess_pvalues.R"
+        "scripts/preprocess_pvalues.R"
+
+
