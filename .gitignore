@@ -4,5 +4,7 @@
 .Ruserdata
 *Rproj
 README.html
-data/
-
+results/
+.snakemake/
+figures/
+resources/data
