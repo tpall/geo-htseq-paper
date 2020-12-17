@@ -102,7 +102,7 @@ rule figures:
     log:
         "results/log/figures.log",
     container:
-        "file:geo-htseq.simg"
+        "shub://tpall/geo-htseq-paper"
     resources:
         runtime=1440,
         mem_mb=8000,
