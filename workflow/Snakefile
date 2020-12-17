@@ -101,7 +101,7 @@ rule figures:
         "figures/figure_4.tiff",
     log:
         "results/log/figures.log",
-    singularity:
+    container:
         "file:geo-htseq.simg"
     resources:
         runtime=1440,
