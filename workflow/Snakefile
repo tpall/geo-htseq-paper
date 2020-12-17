@@ -89,7 +89,7 @@ rule figures:
         "figures/figure_4.tiff",
     log:
         "results/log/figures.log",
-    conda:
-        "envs/environment.yml"
+    singularity:
+        "file:geo-htseq.simg"
     script:
         "scripts/figures.R"
