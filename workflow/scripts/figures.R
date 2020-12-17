@@ -266,6 +266,7 @@ p <- plot(conditional_effects(mod,
                               re_formula = NULL),
           plot = FALSE)
 p4b <- p$de_tool +
+  labs(y = expression(pi * 0)) +
   theme(axis.title.x = element_blank())
 p4b$layers[[1]]$aes_params$size <- 1
 
@@ -293,7 +294,8 @@ p <- plot(conditional_effects(mod,
 p4c <- p$year + 
   facet_wrap(~ de_tool) +
   geom_smooth(color = "black") +
-  scale_x_continuous(breaks = seq(2009, 2019, 2))
+  scale_x_continuous(breaks = seq(2009, 2019, 2)) +
+  labs(y = expression(pi * 0))
 p4c$layers[[1]]$aes_params$alpha <- 0.2
 
 p4a <- pvalues_sample %>% 
