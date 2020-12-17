@@ -47,8 +47,8 @@ jobs:
 
     - name: Pull Container
       run: |
-       singularity pull --name container.sif shub://tpall/htseq-paper-singularity
+       singularity pull --name container.sif shub://tpall/geo-htseq-paper
 
     - name: Test Container
       run: |
-       singularity exec container.sif Rscript scripts/pvalue-hist-figure.R
+       singularity exec container.sif Rscript -e 'library("rstan"); example(stan_model, package = "rstan", run.dontrun = TRUE)'
