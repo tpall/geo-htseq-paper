@@ -27,7 +27,7 @@ From: tpall/singularity-r:latest
     libfribidi-dev \
     git \
     curl \
-  && Rscript -e 'install.packages(c("brms","tidybayes","rstan","dplyr","readr","purrr","stringr","tidyr","lubridate","here","ggplot2","gt","extrafont","cowplot","patchwork","viridis","magick","glue","BH","Rcpp","RcppArmadillo","rmarkdown","bookdown","parallel","V8","webshot"),type="source", dependencies=c("Depends", "Imports", "LinkingTo"))'
+  && Rscript -e 'install.packages(c("brms","tidybayes","rstan","dplyr","readr","purrr","stringr","tidyr","lubridate","here","ggplot2","gt","extrafont","cowplot","patchwork","viridis","magick","glue","BH","Rcpp","RcppArmadillo","rmarkdown","bookdown","parallel","V8","webshot"),dependencies=c("Depends", "Imports", "LinkingTo"))'
 
 ## C++ toolchain configuration
 mkdir -p $HOME/.R \
