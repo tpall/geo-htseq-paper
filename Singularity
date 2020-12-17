@@ -27,4 +27,20 @@ From: tpall/singularity-r:latest
     libfribidi-dev \
     git \
     curl \
-  && Rscript -e 'install.packages(c("dplyr","readr","purrr","stringr","tidyr","lubridate","here","ggplot2","gt","extrafont","cowplot","patchwork","viridis","brms","rstan","tidybayes","magick","glue","BH","Rcpp","RcppArmadillo","rmarkdown","bookdown"),type="source", dependencies=c("Depends", "Imports", "LinkingTo"))'
+  && Rscript -e 'install.packages(c("dplyr","readr","purrr","stringr","tidyr","lubridate","here","ggplot2","gt","extrafont","cowplot","patchwork","viridis","magick","glue","BH","Rcpp","RcppArmadillo","rmarkdown","bookdown","parallel","V8"),type="source", dependencies=c("Depends", "Imports", "LinkingTo"))' \
+  && Rscript -e 'remotes::install_github("stan-dev/rstan",ref="develop",subdir="rstan/rstan",build_opts="")' \
+  && Rscript -e 'install.packages(c("brms","tidybayes"))'
+
+## C++ toolchain configuration
+mkdir -p $HOME/.R \
+  && printf "\nCXX14FLAGS=-O3 -march=native -mtune=native -fPIC\nCXX14=g++" > $HOME/.R/Makevars
+
+## Clean up from R source install
+  cd / \
+  && apt-get autoremove -y \
+  && apt-get autoclean -y \
+  && rm -rf /var/lib/apt/lists/*
+
+%test
+    Rscript -e 'library(rstan); example(stan_model, package = "rstan", run.dontrun = TRUE)'
+
