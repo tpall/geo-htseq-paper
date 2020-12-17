@@ -38,11 +38,11 @@ refresh = 0
 rstan_options(auto_write = TRUE, javascript = FALSE)
 
 #+ data
-pvalues <- read_csv(here("output/pvalues.csv")) %>% 
+pvalues <- read_csv(here("results/pvalues.csv")) %>% 
   rename(de_tool = analysis_platform)
-pvalues_sample <- read_csv(here("output/pvalues_sample.csv")) %>% 
+pvalues_sample <- read_csv(here("results/pvalues_sample.csv")) %>% 
   rename(de_tool = analysis_platform)
-sequencing_metadata <- read_csv(here("output/sequencing_metadata_unique_platform.csv"))
+sequencing_metadata <- read_csv(here("results/sequencing_metadata_unique_platform.csv"))
 
 #+ FigS1
 f <- anticons ~ year
@@ -55,7 +55,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           file = here("models/anticons_year.rds"))
+           file = here("results/models/anticons_year.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "year", 
                               conditions = conditions),
@@ -83,7 +83,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/anticons_year__year_detool.rds"))
+           file = here("results/models/anticons_year__year_detool.rds"))
 conditions <- make_conditions(data, vars = "de_tool")
 row.names(conditions) <- conditions$de_tool
 p <- plot(conditional_effects(mod, 
@@ -102,6 +102,7 @@ p$year +
   scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Year") +
+  facet_wrap(~ de_tool) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 ggsave(here("figures/figure_S2.tiff"), height = 12, width = 18, dpi = 300, units = "cm")
 
@@ -118,7 +119,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/anticons_year__year_model.rds"))
+           file = here("results/models/anticons_year__year_model.rds"))
 conditions <- make_conditions(data, vars = "model")
 row.names(conditions) <- str_wrap(conditions$model, width = 20)
 p <- plot(conditional_effects(mod, 
@@ -137,6 +138,7 @@ p$year +
   scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
   labs(y = "Proportion of anti-conservative p value histograms",
        x = "Year") +
+  facet_wrap(~ model, labeller = label_wrap_gen(width = 18)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 ggsave(here("figures/figure_S3.tiff"), height = 23, width = 18, dpi = 300, units = "cm")
 
@@ -172,7 +174,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           file = here("models/anticons_detool.rds"))
+           file = here("results/models/anticons_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -192,7 +194,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           file = here("models/anticons_detool_all.rds"))
+           file = here("results/models/anticons_detool_all.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -213,7 +215,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           file = here("models/anticons_year_detool.rds"))
+           file = here("results/models/anticons_year_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -240,7 +242,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           file = here("models/anticons_organism_detool.rds"))
+           file = here("results/models/anticons_organism_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -263,7 +265,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/anticons_detool__1_model.rds"))
+           file = here("results/models/anticons_detool__1_model.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -284,7 +286,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/anticons_detool__detool_model.rds"))
+           file = here("results/models/anticons_detool__detool_model.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -326,7 +328,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           file = here("models/pi0_detool.rds"))
+           file = here("results/models/pi0_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -347,7 +349,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           file = here("models/pi0_year_detool.rds"))
+           file = here("results/models/pi0_year_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -374,7 +376,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           file = here("models/pi0_organism_detool.rds"))
+           file = here("results/models/pi0_organism_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -395,7 +397,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/pi0_detool__1_model.rds"))
+           file = here("results/models/pi0_detool__1_model.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -416,7 +418,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/pi0_detool__detool_model.rds"))
+           file = here("results/models/pi0_detool__detool_model.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -457,7 +459,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/pi0__1_model.rds"))
+           file = here("results/models/pi0__1_model.rds"))
 p <- mod %>%
   spread_draws(b_Intercept, r_model[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_model) %>%
@@ -484,7 +486,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/pi0__1_librarystrategy.rds"))
+           file = here("results/models/pi0__1_librarystrategy.rds"))
 p <- mod %>%
   spread_draws(b_Intercept, r_library_strategy[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_library_strategy) %>%
@@ -510,7 +512,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/pi0__1_libraryselection.rds"))
+           file = here("results/models/pi0__1_libraryselection.rds"))
 p <- mod %>%
   spread_draws(b_Intercept, r_library_selection[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_library_selection) %>%
@@ -537,7 +539,7 @@ mod <- brm(formula = f,
            iter = 4000, 
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/pi0__1_librarylayout.rds"))
+           file = here("results/models/pi0__1_librarylayout.rds"))
 p <- mod %>%
   spread_draws(b_Intercept, r_library_layout[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_library_layout) %>%
@@ -564,7 +566,7 @@ mod <- brm(formula = f,
            cores = cores,
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/anticons__1_model.rds"))
+           file = here("results/models/anticons__1_model.rds"))
 p <- mod %>%
   spread_draws(b_Intercept, r_model[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_model) %>%
@@ -592,7 +594,7 @@ mod <- brm(formula = f,
            cores = cores,
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/anticons__1_librarystrategy.rds"))
+           file = here("results/models/anticons__1_librarystrategy.rds"))
 p <- mod %>%
   spread_draws(b_Intercept, r_library_strategy[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_library_strategy) %>%
@@ -619,7 +621,7 @@ mod <- brm(formula = f,
            cores = cores,
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/anticons__1_libraryselection.rds"))
+           file = here("results/models/anticons__1_libraryselection.rds"))
 p <- mod %>%
   spread_draws(b_Intercept, r_library_selection[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_library_selection) %>%
@@ -646,7 +648,7 @@ mod <- brm(formula = f,
            cores = cores,
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("models/anticons__1_librarylayout.rds"))
+           file = here("results/models/anticons__1_librarylayout.rds"))
 p <- mod %>%
   spread_draws(b_Intercept, r_library_layout[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_library_layout) %>%
