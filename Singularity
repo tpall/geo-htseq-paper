@@ -32,6 +32,7 @@ From: tpall/singularity-r:latest
 mkdir -p $HOME/.R \
   && printf "\nCXX14FLAGS=-O3 -march=native -mtune=native -fPIC\nCXX14=g++\nCXXFLAGS=$CXXFLAGS -w -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS" > $HOME/.R/Makevars
 
+## Install R packages
 Rscript -e 'install.packages(c("brms","tidybayes","rstan","dplyr","readr","purrr","stringr","tidyr","lubridate","here","ggplot2","gt","extrafont","cowplot","patchwork","viridis","magick","glue","BH","Rcpp","rmarkdown","bookdown","parallel","V8","webshot"),dependencies=c("Depends", "Imports", "LinkingTo"))'
 
 ## Clean up from R source install
