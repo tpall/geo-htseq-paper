@@ -45,9 +45,9 @@ rule unpack:
 
 rule preprocess_pvalues:
     input:
-        "resources/data/document_summaries.csv",
-        "resources/data/suppfilenames.txt",
-        "resources/data/parsed_suppfiles.csv",
+        "results/data/document_summaries.csv",
+        "results/data/suppfilenames.txt",
+        "results/data/parsed_suppfiles.csv",
     output:
         "results/conformity_acc.csv",
         "results/pvalues.csv",
