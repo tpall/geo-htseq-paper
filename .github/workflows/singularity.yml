@@ -40,8 +40,9 @@ jobs:
         cd singularity && \
         ./mconfig -p /usr/local && \
         make -C builddir && \
-        sudo make -C builddir install          
-          
+        sudo make -C builddir install
+        rm -rf .singularity/
+    
     - name: Check out code for the container build
       uses: actions/checkout@v1
 
