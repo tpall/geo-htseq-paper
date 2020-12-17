@@ -301,7 +301,8 @@ p4c$layers[[1]]$aes_params$alpha <- 0.2
 p4a <- pvalues_sample %>% 
   filter(Class == "anti-conservative") %>% 
   ggplot() + 
-  geom_histogram(aes(pi0), color = "white", binwidth = 0.1)
+  geom_histogram(aes(pi0), color = "white", binwidth = 0.1) +
+  labs(x = expression(pi * 0), y = "Count")
 
 #+ Fig4, fig.cap=""
 p4 <- (p4a + p4b) / p4c + 
