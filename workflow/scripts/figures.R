@@ -1,6 +1,8 @@
+
 if (exists("snakemake")) {
   log <- file(snakemake@log[[1]], open="wt")
   sink(log, type = "message")
+  
 }
 
 #+ libs
@@ -195,7 +197,7 @@ mod <- brm(formula = f,
            prior = priors,
            control = list(adapt_delta = 0.99),
            iter = 4000,
-           file = here("results/models/Class_year__year_detool_year_muunif2.8k.rds"))
+           file = here("results/models/Class_year__year_detool_year.rds"))
 conditions <- make_conditions(data, vars = "de_tool")
 rownames(conditions) <- conditions$de_tool
 p <- plot(conditional_effects(mod, 
@@ -232,7 +234,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            control = list(adapt_delta = 0.99),
            iter = 2000,
-           file = here("results/models/Class_detool_2018-19_priors_muunif.rds"))
+           file = here("results/models/Class_detool_2018-19.rds"))
 p <- plot(conditional_effects(mod, 
                               categorical = TRUE, 
                               effects = "de_tool",

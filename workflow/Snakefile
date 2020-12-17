@@ -4,8 +4,8 @@ rule all:
         "results/pvalues.csv",
         "results/sequencing_metadata_unique_platform.csv",
         "results/figure_supplements.pdf",
-        expand("figures/figure_{n}.tiff", n = list(range(1,4))),
-        expand("figures/figure_S{n}.tiff", n = list(range(1,14))),
+        expand("figures/figure_{n}.tiff", n = list(range(1,5))),
+        expand("figures/figure_S{n}.tiff", n = list(range(1,15))),
 
 
 rule download:
@@ -90,7 +90,14 @@ rule figures:
         "results/data/parsed_suppfiles.csv",
         "results/pvalues_acc.csv",
     output:
-        expand("figures/figure_{n}.tiff", n = list(range(1,4))),
+        expand("figures/figure_{n}.tiff", n = list(range(1,5))),
+        "results/files_to_check_pi0.txt",
+        "results/models/conforms_year.rds",
+        "results/models/Class_1.rds",
+        "results/models/Class_year__year_detool_year.rds",
+        "results/models/Class_detool_2018-19.rds",
+        "results/models/pi0_detool.rds",
+        "results/models/pi0_year__year_detool.rds",
     log:
         "results/log/figures.log",
     container:
@@ -98,6 +105,7 @@ rule figures:
     resources:
         runtime=1440,
         mem_mb=8000,
+    threads: 4
     script:
         "scripts/figures.R"
 
@@ -108,8 +116,30 @@ rule figure_supplements:
         "results/pvalues_sample.csv",
         "results/sequencing_metadata_unique_platform.csv",
     output:
-        expand("figures/figure_S{n}.tiff", n=list(range(1,14))),
+        expand("figures/figure_S{n}.tiff", n=list(range(1,15))),
         "results/figure_supplements.pdf",
+        "results/models/anticons_year.rds",
+        "results/models/anticons_year__year_detool.rds",
+        "results/models/anticons_year__year_model.rds",
+        "results/models/anticons_detool.rds",
+        "results/models/anticons_detool_all.rds",
+        "results/models/anticons_year_detool.rds",
+        "results/models/anticons_organism_detool.rds",
+        "results/models/anticons_detool__1_model.rds",
+        "results/models/anticons_detool__detool_model.rds",
+        "results/models/pi0_detool.rds",
+        "results/models/pi0_year_detool.rds",
+        "results/models/pi0_organism_detool.rds",
+        "results/models/pi0_detool__1_model.rds",
+        "results/models/pi0_detool__detool_model.rds",
+        "results/models/pi0__1_model.rds",
+        "results/models/pi0__1_librarystrategy.rds",
+        "results/models/pi0__1_libraryselection.rds",
+        "results/models/pi0__1_librarylayout.rds",
+        "results/models/anticons__1_model.rds",
+        "results/models/anticons__1_librarystrategy.rds",
+        "results/models/anticons__1_libraryselection.rds",
+        "results/models/anticons__1_librarylayout.rds",
     log:
         "results/log/figures.log",
     container:
@@ -117,5 +147,6 @@ rule figure_supplements:
     resources:
         runtime=1440,
         mem_mb=8000,
+    threads: 4
     shell:
         "rmarkdown::render(here::here('workflow/scripts/figure_supplements.R'), output_dir = here::here('results'))"
