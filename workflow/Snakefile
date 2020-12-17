@@ -3,7 +3,9 @@ rule all:
     input:
         "results/pvalues.csv",
         "results/sequencing_metadata_unique_platform.csv",
-        expand("figures/figure_{n}.tiff", n = [1,2,3,4])
+        "results/figure_supplements.pdf",
+        expand("figures/figure_{n}.tiff", n = list(range(1,4))),
+        expand("figures/figure_S{n}.tiff", n = list(range(1,14))),
 
 
 rule download:
@@ -88,17 +90,7 @@ rule figures:
         "results/data/parsed_suppfiles.csv",
         "results/pvalues_acc.csv",
     output:
-        "results/models/conforms_year.rds",
-        "figures/figure_1.tiff",
-        "results/files_to_check_pi0.txt",
-        "results/models/Class_1.rds",
-        "figures/figure_2.tiff",
-        "results/models/Class_year__year_detool_year_muunif2.8k.rds",
-        "results/models/Class_detool_2018-19_priors_muunif.rds",
-        "figures/figure_3.tiff",
-        "results/models/pi0_detool.rds",
-        "results/models/pi0_year__year_detool.rds",
-        "figures/figure_4.tiff",
+        expand("figures/figure_{n}.tiff", n = list(range(1,4))),
     log:
         "results/log/figures.log",
     container:
@@ -108,3 +100,22 @@ rule figures:
         mem_mb=8000,
     script:
         "scripts/figures.R"
+
+
+rule figure_supplements:
+    input:
+        "results/pvalues.csv",
+        "results/pvalues_sample.csv",
+        "results/sequencing_metadata_unique_platform.csv",
+    output:
+        expand("figures/figure_S{n}.tiff", n=list(range(1,14))),
+        "results/figure_supplements.pdf",
+    log:
+        "results/log/figures.log",
+    container:
+        "shub://tpall/geo-htseq-paper"
+    resources:
+        runtime=1440,
+        mem_mb=8000,
+    shell:
+        "rmarkdown::render(here::here('workflow/scripts/figure_supplements.R'), output_dir = here::here('results'))"
