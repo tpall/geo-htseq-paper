@@ -1,8 +1,11 @@
-image: quay.io/singularity/singularity:v3.2.1-slim
+image: 
+  name: quay.io/singularity/singularity:v3.2.1-slim
+  entrypoint: ["/bin/bash"]
 
 build:
   script:
-    - /bin/bash .gitlabci/build.sh Singularity
+    - singularity --help
+    - singularity build Singularity.sif Singularity
     - mkdir -p build && cp *.sif build
     - mkdir -p build && cp Singularity* build
 
