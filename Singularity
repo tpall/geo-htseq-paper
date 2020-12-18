@@ -49,5 +49,5 @@ mkdir -p $HOME/.R \
   && rm -rf /var/lib/apt/lists/*
 
 %test
-    Rscript -e 'library(rstan); example(stan_model, package = "rstan", run.dontrun = TRUE)'
+  Rscript -e 'library(rstan); example(stan_model, package = "rstan", run.dontrun = TRUE)'
 
