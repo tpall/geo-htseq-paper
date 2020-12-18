@@ -1,36 +1,33 @@
 ---
 title: A field-wide assessment of differential high throughput sequencing reveals widespread bias
 preprint: true
-author: 
+authors: 
   - name: Taavi Päll
-    affiliation: 1
+    affiliation: Institute of Biomedicine and Translational Medicine, University of Tartu, Estonia
+    department: Department of Microbiology
+    location: Ravila 19, 50411, Tartu, Estonia
     email: taavi.pall@ut.ee
   - name: Hannes Luidalepp
-    affiliation: 2
+    affiliation: Quretec (https://www.quretec.com)
     email: luidale@gmail.com
   - name: Tanel Tenson
-    affiliation: 3
+    affiliation: Institute of Technology, University of Tartu, Estonia
+    location: Nooruse 1, 50411, Tartu, Estonia
     email: tanel.tenson@ut.ee
   - name: Ülo Maiväli
-    affiliation: 3
-    corresponding: true
+    affiliation: Institute of Technology, University of Tartu, Estonia
+    location: Nooruse 1, 50411, Tartu, Estonia
+    thanks: corresponding author
     email: ymaivali@gmail.com
-affiliation:
-  - code: 1
-    address: Institute of Biomedicine and Translational Medicine, University of Tartu, Estonia
-  - code: 2
-    address: Quretec (https://www.quretec.com)
-  - code: 3
-    address: Institute of Technology, University of Tartu, Estonia
-abstract: >
+abstract: |
   Here we assess reproducibility and inferential quality in the field of differential HT-seq, based on analysis of datasets submitted 2008-2019 to the NCBI GEO data repository. Analysis of GEO submission file structures places an overall 59% upper limit to reproducibility. We further show that only 23% of experiments resulted in theoretically expected p value histogram shapes, although both reproducibility and p value distributions show marked improvement over time. Uniform p value histogram shapes, indicative of <100 true effects, were extremely few. Our calculations of $\pi0$ , the fraction of true nulls, showed that 36% of experiments have $\pi0$ <0.5, meaning that in over a third of experiments most RNA-s were estimated to change their expression level upon experimental treatment. Both the fraction of different p value histogram types and $\pi0$  values are strongly associated with the software used for calculating these p values by the original authors, indicating widespread bias.
 header-includes: >
   \usepackage{lipsum}
 bibliography: sample.bib
 output:
   bookdown::pdf_book:
-    base_format: rticles::peerj_article 
-  rticles::peerj_article: default
+    base_format: rticles::arxiv_article
+  rticles::arxiv_article: default
 ---
 
 ```{r include=FALSE}
@@ -52,7 +49,7 @@ We filtered the GEO series containing supplementary processed data files. Proces
 As reproducibility by definition entails arriving at the original conclusions by independently repeating original analysis (Peng, 2011), we surmise that the fraction of GEO submission with processed data files gives an upper limit of reproducibility (upper limit, because processed data files per se do not guarantee reproducibility).  According to our analysis 17,920 GEO series, containing 43,340 supplementary processed data files, conform with GEO submission guidelines. After further excluding the submissions with potentially non-tabular supplementary files, based on file extensions (see Methods for details), the number of GEO series was reduced to 15,520, containing 31,862 supplementary files, including tar.gz archives, which we downloaded from the GEO server.  From those we programmatically imported 32,764 files as tables, resulting in 32,414 (99%) successfully imported files.  For the purpose of reproducibility analysis, we considered all 17,920 GEO series with supplementary processed files out of 32,017 published GEO series in our time window as potentially reproducible.  Therefore, the observed overall 56% retention rate of GEO submissions with processed data files should be seen as an upper bound for reproducibility. There is a substantial increase of the retention rate over time, from 16% (3/19) in 2008 to 62% (5465/8770) in 2019, indicating increasing reproducibility of the HT-seq field (Figure \ref{fig:fig1}). 
  
 
-```{r fig1, fig.cap="The increasing proportion of GEO submissions conforming with submission guidelines in regard of inclusion of processed data is estimated from a bernoulli  logistic model. 95\\% credible envelope for the model fit is shown in gray."}
+```{r fig1, fig.cap="The increasing proportion of GEO submissions conforming with submission guidelines in regard of inclusion of processed data is estimated from a bernoulli  logistic model. 95\\% credible envelope for the model fit is shown in gray.", out.width="8cm", fig.align='center'}
 knitr::include_graphics(here::here("figures/figure_1.pdf"))
 ```
 
@@ -60,7 +57,7 @@ knitr::include_graphics(here::here("figures/figure_1.pdf"))
 According to GEO submission requirements, the processed data files may contain raw counts of sequencing reads, and/or normalized abundance measurements. Therefore, a valid processed data submission may or may not contain lists of p values.  We identified p values from 2,109 GEO series, from which we extracted 6,267 unique p value sets. While the mean number of p value lists, each list corresponding to a separate experiment,  per 2,109 GEO submissions was 2.97 (max 66), 49% of submissions contained a single p value list and 78% contained 1-3 p value lists. For further analysis we randomly selected one p value list per GEO series.
 
 
-```{r fig2, fig.cap="Classes of p value histograms. N = 2109. 95\\% CI denotes credible intervals calculated from a binomial model. Red line in example histograms denotes QC threshold (Breheny et al., 2018).", fig.align="center", out.width="12cm"}
+```{r fig2, fig.cap="Classes of p value histograms. N = 2109. 95\\% CI denotes credible intervals calculated from a binomial model. Red line in example histograms denotes QC threshold (Breheny et al., 2018).", fig.align="center", out.width="8cm"}
 knitr::include_graphics(here::here("figures/figure_2.pdf"))
 ```
 
