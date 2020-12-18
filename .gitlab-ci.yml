@@ -1,9 +1,11 @@
+image: 
+  name: quay.io/singularity/singularity:v3.4.0-slim
+  entrypoint: [""]
+
 build:
-  image: 
-    name: quay.io/singularity/singularity:v3.4.0-slim
-    entrypoint: [""]
   script:
-      - singularity build Singularity.sif Singularity
+    - singularity build Singularity.sif Singularity
+    - singularity test
   
   # This is where you can save job artifacts
   # https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html
