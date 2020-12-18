@@ -3,7 +3,7 @@ build:
     name: quay.io/singularity/singularity:v3.4.0-slim
     entrypoint: [""]
   script:
-      - build Singularity.sif Singularity
+      - singularity build Singularity.sif Singularity
   
   # This is where you can save job artifacts
   # https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html
