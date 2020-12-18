@@ -2,7 +2,6 @@ build:
   image: 
     name: quay.io/singularity/singularity:v3.4.0-slim
     entrypoint: [""]
-  stage: singularity
   script:
       - build Singularity.sif Singularity
   
