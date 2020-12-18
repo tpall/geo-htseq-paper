@@ -1,10 +1,9 @@
 image: quay.io/singularity/singularity:v3.2.1-slim
 
-variables:
-  IMAGEFILE: "Singularity.sif"
-  RECIPE: "Singularity"
-
 build:
+  variables:
+    IMAGEFILE: "Singularity.sif"
+    RECIPE: "Singularity"
   script:
     - singularity build $IMAGEFILE $RECIPE
     - mkdir -p build && cp *.sif build
