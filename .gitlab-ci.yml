@@ -1,6 +1,4 @@
-image: 
-  name: quay.io/singularity/singularity:v3.2.1-slim
-  entrypoint: ["/bin/bash"]
+image: quay.io/singularity/singularity:v3.2.1-slim
 
 build:
   script:
