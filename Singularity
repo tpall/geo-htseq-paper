@@ -14,10 +14,11 @@ From: tpall/singularity-tidyverse:latest
     libnlopt-dev \
     libfontconfig1-dev \
     libmagick++-dev \
-    cargo \
-    jags \
     libharfbuzz-dev \
     libfribidi-dev \
+    libavfilter-dev \
+    cargo \
+    jags \
     git \
     curl \
     wget \
@@ -33,6 +34,8 @@ From: tpall/singularity-tidyverse:latest
     magick \
     V8 \
     sparkline
+  && Rscript -e 'remotes::install_github("r-rust/gifski")'
+
 
 ## C++ toolchain configuration
 mkdir -p $HOME/.R \
