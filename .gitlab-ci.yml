@@ -1,10 +1,7 @@
 build:
   image: quay.io/singularity/singularity:v3.2.1-slim
   script:
-    - singularity version
-    - singularity build Singularity.sif Singularity
-    - mkdir -p build && cp *.sif build
-    - mkdir -p build && cp Singularity* build
+    - ls
 
   # This is where you can save job artifacts
   # https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html
