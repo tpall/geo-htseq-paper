@@ -1,5 +1,5 @@
 BootStrap: shub
-From: tpall/singularity-r:latest
+From: tpall/singularity-tidyverse:latest
 
 %labels
   Maintainer tpall
@@ -11,13 +11,6 @@ From: tpall/singularity-r:latest
   ## Download and install tidyverse & other packages
   apt-get update -qq \
   && apt-get -y --no-install-recommends install \
-    libssh2-1-dev \
-    libudunits2-dev \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    libgdal-dev \
-    libgsl-dev \
-    libnode-dev \
     libnlopt-dev \
     libfontconfig1-dev \
     libmagick++-dev \
@@ -26,14 +19,25 @@ From: tpall/singularity-r:latest
     libharfbuzz-dev \
     libfribidi-dev \
     git \
-    curl
+    curl \
+    wget \
+  && install2.r --error \
+    --deps TRUE \
+    --skipinstalled \
+    brms \
+    tidybayes \
+    rstan \
+    gt \
+    extrafont \
+    viridis \
+    magick \
+    V8 \
+    sparkline
 
 ## C++ toolchain configuration
 mkdir -p $HOME/.R \
   && printf "\nCXX14FLAGS=-O3 -march=native -mtune=native -fPIC\nCXX14=g++" > $HOME/.R/Makevars
 
-## Install R packages
-Rscript -e 'install.packages(c("Rcpp","shiny","brms","tidybayes","rstan","dplyr","readr","purrr","stringr","tidyr","lubridate","here","ggplot2","gt","extrafont","cowplot","patchwork","viridis","magick","glue","BH","rmarkdown","bookdown","V8","webshot"),dependencies=c("Depends", "Imports", "LinkingTo"))'
 
 ## Clean up from R source install
   cd / \
