@@ -1,16 +1,10 @@
 image: quay.io/singularity/singularity:v3.2.1-slim
 
 build:
-  variables:
-    IMAGEFILE: "Singularity.sif"
-    RECIPE: "Singularity"
   script:
-    - singularity build $IMAGEFILE $RECIPE
+    - singularity build Singularity.sif Singularity
     - mkdir -p build && cp *.sif build
     - mkdir -p build && cp Singularity* build
-  rules:
-    - exists:
-      - $RECIPE
 
   # This is where you can save job artifacts
   # https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html
