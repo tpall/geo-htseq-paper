@@ -17,6 +17,7 @@ From: tpall/singularity-tidyverse:latest
     libharfbuzz-dev \
     libfribidi-dev \
     libavfilter-dev \
+    libpoppler-cpp-dev \
     cargo \
     jags \
     git \
