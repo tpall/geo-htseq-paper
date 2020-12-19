@@ -14,7 +14,7 @@ library(here)
 
 #' Number of unique GEOs
 #+
-document_summaries <- read_csv(here("results/data/document_summaries.csv"))
+document_summaries <- read_csv(here("results/data/document_summaries.csv"), col_types = cols(Id = col_character()))
 if (!exists("snakemake")) {
   document_summaries %>% 
     filter(PDAT<="2019-12-31") %>% 
