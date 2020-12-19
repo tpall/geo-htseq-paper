@@ -25,10 +25,15 @@ From: tpall/singularity-tidyverse:latest
     jags \
     git \
     curl \
-    wget \
-  && install2.r --error \
+    wget
+
+# We need to update repos to install cmdstanr
+CRAN=$(Rscript -e 'cat(getOption("repos"))')
+
+install2.r --error \
     --deps TRUE \
     --skipinstalled \
+    --repos $CRAN https://mc-stan.org/r-packages/ \
     brms \
     tidybayes \
     rstan \
@@ -38,13 +43,10 @@ From: tpall/singularity-tidyverse:latest
     magick \
     V8 \
     sparkline
-  && Rscript -e 'remotes::install_github("r-rust/gifski")'
-
 
 ## C++ toolchain configuration
 mkdir -p $HOME/.R \
   && printf "\nCXX14FLAGS=-O3 -march=native -mtune=native -fPIC\nCXX14=g++" > $HOME/.R/Makevars
-
 
 ## Clean up from R source install
   cd / \
@@ -54,4 +56,3 @@ mkdir -p $HOME/.R \
 
 %test
   Rscript -e 'library(rstan); example(stan_model, package = "rstan", run.dontrun = TRUE)'
-
