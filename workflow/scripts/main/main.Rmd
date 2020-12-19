@@ -56,7 +56,7 @@ knitr::include_graphics(here::here("figures/figure_1.pdf"))
 
 According to GEO submission requirements, the processed data files may contain raw counts of sequencing reads, and/or normalized abundance measurements. Therefore, a valid processed data submission may or may not contain lists of p values. We identified p values from 2,109 GEO series, from which we extracted 6,267 unique p value sets. While the mean number of p value lists, each list corresponding to a separate experiment,  per 2,109 GEO submissions was 2.97 (max 66), 49% of submissions contained a single p value list and 78% contained 1-3 p value lists. For further analysis we randomly selected one p value list per GEO series.
 
-(ref:fig2) "Classes of p value histograms. N = 2109. 95\\% CI denotes credible intervals calculated from a binomial model. Red line in example histograms denotes QC threshold [@breheny2018p]."
+(ref:fig2) Classes of p value histograms. N = 2109. 95% CI denotes credible intervals calculated from a binomial model. Red line in example histograms denotes QC threshold [@breheny2018p].
 
 ```{r fig2, fig.cap="(ref:fig2)", fig.align="center", out.width="8cm"}
 knitr::include_graphics(here::here("figures/figure_2.pdf"))
@@ -67,7 +67,7 @@ We algorithmically classified the p value histograms into five classes [@breheny
 
 
 
-```{r fig3, fig.align='center', out.width="14cm", fig.cap='Multinomial logistic regression reveals association of the quality of p value calculation with data analysis platform. A. The increase in the proportion of anti-conservative histograms is accomplished by decreases mostly in the class "other", irrespective of the analysis platform. B. Association of p value histogram type with data analysis platform, restricted to 2018-2019 GEO submissions. 95\\% credibility envelopes (shaded areas, panel A), and credible intervals (panel B)  for the proportion of each p value histogram type for each analysis platform  are shown. Models: A. class $\\sim$ year + (year I platform), categorical likelihood; B. class $\\sim$ platform, categorical likelihood.'}
+```{r fig3, fig.align='center', out.width="14cm", fig.cap='Multinomial logistic regression reveals association of the quality of p value calculation with data analysis platform. A. The increase in the proportion of anti-conservative histograms is accomplished by decreases mostly in the class "other", irrespective of the analysis platform. B. Association of p value histogram type with data analysis platform, restricted to 2018-2019 GEO submissions. 95\\% credibility envelopes (shaded areas, panel A), and credible intervals (panel B)  for the proportion of each p value histogram type for each analysis platform  are shown. Models: A. class $\\sim$ year + (year | platform), categorical likelihood; B. class $\\sim$ platform, categorical likelihood.'}
 knitr::include_graphics(here::here("figures/figure_3.pdf"))
 ```
 
@@ -140,7 +140,6 @@ Raw p value sets with anti-conservative shape were used to calculate the $\pi0$ 
 
 Publication data were downloaded from NCBI PubMed database. Citation data were downloaded from Elevier Scopus database. Sequence read library statistics were downloaded from NCBI SRA database. The code to produce raw dataset is available as a snakemake workflow [@koster2012snakemake] on rstats-tartu/geo-htseq Github repo. Raw dataset produced by the workflow is deposited in Zenodo with doi: 10.5281/zenodo.4046422. The code to produce article's figures and fit models is deposited on tpall/geo-htseq-paper Github repo. 
 Statistical analysis was done in R. Bayesian modeling was done using R libraries rstan (vers. 2.21.2; http://mc-stan.org/) and brms (vers. 2.13.3) [@burkner2018]. ggplot2 (vers. 3.3.1) [@wickham2016ggplot2] R library was used for graphics. The $\pi0$  statistic was calculated using local FDR method implemented in limma::PropTrueNullByLocalFDR [@ritchie2015limma] and, independently, Storeys global FDR smoother method [@storey2002direct] as implemented in gdsctools Python package.
-
 
 # Acknowledgments {-}
 
