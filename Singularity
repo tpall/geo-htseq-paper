@@ -30,8 +30,7 @@ From: tpall/singularity-tidyverse:latest
 # We need to update repos to install cmdstanr
 CRAN=$(Rscript -e 'cat(getOption("repos"))')
 
-install2.r --error \
-    --deps TRUE \
+install2.r --deps TRUE \
     --skipinstalled \
     --repos $CRAN https://mc-stan.org/r-packages/ \
     brms \
