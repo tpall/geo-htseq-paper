@@ -27,6 +27,14 @@ From: tpall/singularity-tidyverse:latest
     curl \
     wget
 
+# Install cmdstan
+VERSION=${VERSION:-2.25.0}
+curl -O https://github.com/stan-dev/cmdstan/releases/download/v${VERSION}/cmdstan-${VERSION}.tar.gz \
+    && tar -xzvf cmdstan-${VERSION}.tar.gz \
+    && ln -s cmdstan-${VERSION} cmdstan \
+    && cd cmdstan \
+    && make build
+
 # We need to update repos to install cmdstanr
 CRAN=$(Rscript -e 'cat(getOption("repos"))')
 
