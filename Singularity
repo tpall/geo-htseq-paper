@@ -18,6 +18,8 @@ From: tpall/singularity-tidyverse:latest
     libfribidi-dev \
     libavfilter-dev \
     libpoppler-cpp-dev \
+    libtesseract-dev \
+    libleptonica-dev \
     cargo \
     jags \
     git \
