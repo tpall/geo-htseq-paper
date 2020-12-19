@@ -20,6 +20,7 @@ From: tpall/singularity-tidyverse:latest
     libpoppler-cpp-dev \
     libtesseract-dev \
     libleptonica-dev \
+    tesseract-ocr-eng \
     cargo \
     jags \
     git \
