@@ -23,6 +23,7 @@ From: tpall/singularity-tidyverse:latest
     tesseract-ocr-eng \
     cargo \
     jags \
+    g++ \
     git \
     curl \
     wget
