@@ -5,6 +5,9 @@ image:
 build:
   script:
     - singularity build --notest Singularity.sif Singularity
+
+    - mkdir -p build && cp *.sif build
+    - mkdir -p build && cp Singularity* build
   
   # This is where you can save job artifacts
   # https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html
