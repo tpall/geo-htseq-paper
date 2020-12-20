@@ -4,8 +4,7 @@ image:
 
 build:
   script:
-    - singularity build Singularity.sif Singularity
-    - singularity test
+    - singularity build --notest Singularity.sif Singularity
   
   # This is where you can save job artifacts
   # https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html
