@@ -10,7 +10,8 @@ From: tpall/singularity-tidyverse:latest
 %post
   ## Download and install tidyverse & other packages
   apt-get update -qq \
-  && apt-get -y --no-install-recommends install \
+  && apt-get install -y --no-install-recommends \
+    --reinstall build-essential \
     libnlopt-dev \
     libfontconfig1-dev \
     libmagick++-dev \
