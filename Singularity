@@ -23,13 +23,12 @@ From: tpall/singularity-tidyverse:latest
     tesseract-ocr-eng \
     cargo \
     jags \
-    g++ \
     git \
     curl \
     wget
 
 # Install cmdstan
-git clone https://github.com/stan-dev/cmdstan.git
+git clone --recursive https://github.com/stan-dev/cmdstan.git
 cd cmdstan && make build
 
 # We need to update repos to install cmdstanr
@@ -47,10 +46,6 @@ install2.r --deps TRUE \
     magick \
     V8 \
     sparkline
-
-## C++ toolchain configuration
-mkdir -p $HOME/.R \
-  && printf "\nCXX14FLAGS=-O3 -march=native -mtune=native -fPIC\nCXX14=g++" > $HOME/.R/Makevars
 
 ## Clean up from R source install
   cd / \
