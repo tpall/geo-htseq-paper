@@ -15,6 +15,10 @@ build:
     entrypoint: [""]
   script:
     - singularity build --notest $SINGULARITY_IMAGE $RECIPE
+  artifacts:
+    paths:
+      - $SINGULARITY_IMAGE
+      - $RECIPE
 
 upload:
   stage: deploy
