@@ -1,11 +1,25 @@
-image: 
-  name: quay.io/singularity/singularity:v3.4.0-slim
-  entrypoint: [""]
+
+stages:
+  - build
+  - deploy
 
 build:
+  stage: build
+  image: 
+    name: quay.io/singularity/singularity:v3.4.0-slim
+    entrypoint: [""]
+  script:
+    - singularity build --notest singularity.sif Singularity
+
+upload:
+  stage: deploy
+  image: 
+    name: mintel/docker-alpine-bash-curl-jq
+    entrypoint: [""]
   variables:
     DEPOSITION: 4332268
+  before_script:
+    - chmod +x .gitlabci/upload.sh
   script:
-    - singularity build --notest Singularity.sif Singularity
-    - ./zenodo_upload.sh $DEPOSITION Singularity.sif
-    - ./zenodo_upload.sh $DEPOSITION Singularity
+    - /bin/sh .gitlabci/upload.sh $DEPOSITION singularity.sif
+    - /bin/sh .gitlabci/upload.sh $DEPOSITION Singularity
