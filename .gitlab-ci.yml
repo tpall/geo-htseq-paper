@@ -1,32 +1,16 @@
 
-stages:
-  - build
-  - deploy
-
 variables:
   RECIPE: Singularity
   SINGULARITY_IMAGE: singularity.sif
   DEPOSITION: 4332268
     
 build:
-  stage: build
   image: 
-    name: quay.io/singularity/singularity:v3.4.0-slim
-    entrypoint: [""]
-  script:
-    - singularity build --notest $SINGULARITY_IMAGE $RECIPE
-  artifacts:
-    paths:
-      - $SINGULARITY_IMAGE
-      - $RECIPE
-
-upload:
-  stage: deploy
-  image: 
-    name: mintel/docker-alpine-bash-curl-jq
+    name: quay.io/tpall/singularity-curl-jq
     entrypoint: [""]
   before_script:
     - chmod +x .gitlabci/upload.sh
   script:
+    - singularity build --notest $SINGULARITY_IMAGE $RECIPE
     - /bin/sh .gitlabci/upload.sh $DEPOSITION $SINGULARITY_IMAGE
     - /bin/sh .gitlabci/upload.sh $DEPOSITION $RECIPE
