@@ -3,17 +3,9 @@ image:
   entrypoint: [""]
 
 build:
+  variables:
+    DEPOSITION: 4332268
   script:
     - singularity build --notest Singularity.sif Singularity
-
-    - mkdir -p build && cp *.sif build
-    - mkdir -p build && cp Singularity* build
-  
-  # This is where you can save job artifacts
-  # https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html
-  # You can specify the path to containers or the build folder to save.
-  # Don't forget to save your recipes too!
-  artifacts:
-      paths:
-        - build/Singularity.sif
-        - build/Singularity
+    - ./zenodo_upload.sh $DEPOSITION Singularity.sif
+    - ./zenodo_upload.sh $DEPOSITION Singularity
