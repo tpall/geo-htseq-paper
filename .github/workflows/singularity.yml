@@ -60,28 +60,12 @@ jobs:
            echo "Present working directory: $PWD"
            ls
        fi
-       ls
-       pwd
-    
-    - name: Test
-      env:
-        SINGULARITY_IMAGE: container-${{ matrix.recipe }}.sif
-      run: |
-        echo "Using Singularity image: ${SINGULARITY_IMAGE}"
-        
-        version () {
-          singularity inspect "${SINGULARITY_IMAGE}" | \
-            grep "R_V" | \
-            awk -F' ' '{print $2}'
-        }
-        
-        set -e
-        set -x
-        
-        # Verify R version
-        singularity exec ${SINGULARITY_IMAGE} r -q -e "stopifnot(getRversion() == '$(version)')"
-        
-        # Test rstan
-        singularity exec ${SINGULARITY_IMAGE} r -e 'library(rstan); example(stan_model, package = "rstan", run.dontrun = TRUE)'
-        { set +x; } 2>/dev/null
-        echo "All tests passed!"
+
+       if [ -f "${OUTPUT_CONTAINER}" ]; then
+            echo "Testing the image...!"
+            singularity test ${OUTPUT_CONTAINER}
+        else
+           echo "${OUTPUT_CONTAINER} is not found."
+           echo "Present working directory: $PWD"
+           ls
+       fi

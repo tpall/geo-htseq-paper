@@ -57,6 +57,7 @@ p <- p +
   scale_x_continuous(breaks = seq(2006, 2019, by = 2)) +
   scale_y_continuous(limits = c(0, 1))
 ggsave(here("figures/figure_1.tiff"), plot = p, height = 6, width = 10, dpi = 300, units = "cm")
+ggsave(here("figures/figure_1.pdf"), plot = p, height = 6, width = 10, dpi = 300, units = "cm")
 
 #' 
 #+ fig2
@@ -247,6 +248,7 @@ p3b <- p$`de_tool:cats__` +
 p3b$layers[[1]]$aes_params$size <- 1
 p3 <- p3a / p3b + plot_annotation(tag_levels = "A") +  plot_layout(guides = 'auto')
 ggsave(here("figures/figure_3.tiff"), plot = p3, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/figure_3.pdf"), plot = p3, width = 18, height = 12, units = "cm", dpi = 300)
 
 #'
 #'
@@ -309,3 +311,4 @@ p4 <- (p4a + p4b) / p4c +
   plot_layout(heights = c(1, 2)) +
   plot_annotation(tag_levels = "A")
 ggsave(here("figures/figure_4.tiff"), plot = p4, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/figure_4.pdf"), plot = p4, width = 18, height = 12, units = "cm", dpi = 300)
