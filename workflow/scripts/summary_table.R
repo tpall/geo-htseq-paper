@@ -86,6 +86,15 @@ scopus_citedbycount <- read_csv("resources/data/scopus_citedbycount.csv", col_ty
 pubs <- pubs %>% 
   left_join(scopus_citedbycount)
 
+pubmedids<- geo_suppfiles %>% 
+  select(Accession, PubMedIds) %>% 
+  rowwise() %>% 
+  mutate(PubMedIds = map(PubMedIds, str_split, pattern = ";")) %>% 
+  unnest(PubMedIds) %>% 
+  unnest(PubMedIds)
+
+geo_publications <- pubmedids %>% 
+  left_join(pubs)
 
 #' Merge imported supplementary files data with p values.
 #+
@@ -98,12 +107,6 @@ imported_suppfiles <- suppfiles %>%
   ))
 imported_suppfiles %>% 
   write_csv(here("results/imported_suppfiles.csv"))
-
-#' Parse p value histograms.
-#+
-hist_to_num <- function(x) as.numeric(gsub("[[:punct:][:space:]]", "", unlist(strsplit(x, ","))))
-# pvalues_hist <- pvalues %>%
-#   mutate(hist = map_chr(hist, ~ spk_chr(hist_to_num(.x), type = "bar", chartRangeMin = 0, chartRangeMax = max(.x))))
 
 #' Write dataset descriptions to README
 #+
@@ -142,3 +145,38 @@ write_desc(imported_suppfiles,
            var_desc, 
            "results/README.txt")
 
+var_desc <- c(
+  "GEO accession",
+  "Pubmed id number",
+  "publication date",
+  "electronic publication date",
+  "publication source title",
+  "authors list",
+  "last author name",
+  "article title",
+  "Digital Object Identifier",
+  "number of citations"
+)
+write_desc(geo_publications, 
+           "results/geo_publications.csv", 
+           "publications citing GEO submissions", 
+           var_desc, 
+           "results/README.txt")
+
+sequencing_metadata <- read_csv(here("results/sequencing_metadata.csv"))
+var_desc <- c(
+  "GEO accession",
+  "sequencing library type",
+  "sequencing library source",
+  "approach for sequencing library selection",
+  "sequencing library layout",
+  "sequencing instrument platform",
+  "sequencing instrument model",
+  "source taxon id",
+  "number of reads in library"
+)
+write_desc(sequencing_metadata, 
+           "results/sequencing_metadata.csv", 
+           "sequencing metadata from SRA", 
+           var_desc, 
+           "results/README.txt")
