@@ -36,13 +36,16 @@ seq_platform <- spots_col_fix %>%
     TRUE ~ model
   ))
 
-spots <- seq_platform %>% 
+sequencing_metadata <- seq_platform %>% 
   mutate_at("spots", as.numeric) %>% 
   group_by(geo_accession, library_strategy, library_source, library_selection, library_layout, platform, model, tax_id) %>% 
   summarise_at("spots", list(reads = mean)) %>% 
   ungroup()
 
-sequencing_metadata_unique_platform <- spots %>% 
+sequencing_metadata %>% 
+  write_csv(here("results/sequencing_metadata.csv"))
+
+sequencing_metadata_unique_platform <- sequencing_metadata %>% 
   group_by(Accession = geo_accession) %>% 
   add_count() %>% 
   ungroup() %>% 
