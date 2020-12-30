@@ -101,7 +101,7 @@ rule figures:
     log:
         "results/log/figures.log",
     container:
-        "shub://tpall/geo-htseq-paper"
+        "docker://rstatstartu/rstanverse" # brms will crash treat this as a pseudo code for now..
     resources:
         runtime=1440,
         mem_mb=8000,
@@ -143,10 +143,16 @@ rule figure_supplements:
     log:
         "results/log/figures.log",
     container:
-        "shub://tpall/geo-htseq-paper"
+        "docker://rstatstartu/rstanverse" # brms will crash treat this as a pseudo code for now..
     resources:
         runtime=1440,
         mem_mb=8000,
     threads: 4
     shell:
         "rmarkdown::render(here::here('workflow/scripts/figure_supplements.R'), output_dir = here::here('results'))"
+
+# rule main:
+#     input: 
+#         expand("figures/figure_{n}.tiff", n = list(range(1,5))), 
+#         "results/figure_supplements.pdf",
+    
