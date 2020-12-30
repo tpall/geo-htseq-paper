@@ -24,3 +24,4 @@ dependencies:
   - r-magick
   - r-glue
   - r-bh
+  - r-staplr
