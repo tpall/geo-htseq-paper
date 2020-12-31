@@ -50,11 +50,11 @@ jobs:
     - name: Build Container
       env:
         SINGULARITY_RECIPE: ${{ matrix.recipe }}
-        OUTPUT_CONTAINER: container-${{ matrix.recipe }}.sif
+        OUTPUT_CONTAINER: ${{ matrix.recipe }}.sif
       run: |
        ls 
        if [ -f "${SINGULARITY_RECIPE}" ]; then
-            sudo -E singularity build ${OUTPUT_CONTAINER} ${SINGULARITY_RECIPE}
+            sudo -E singularity build --notest ${OUTPUT_CONTAINER} ${SINGULARITY_RECIPE}
        else
            echo "${SINGULARITY_RECIPE} is not found."
            echo "Present working directory: $PWD"
@@ -65,21 +65,10 @@ jobs:
     
     - name: Test
       env:
-        SINGULARITY_IMAGE: container-${{ matrix.recipe }}.sif
+        SINGULARITY_IMAGE: {{ matrix.recipe }}.sif
       run: |
         echo "Using Singularity image: ${SINGULARITY_IMAGE}"
-        
-        version () {
-          singularity inspect "${SINGULARITY_IMAGE}" | \
-            grep "R_V" | \
-            awk -F' ' '{print $2}'
-        }
-        
-        set -e
-        set -x
-        
-        # Verify R version
-        singularity exec ${SINGULARITY_IMAGE} r -q -e "stopifnot(getRversion() == '$(version)')"
+
         
         # Test rstan
         singularity exec ${SINGULARITY_IMAGE} r -e 'library(rstan); example(stan_model, package = "rstan", run.dontrun = TRUE)'

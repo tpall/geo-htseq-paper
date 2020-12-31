@@ -141,7 +141,7 @@ rule figure_supplements:
         "results/models/anticons__1_libraryselection.rds",
         "results/models/anticons__1_librarylayout.rds",
     log:
-        "results/log/figures.log",
+        "results/log/figure_supplements.log",
     container:
         "shub://tpall/geo-htseq-paper:latest" 
     resources:
@@ -149,7 +149,9 @@ rule figure_supplements:
         mem_mb=8000,
     threads: 4
     shell:
-        "rmarkdown::render(here::here('workflow/scripts/figure_supplements.R'), output_dir = here::here('results'))"
+        """
+        Rscript -e 'rmarkdown::render(here::here("workflow/scripts/figure_supplements.R"), output_dir = here::here("results"))''
+        """
 
 # rule main:
 #     input: 
