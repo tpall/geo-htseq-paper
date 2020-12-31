@@ -1,5 +1,5 @@
 BootStrap: docker
-From: rstatstartu/rstanverse:v0.2
+From: rstatstartu/rstanverse:latest
 
 %labels
   Maintainer tpall
