@@ -93,12 +93,12 @@ rule figures:
     output:
         expand("figures/figure_{n}.pdf", n = list(range(1,5))),
         "results/files_to_check_pi0.txt",
-        "results/models/conforms_year.rds",
-        "results/models/Class_1.rds",
-        "results/models/Class_year__year_detool_year.rds",
-        "results/models/Class_detool_2018-19.rds",
-        "results/models/pi0_detool.rds",
-        "results/models/pi0_year__year_detool.rds",
+        # "results/models/conforms_year.rds",
+        # "results/models/Class_1.rds",
+        # "results/models/Class_year__year_detool_year.rds",
+        # "results/models/Class_detool_2018-19.rds",
+        # "results/models/pi0_detool.rds",
+        # "results/models/pi0_year__year_detool.rds",
     log:
         "results/log/figures.log",
     container:
