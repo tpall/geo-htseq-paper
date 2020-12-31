@@ -150,7 +150,7 @@ rule figure_supplements:
     threads: 4
     shell:
         """
-        Rscript -e 'rmarkdown::render(here::here("workflow/scripts/figure_supplements.R"), output_dir = here::here("results"))''
+        Rscript -e 'rmarkdown::render(here::here("workflow/scripts/figure_supplements.R"), output_dir = here::here("results"))'
         """
 
 # rule main:
