@@ -4,7 +4,7 @@ rule all:
         "results/pvalues.csv",
         "results/sequencing_metadata_unique_platform.csv",
         "results/figure_supplements.pdf",
-        expand("figures/figure_{n}.tiff", n = list(range(1,5))),
+        expand("figures/figure_{n}.pdf", n = list(range(1,5))),
         expand("figures/figure_S{n}.tiff", n = list(range(1,15))),
         "results/pall_et_al.pdf",
 
@@ -91,7 +91,7 @@ rule figures:
         "results/data/parsed_suppfiles.csv",
         "results/pvalues_acc.csv",
     output:
-        expand("figures/figure_{n}.tiff", n = list(range(1,5))),
+        expand("figures/figure_{n}.pdf", n = list(range(1,5))),
         "results/files_to_check_pi0.txt",
         "results/models/conforms_year.rds",
         "results/models/Class_1.rds",
@@ -156,7 +156,7 @@ rule figure_supplements:
 
 rule main:
     input:
-        expand("figures/figure_{n}.tiff", n = list(range(1,5))),
+        expand("figures/figure_{n}.pdf", n = list(range(1,5))),
         "results/figure_supplements.pdf",
     output:
         "results/main.pdf",
