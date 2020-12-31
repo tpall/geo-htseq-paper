@@ -6,6 +6,7 @@ rule all:
         "results/figure_supplements.pdf",
         expand("figures/figure_{n}.tiff", n = list(range(1,5))),
         expand("figures/figure_S{n}.tiff", n = list(range(1,15))),
+        "results/pall_et_al.pdf",
 
 
 rule download:
@@ -153,8 +154,59 @@ rule figure_supplements:
         Rscript -e 'rmarkdown::render(here::here("workflow/scripts/figure_supplements.R"), output_dir = here::here("results"))'
         """
 
-# rule main:
-#     input: 
-#         expand("figures/figure_{n}.tiff", n = list(range(1,5))), 
-#         "results/figure_supplements.pdf",
+rule main:
+    input:
+        expand("figures/figure_{n}.tiff", n = list(range(1,5))),
+        "results/figure_supplements.pdf",
+    output:
+        "results/main.pdf",
+    container:
+        "shub://tpall/geo-htseq-paper:latest" 
+    resources:
+        runtime=120,
+        mem_mb=8000,
+    threads: 4
+    shell:
+        """
+        Rscript -e 'rmarkdown::render(here::here("workflow/scripts/main/main.Rmd"), output_dir = here::here("results"))'
+        """    
     
+rule staple:
+    input:
+        "results/main.pdf",
+        "results/figure_supplements.pdf",
+    output:
+        "results/pall_et_al.pdf",
+    container:
+        "shub://tpall/geo-htseq-paper:latest" 
+    resources:
+        runtime=120,
+        mem_mb=8000,
+    threads: 4
+    shell:
+        """
+        Rscript -e 'staplr::staple_pdf(input_files = c(here::here({input[0]}), here::here({input[1]})), output_filepath = here::here({output[0]}))'
+        """    
+ 
+rule suppl_data:
+    input:
+        "results/data/document_summaries.csv",
+        "results/data/suppfilenames.txt",
+        "resources/data/parsed_suppfiles.csv",
+        "resources/data/publications.csv",
+        "resources/data/scopus_citedbycount.csv",
+        "results/pvalues.csv",
+    output:
+        "results/geo_suppfiles.csv",
+        "results/imported_suppfiles.csv",
+        "results/sequencing_metadata.csv",
+        "results/README.txt",
+    conda:
+        "envs/environment.yml"
+    resources:
+        runtime=120,
+        mem_mb=8000,
+    threads: 4
+    script:
+        "scripts/summary_table.R"
+

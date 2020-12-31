@@ -13,7 +13,6 @@ library("tidyr")
 library("here")
 library("dplyr")
 library("purrr")
-library("sparkline")
 library("skimr")
 
 #' Helper function to write output description to README.
