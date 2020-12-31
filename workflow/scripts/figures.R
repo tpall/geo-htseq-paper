@@ -29,6 +29,9 @@ chains <- 4
 cores <- chains
 refresh = 200
 rstan_options(auto_write = TRUE, javascript = FALSE)
+if (!dir.exists("results/models")) {
+    dir.create("results/models", recursive = TRUE)
+}
 
 #+ data
 conformity_acc <- read_csv(here("results/conformity_acc.csv"))
