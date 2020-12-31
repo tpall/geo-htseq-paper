@@ -170,7 +170,9 @@ tibble_output <- plot_data %>%
     }
   )
 
-
+tibble_output %>% 
+  gtsave(here("figures/figure_2.pdf"))
+knitr::plot_crop(here("figures/figure_2.pdf"))
 tibble_output %>% 
   gtsave(here("figures/figure_2.png"), 
          expand = 10)
@@ -249,7 +251,7 @@ p3b <- p$`de_tool:cats__` +
         legend.position = "bottom")
 p3b$layers[[1]]$aes_params$size <- 1
 p3 <- p3a / p3b + plot_annotation(tag_levels = "A") +  plot_layout(guides = 'auto')
-ggsave(here("figures/figure_3.tiff"), plot = p3, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/figure_3.pdf"), plot = p3, width = 18, height = 12, units = "cm", dpi = 300)
 
 #'
 #'
@@ -311,4 +313,4 @@ p4a <- pvalues_sample %>%
 p4 <- (p4a + p4b) / p4c + 
   plot_layout(heights = c(1, 2)) +
   plot_annotation(tag_levels = "A")
-ggsave(here("figures/figure_4.tiff"), plot = p4, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/figure_4.pdf"), plot = p4, width = 18, height = 12, units = "cm", dpi = 300)
