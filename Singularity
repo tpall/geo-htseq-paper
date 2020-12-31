@@ -8,6 +8,8 @@ From: rstatstartu/rstanverse:latest
   This will run R packages to fit stan models
 
 %post
+  Rscript -e "webshot::install_phantomjs()"
+
   cd / \
   && apt-get autoremove -y \
   && apt-get autoclean -y \
