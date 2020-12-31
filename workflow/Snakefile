@@ -101,7 +101,7 @@ rule figures:
     log:
         "results/log/figures.log",
     container:
-        "docker://rstatstartu/rstanverse" # brms will crash treat this as a pseudo code for now..
+        "shub://tpall/geo-htseq-paper:latest"
     resources:
         runtime=1440,
         mem_mb=8000,
@@ -143,7 +143,7 @@ rule figure_supplements:
     log:
         "results/log/figures.log",
     container:
-        "docker://rstatstartu/rstanverse" # brms will crash treat this as a pseudo code for now..
+        "shub://tpall/geo-htseq-paper:latest" 
     resources:
         runtime=1440,
         mem_mb=8000,
