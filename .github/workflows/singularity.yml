@@ -65,7 +65,7 @@ jobs:
     
     - name: Test
       env:
-        SINGULARITY_IMAGE: {{ matrix.recipe }}.sif
+        SINGULARITY_IMAGE: ${{ matrix.recipe }}.sif
       run: |
         echo "Using Singularity image: ${SINGULARITY_IMAGE}"
 
