@@ -158,6 +158,7 @@ fig2a <- gtable_add_grob(fig2a,
                            y1 = unit(0,"npc"),
                            gp = gpar(lwd = 2.0)),
                          t = 1, b = 1, l = 1, r = 3)
+
 fig2b <- hist_data_plots %>% 
   mutate(
     data = map(hist, ~tibble(x = seq(0, 1, length.out = length(.x)), y = .x)),
@@ -169,7 +170,7 @@ fig2b <- hist_data_plots %>%
   geom_col(aes(x, y)) +
   geom_hline(aes(yintercept = QC_thr), hist_data_plots, color = "red") +
   facet_wrap(~Class, ncol = 1,scales = "free") +
-  theme_minimal(font_size = 8) +
+  theme_minimal_vgrid(font_size = 8) +
   theme(axis.title = element_blank(),
         axis.text = element_blank(),
         panel.grid.major = element_blank(), 
