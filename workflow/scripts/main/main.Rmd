@@ -56,10 +56,10 @@ knitr::include_graphics(here::here("figures/figure_1.pdf"))
 
 According to GEO submission requirements, the processed data files may contain raw counts of sequencing reads, and/or normalized abundance measurements. Therefore, a valid processed data submission may or may not contain lists of p values. We identified p values from 2,109 GEO series, from which we extracted 6,267 unique p value sets. While the mean number of p value lists, each list corresponding to a separate experiment,  per 2,109 GEO submissions was 2.97 (max 66), 49% of submissions contained a single p value list and 78% contained 1-3 p value lists. For further analysis we randomly selected one p value list per GEO series.
 
-(ref:fig2) Classes of p value histograms. N = 2109. 95% CI denotes credible intervals calculated from a binomial model. Red line in example histograms denotes QC threshold [@breheny2018p].
+(ref:fig2) Classes of p value histograms. A. Summary of p value histograms identified from GEO supplementary files. One p value set was randomly sampled from each GEO series where p values were identified. N = 2109. 95% CI denotes credible intervals calculated from a binomial model. B. Examples of p value histogram classes. Red line denotes QC threshold [@breheny2018p].
 
-```{r fig2, fig.cap="(ref:fig2)", fig.align="center", out.width="8cm"}
-knitr::include_graphics(here::here("figures/figure_2.png"))
+```{r fig2, fig.cap="(ref:fig2)", fig.align="center", out.width="12cm"}
+knitr::include_graphics(here::here("figures/figure_2.pdf"))
 ```
 
    

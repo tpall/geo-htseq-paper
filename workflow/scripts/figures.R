@@ -9,10 +9,13 @@ if (exists("snakemake")) {
 library(stats) # masks filter
 library(readr)
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(stringr)
 library(purrr)
-library(gt)
+library(grid)
+library(gridExtra)
+library(gtable)
 library(extrafont)
 library(cowplot)
 library(patchwork)
@@ -59,7 +62,7 @@ p <- p +
   labs(x = "Year", y = "Proportion of submissions conforming\nwith GEO submission guidelines") +
   scale_x_continuous(breaks = seq(2006, 2019, by = 2)) +
   scale_y_continuous(limits = c(0, 1))
-ggsave(here("figures/figure_1.tiff"), plot = p, height = 6, width = 10, dpi = 300, units = "cm")
+ggsave(here("figures/figure_1.pdf"), plot = p, height = 6, width = 7, dpi = 300, units = "cm")
 
 #' 
 #+ fig2
@@ -94,18 +97,6 @@ qc_threshold <- function(x, fdr) {
   qbinom(1 - 1 / bins * fdr, sum(x), 1 / bins)
 }
 
-
-plot_qc_hist <- function(counts, t) {
-  ggplot() +
-    geom_col(aes(x = seq(0, 1, length.out = length(counts)), y = counts)) +
-    geom_hline(yintercept = t, color = "red", size = 3) +
-    theme_minimal() +
-    theme(axis.title = element_blank(),
-          axis.text = element_blank(),
-          panel.grid.major = element_blank(), 
-          panel.grid.minor = element_blank())
-}
-
 hist_examples <- list(
   Class = c("conservative", "anti-conservative", "uniform", "bimodal", "other"), 
   id = c("GSE63555_Gene_expression_cuffdiff_fpkm.txt.gz", "GSE89511_diff.geneFpkm.exon.glm.LogFc.0.exc.Gapdh.RPMI8226_MCL1.txt.gz", "GSE102826_model_fc.txt.gz", "GSE115649_P20WT_P20M_results.csv.gz", "GSE98869_diffexp.tsv.gz"),
@@ -113,18 +104,15 @@ hist_examples <- list(
 ) %>% 
   as_tibble()
 
-
 hist_data <- parsed_suppfiles %>% 
   inner_join(hist_examples)
-
 
 hist_data_plots <- hist_data %>% 
   mutate(hist = str_remove_all(hist, "[:punct:]"),
          hist = str_split(hist, " "),
          hist = map(hist, as.numeric)) %>% 
   select(Accession, id, Class, hist) %>%
-  mutate(QC_thr = map_dbl(hist, qc_threshold, fdr = 0.05),
-         QC_plot = map2(hist, QC_thr, plot_qc_hist))
+  mutate(QC_thr = map_dbl(hist, qc_threshold, fdr = 0.05))
 
 
 class_counts <- suppfiles_sample %>% 
@@ -148,36 +136,54 @@ classes_props <- pe[1:4000, 1, 1:5] %>%
          Example = NA) %>% 
   select(Class, `Fraction [95% CI]`, Example)
 
-
 plot_data <- hist_data_plots %>% 
-  select(Class, QC_plot) %>% 
+  select(Class) %>% 
   left_join(class_counts) %>% 
   left_join(
     classes_props
   ) %>% 
   arrange(desc(N)) %>% 
-  select(Class, N, `Fraction [95% CI]`, Example, QC_plot) %>% 
+  select(Class, N, `Fraction [95% CI]`) %>% 
   ungroup()
 
+fig2a <- tableGrob(
+  arrange(plot_data, Class), 
+  rows = NULL, 
+  theme = ttheme_minimal(base_size = 8))
+fig2a <- gtable_add_grob(fig2a,
+                         grobs = segmentsGrob( # line across the bottom
+                           x0 = unit(0,"npc"),
+                           y0 = unit(0,"npc"),
+                           x1 = unit(1,"npc"),
+                           y1 = unit(0,"npc"),
+                           gp = gpar(lwd = 2.0)),
+                         t = 1, b = 1, l = 1, r = 3)
+fig2b <- hist_data_plots %>% 
+  mutate(
+    data = map(hist, ~tibble(x = seq(0, 1, length.out = length(.x)), y = .x)),
+    Class = factor(Class, levels = c("uniform", "bimodal", "other", "anti-conservative", "conservative"))
+    ) %>% 
+  select(Class, QC_thr, data) %>% 
+  unnest(data) %>% 
+  ggplot() +
+  geom_col(aes(x, y)) +
+  geom_hline(aes(yintercept = QC_thr), hist_data_plots, color = "red") +
+  facet_wrap(~Class, ncol = 1,scales = "free") +
+  theme_minimal(font_size = 8) +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())
 
-tibble_output <- plot_data %>%
-  select(-QC_plot) %>% 
-  gt() %>%
-  text_transform(
-    locations = cells_body(vars(Example)),
-    fn = function(x) {
-      map(plot_data$QC_plot, ggplot_image, height = px(30), aspect_ratio = 1.5)
-    }
-  )
-
-# tibble_output %>%
-#   gtsave(here("figures/figure_2.pdf"))
-# knitr::plot_crop(here("figures/figure_2.pdf"))
-tibble_output %>% 
-  gtsave(here("figures/figure_2.png"), 
-         expand = 10)
-fig_2 <- image_read(here("figures/figure_2.png"))
-image_write(fig_2, path = here("figures/figure_2.tiff"), format = "tiff")
+layout <- "
+###B
+AAAB
+###B
+"
+p2 <- wrap_elements(fig2a) + wrap_elements(fig2b) + 
+  plot_annotation(tag_levels = "A") +
+  plot_layout(design = layout)
+ggsave(here("figures/figure_2.pdf"), plot = p2, width = 12, height = 8, units = "cm", dpi = 300)
 
 #'
 #+ fig3
