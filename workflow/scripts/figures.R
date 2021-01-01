@@ -170,9 +170,9 @@ tibble_output <- plot_data %>%
     }
   )
 
-tibble_output %>% 
-  gtsave(here("figures/figure_2.pdf"))
-knitr::plot_crop(here("figures/figure_2.pdf"))
+# tibble_output %>%
+#   gtsave(here("figures/figure_2.pdf"))
+# knitr::plot_crop(here("figures/figure_2.pdf"))
 tibble_output %>% 
   gtsave(here("figures/figure_2.png"), 
          expand = 10)

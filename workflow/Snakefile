@@ -91,7 +91,8 @@ rule figures:
         "results/data/parsed_suppfiles.csv",
         "results/pvalues_acc.csv",
     output:
-        expand("figures/figure_{n}.pdf", n = list(range(1,5))),
+        expand("figures/figure_{n}.pdf", n = [1,3,4]),
+        "figures/figure_2.png",
         "results/files_to_check_pi0.txt",
         # "results/models/conforms_year.rds",
         # "results/models/Class_1.rds",

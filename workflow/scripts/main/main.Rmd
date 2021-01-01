@@ -59,7 +59,7 @@ According to GEO submission requirements, the processed data files may contain r
 (ref:fig2) Classes of p value histograms. N = 2109. 95% CI denotes credible intervals calculated from a binomial model. Red line in example histograms denotes QC threshold [@breheny2018p].
 
 ```{r fig2, fig.cap="(ref:fig2)", fig.align="center", out.width="8cm"}
-knitr::include_graphics(here::here("figures/figure_2.pdf"))
+knitr::include_graphics(here::here("figures/figure_2.png"))
 ```
 
    
