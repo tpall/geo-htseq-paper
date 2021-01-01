@@ -1,5 +1,5 @@
 BootStrap: docker
-From: rstatstartu/rstanverse:v0.3
+From: rstatstartu/rstanverse:latest
 
 %labels
   Maintainer tpall
@@ -8,10 +8,7 @@ From: rstatstartu/rstanverse:v0.3
   This will run R packages to fit stan models
 
 %post
-  apt-get update \
-	&& apt-get install -y --no-install-recommends \
-    phantomjs \
-    && cd / \
+  cd / \
     && apt-get autoremove -y \
     && apt-get autoclean -y \
     && rm -rf /var/lib/apt/lists/*
