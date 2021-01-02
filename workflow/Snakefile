@@ -8,7 +8,6 @@ rule all:
         expand("figures/figure_S{n}.tiff", n = list(range(1,15))),
         "results/pall_et_al.pdf",
 
-
 rule download:
     output:
         "results/geo-htseq-until-2019-12-31.tar.gz",
@@ -177,8 +176,8 @@ rule staple:
         "results/figure_supplements.pdf",
     output:
         "results/pall_et_al.pdf",
-    container:
-        "shub://tpall/geo-htseq-paper:latest" 
+    conda:
+        "envs/environment.yml"
     resources:
         runtime=120,
         mem_mb=8000,

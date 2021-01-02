@@ -3,7 +3,6 @@ channels:
   - bioconda
   - conda-forge
   - r
-  - bioconda
 dependencies:
   - r-dplyr
   - r-readr
@@ -12,16 +11,4 @@ dependencies:
   - r-tidyr
   - r-lubridate
   - r-here
-  - r-ggplot2
-  - r-gt
-  - r-extrafont
-  - r-cowplot
-  - r-patchwork
-  - r-viridis
-  - r-brms
-  - r-rstan
-  - r-tidybayes
-  - r-magick
-  - r-glue
-  - r-bh
-  - r-skimr
+  - r-staplr
