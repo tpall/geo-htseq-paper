@@ -3,6 +3,7 @@ channels:
   - bioconda
   - conda-forge
   - r
+  - dorbarker
 dependencies:
   - r-dplyr
   - r-readr
@@ -12,3 +13,8 @@ dependencies:
   - r-lubridate
   - r-here
   - r-staplr
+  - r-rmarkdown>= 2.5
+  - r-bookdown
+  - r-rticles=0.17
+  - pdftk
+
