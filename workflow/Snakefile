@@ -1,9 +1,9 @@
+localrules: all, staple
 
 rule all:
     input:
-        "results/pvalues.csv",
-        "results/sequencing_metadata_unique_platform.csv",
         "results/figure_supplements.pdf",
+        "results/main.pdf",
         expand("figures/figure_{n}.pdf", n=list(range(1, 5))),
         expand("figures/figure_S{n}.tiff", n=list(range(1, 15))),
         "results/pall_et_al.pdf",
@@ -169,6 +169,22 @@ rule main:
         """
         Rscript -e 'rmarkdown::render(here::here("workflow/scripts/main/main.Rmd"), output_dir = here::here("results"))'
         """
+
+
+rule staple:
+    input:
+        "results/main.pdf",
+        "results/figure_supplements.pdf",
+    output:
+        "results/pall_et_al.pdf",
+    conda:
+        "envs/environment.yml"
+    resources:
+        runtime=120,
+        mem_mb=4000,
+    threads: 1
+    shell:
+        "pdftk {input} cat output {output[0]}"
 
 
 rule suppl_data:
