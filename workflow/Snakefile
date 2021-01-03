@@ -176,15 +176,13 @@ rule staple:
         "results/figure_supplements.pdf",
     output:
         "results/pall_et_al.pdf",
-    conda:
-        "envs/environment.yml"
     resources:
         runtime=120,
-        mem_mb=8000,
-    threads: 4
+        mem_mb=4000,
+    threads: 1
     shell:
         """
-        Rscript -e 'staplr::staple_pdf(input_files = c("{input[0]}", "{input[1]}"), output_filepath = "{output[0]}")'
+        pdftk {input} cat output {output[0]}
         """    
  
 rule suppl_data:
