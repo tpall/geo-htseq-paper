@@ -177,6 +177,8 @@ rule staple:
         "results/figure_supplements.pdf",
     output:
         "results/pall_et_al.pdf",
+    log:
+        "results/log/staple.log"
     conda:
         "envs/environment.yml"
     resources:
@@ -185,7 +187,7 @@ rule staple:
     threads: 1
     shell:
         """
-        pdftk {input} cat output {output[0]}
+        pdftk {input} cat output {output[0]} 2> {log}
         """
 
 
