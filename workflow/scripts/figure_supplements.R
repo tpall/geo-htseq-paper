@@ -562,6 +562,8 @@ ggsave(here("figures/figure_S10.tiff"), height = 7, width = 10, dpi = 300, units
 
 #' 
 #+ FigS11
+data <- pvalues_sample %>% 
+  inner_join(sequencing_metadata)
 f <- anticons ~ (1 | model)
 family <- bernoulli()
 mod <- brm(formula = f, 
