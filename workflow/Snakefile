@@ -4,9 +4,10 @@ rule all:
         "results/pvalues.csv",
         "results/sequencing_metadata_unique_platform.csv",
         "results/figure_supplements.pdf",
-        expand("figures/figure_{n}.pdf", n = list(range(1,5))),
-        expand("figures/figure_S{n}.tiff", n = list(range(1,15))),
+        expand("figures/figure_{n}.pdf", n=list(range(1, 5))),
+        expand("figures/figure_S{n}.tiff", n=list(range(1, 15))),
         "results/pall_et_al.pdf",
+
 
 rule download:
     output:
@@ -90,14 +91,13 @@ rule figures:
         "results/data/parsed_suppfiles.csv",
         "results/pvalues_acc.csv",
     output:
-        expand("figures/figure_{n}.pdf", n = list(range(1,5))),
-        "results/files_to_check_pi0.txt",
-        # "results/models/conforms_year.rds",
-        # "results/models/Class_1.rds",
-        # "results/models/Class_year__year_detool_year.rds",
-        # "results/models/Class_detool_2018-19.rds",
-        # "results/models/pi0_detool.rds",
-        # "results/models/pi0_year__year_detool.rds",
+        expand("figures/figure_{n}.pdf", n=list(range(1, 5))),
+        "results/files_to_check_pi0.txt", # "results/models/conforms_year.rds",
+         # "results/models/Class_1.rds",
+         # "results/models/Class_year__year_detool_year.rds",
+         # "results/models/Class_detool_2018-19.rds",
+         # "results/models/pi0_detool.rds",
+         # "results/models/pi0_year__year_detool.rds",
     log:
         "results/log/figures.log",
     container:
@@ -116,34 +116,33 @@ rule figure_supplements:
         "results/pvalues_sample.csv",
         "results/sequencing_metadata_unique_platform.csv",
     output:
-        expand("figures/figure_S{n}.tiff", n=list(range(1,15))),
-        "results/figure_supplements.pdf",
-        # "results/models/anticons_year.rds",
-        # "results/models/anticons_year__year_detool.rds",
-        # "results/models/anticons_year__year_model.rds",
-        # "results/models/anticons_detool.rds",
-        # "results/models/anticons_detool_all.rds",
-        # "results/models/anticons_year_detool.rds",
-        # "results/models/anticons_organism_detool.rds",
-        # "results/models/anticons_detool__1_model.rds",
-        # "results/models/anticons_detool__detool_model.rds",
-        # "results/models/pi0_detool.rds",
-        # "results/models/pi0_year_detool.rds",
-        # "results/models/pi0_organism_detool.rds",
-        # "results/models/pi0_detool__1_model.rds",
-        # "results/models/pi0_detool__detool_model.rds",
-        # "results/models/pi0__1_model.rds",
-        # "results/models/pi0__1_librarystrategy.rds",
-        # "results/models/pi0__1_libraryselection.rds",
-        # "results/models/pi0__1_librarylayout.rds",
-        # "results/models/anticons__1_model.rds",
-        # "results/models/anticons__1_librarystrategy.rds",
-        # "results/models/anticons__1_libraryselection.rds",
-        # "results/models/anticons__1_librarylayout.rds",
+        expand("figures/figure_S{n}.tiff", n=list(range(1, 15))),
+        "results/figure_supplements.pdf", # "results/models/anticons_year.rds",
+         # "results/models/anticons_year__year_detool.rds",
+         # "results/models/anticons_year__year_model.rds",
+         # "results/models/anticons_detool.rds",
+         # "results/models/anticons_detool_all.rds",
+         # "results/models/anticons_year_detool.rds",
+         # "results/models/anticons_organism_detool.rds",
+         # "results/models/anticons_detool__1_model.rds",
+         # "results/models/anticons_detool__detool_model.rds",
+         # "results/models/pi0_detool.rds",
+         # "results/models/pi0_year_detool.rds",
+         # "results/models/pi0_organism_detool.rds",
+         # "results/models/pi0_detool__1_model.rds",
+         # "results/models/pi0_detool__detool_model.rds",
+         # "results/models/pi0__1_model.rds",
+         # "results/models/pi0__1_librarystrategy.rds",
+         # "results/models/pi0__1_libraryselection.rds",
+         # "results/models/pi0__1_librarylayout.rds",
+         # "results/models/anticons__1_model.rds",
+         # "results/models/anticons__1_librarystrategy.rds",
+         # "results/models/anticons__1_libraryselection.rds",
+         # "results/models/anticons__1_librarylayout.rds",
     log:
         "results/log/figure_supplements.log",
     container:
-        "shub://tpall/geo-htseq-paper:latest" 
+        "shub://tpall/geo-htseq-paper:latest"
     resources:
         runtime=1440,
         mem_mb=8000,
@@ -153,14 +152,15 @@ rule figure_supplements:
         Rscript -e 'rmarkdown::render(here::here("workflow/scripts/figure_supplements.R"), output_dir = here::here("results"))'
         """
 
+
 rule main:
     input:
-        expand("figures/figure_{n}.pdf", n = list(range(1,5))),
+        expand("figures/figure_{n}.pdf", n=list(range(1, 5))),
         "results/figure_supplements.pdf",
     output:
         "results/main.pdf",
     container:
-        "shub://tpall/geo-htseq-paper:latest" 
+        "shub://tpall/geo-htseq-paper:latest"
     resources:
         runtime=120,
         mem_mb=8000,
@@ -168,14 +168,17 @@ rule main:
     shell:
         """
         Rscript -e 'rmarkdown::render(here::here("workflow/scripts/main/main.Rmd"), output_dir = here::here("results"))'
-        """    
-    
+        """
+
+
 rule staple:
     input:
         "results/main.pdf",
         "results/figure_supplements.pdf",
     output:
         "results/pall_et_al.pdf",
+    conda:
+        "envs/environment.yml"
     resources:
         runtime=120,
         mem_mb=4000,
@@ -183,8 +186,9 @@ rule staple:
     shell:
         """
         pdftk {input} cat output {output[0]}
-        """    
- 
+        """
+
+
 rule suppl_data:
     input:
         "results/data/document_summaries.csv",
@@ -206,4 +210,3 @@ rule suppl_data:
     threads: 4
     script:
         "scripts/summary_table.R"
-
