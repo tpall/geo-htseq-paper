@@ -187,7 +187,7 @@ rule staple:
     threads: 1
     shell:
         """
-        pdftk {input} cat output {output[0]} 2> {log}
+        pdftk {input[0]} {input[1]} cat output {output[0]} 2> {log}
         """
 
 
