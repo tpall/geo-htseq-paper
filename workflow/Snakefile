@@ -184,7 +184,7 @@ rule staple:
     threads: 4
     shell:
         """
-        Rscript -e 'staplr::staple_pdf(input_files = c(here::here({input[0]}), here::here({input[1]})), output_filepath = here::here({output[0]}))'
+        Rscript -e 'staplr::staple_pdf(input_files = c("{input[0]}", "{input[1]}"), output_filepath = "{output[0]}")'
         """    
  
 rule suppl_data:
