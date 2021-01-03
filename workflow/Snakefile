@@ -1,3 +1,4 @@
+localrules: all, staple
 
 rule all:
     input:
@@ -186,9 +187,7 @@ rule staple:
         mem_mb=4000,
     threads: 1
     shell:
-        """
-        pdftk {input[0]} {input[1]} cat output {output[0]} 2> {log}
-        """
+        "pdftk {input} cat output {output[0]} 2> {log}"
 
 
 rule suppl_data:
