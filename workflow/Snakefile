@@ -177,14 +177,14 @@ rule staple:
         "results/figure_supplements.pdf",
     output:
         "results/pall_et_al.pdf",
-    conda:
-        "envs/environment.yml"
+    log:
+        "results/log/staple.log"
     resources:
         runtime=120,
         mem_mb=4000,
     threads: 1
     shell:
-        "pdftk {input} cat output {output[0]}"
+        "gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/prepress -dNOPAUSE -dQUIET -dBATCH -dDetectDuplicateImages -dCompressFonts=true -r150 -sOutputFile={output[0]} {input} 2> {log}"
 
 
 rule suppl_data:
