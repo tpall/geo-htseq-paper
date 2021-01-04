@@ -131,7 +131,7 @@ fit <- brm(Class ~ 1,
            file = here("results/models/Class_1.rds"))
 
 pe <- posterior_epred(fit)
-classes_props <- pe[1:4000, 1, 1:5] %>% 
+classes_props <- pe[1:dim(pe)[1], 1, 1:5] %>% 
   as_tibble() %>% 
   map(mean_hdi) %>% 
   bind_rows(.id = "Class") %>% 
