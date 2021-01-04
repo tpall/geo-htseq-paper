@@ -204,6 +204,7 @@ rule suppl_data:
     output:
         "results/geo_suppfiles.csv",
         "results/imported_suppfiles.csv",
+        "results/geo_publications.csv",
         "results/README.txt",
     log:
         "results/log/suppl_data.log"

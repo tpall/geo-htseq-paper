@@ -94,6 +94,8 @@ pubmedids<- geo_suppfiles %>%
 
 geo_publications <- pubmedids %>% 
   left_join(pubs)
+geo_publications %>% 
+  write_csv(here("results/geo_publications.csv"))
 
 #' Merge imported supplementary files data with p values.
 #+
