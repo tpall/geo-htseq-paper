@@ -3,17 +3,30 @@ name: CI
 on: 
   push
 
+            - name: Run workflow
+              run: |
+                export PATH="/usr/share/miniconda/bin:$PATH"
+                eval "$(conda shell.bash hook)"
+                conda activate snakemake
 jobs:
   testing:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+
+      - name: Setup miniconda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+      - run: |
+          conda --version
+          which python
       
       - name: Setup Snakemake environment
         run: |
           export PATH="/usr/share/miniconda/bin:$PATH"
           conda install -c conda-forge -q mamba
-          mamba env create -q --name snakemake --file test-environment.yml
+          mamba create -y -q -c conda-forge -c bioconda -n snakemake snakemake
 
       - name: Setup apt dependencies
         run: |
