@@ -60,7 +60,7 @@ geo_suppfiles %>%
 
 #' Import parsed supplementary files.
 #+
-parsed_suppfiles <- read_csv(here("resources/data/parsed_suppfiles.csv"))
+parsed_suppfiles <- read_csv(here("results/data/parsed_suppfiles.csv"))
 suppfiles <- parsed_suppfiles %>% 
   filter(is.na(Type) | Type == "raw") %>% 
   select(id, Class, pi0, FDR_pval, hist, note, Set) %>% 
@@ -75,13 +75,13 @@ suppfiles %>%
 
 #' Import publications associated with GEO submissions.
 #+
-publications <- read_csv("resources/data/publications.csv", col_types = cols(Id = col_character()))
+publications <- read_csv("results/data/publications.csv", col_types = cols(Id = col_character()))
 pubs <- publications %>% 
   select(PubMedIds = Id, PubDate, EPubDate, Source, AuthorList, LastAuthor, Title, DOI)
 
 #' Import citation data.
 #+
-scopus_citedbycount <- read_csv("resources/data/scopus_citedbycount.csv", col_types = cols(PubMedIds = col_character()))
+scopus_citedbycount <- read_csv("results/data/scopus_citedbycount.csv", col_types = cols(PubMedIds = col_character()))
 pubs <- pubs %>% 
   left_join(scopus_citedbycount)
 
