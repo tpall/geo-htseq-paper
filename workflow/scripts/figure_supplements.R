@@ -16,7 +16,9 @@ if (exists("snakemake")) {
   log <- file(snakemake@log[[1]], open="wt")
   sink(log, type = "message")
 }
-
+if (!dir.exists("results/models")) {
+    dir.create("results/models", recursive = TRUE)
+}
 
 #+ libs
 library(stats) # masks filter
