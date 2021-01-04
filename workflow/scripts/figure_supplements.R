@@ -16,9 +16,7 @@ if (exists("snakemake")) {
   log <- file(snakemake@log[[1]], open="wt")
   sink(log, type = "message")
 }
-if (!dir.exists("results/models")) {
-    dir.create("results/models", recursive = TRUE)
-}
+
 
 #+ libs
 library(stats) # masks filter
@@ -45,7 +43,10 @@ chains <- ifelse(is_ci(), 1, 4)
 cores <- chains
 refresh = 0
 rstan_options(auto_write = TRUE, javascript = FALSE)
-
+if (!dir.exists("results/models")) {
+    message("Creating results/models dir..")
+    dir.create("results/models", recursive = TRUE)
+}
 
 #+ data
 pvalues <- read_csv(here("results/pvalues.csv")) %>% 
