@@ -16,4 +16,5 @@ dependencies:
   - r-rmarkdown>= 2.5
   - r-bookdown
   - r-rticles=0.17
+  - r-skimr
 
