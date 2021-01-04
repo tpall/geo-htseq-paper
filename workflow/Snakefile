@@ -204,6 +204,8 @@ rule suppl_data:
         "results/imported_suppfiles.csv",
         "results/sequencing_metadata.csv",
         "results/README.txt",
+    log:
+        "results/log/suppl_data.log"
     conda:
         "envs/environment.yml"
     resources:
