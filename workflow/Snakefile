@@ -10,6 +10,7 @@ rule all:
         "results/geo_suppfiles.csv",
         "results/imported_suppfiles.csv",
         "results/sequencing_metadata.csv",
+        "results/geo_publications.csv",
         "results/README.txt",
 
 
