@@ -3,11 +3,6 @@ name: CI
 on: 
   push
 
-            - name: Run workflow
-              run: |
-                export PATH="/usr/share/miniconda/bin:$PATH"
-                eval "$(conda shell.bash hook)"
-                conda activate snakemake
 jobs:
   testing:
     runs-on: ubuntu-latest
