@@ -1,76 +1,64 @@
-name: Singularity Build
-on: [push]
+name: CI
+
+on: 
+  push
+
 jobs:
-
-  build:
-    name: Build
-    runs-on: ubuntu-18.04
-    strategy:
-      fail-fast: false
-      matrix:
-        recipe: ["Singularity"]
+  testing:
+    runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
 
-    - name: Set up Go 1.12
-      uses: actions/setup-go@v1
-      with:
-        go-version: 1.12
-      id: go
+      - name: Setup miniconda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+      - run: |
+          conda --version
+          which python
+      
+      - name: Setup Snakemake environment
+        run: |
+          export PATH="/usr/share/miniconda/bin:$PATH"
+          conda install -c conda-forge -q mamba
+          mamba create -y -q -c conda-forge -c bioconda -n snakemake snakemake
 
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update && sudo apt-get install -y \
-          build-essential \
-          libssl-dev \
-          uuid-dev \
-          libgpgme11-dev \
-          squashfs-tools \
-          libseccomp-dev \
-          pkg-config
+      - name: Setup apt dependencies
+        run: |
+          sudo apt install -y stress \
+            build-essential \
+            libssl-dev \
+            uuid-dev \
+            libgpgme11-dev \
+            squashfs-tools \
+            libseccomp-dev \
+            wget \
+            pkg-config \
+            git \
+            cryptsetup
 
-    - name: Install Singularity
-      env:
-        SINGULARITY_VERSION: 3.4.2
-        GOPATH: /tmp/go
-      run: |
-        mkdir -p $GOPATH
-        sudo mkdir -p /usr/local/var/singularity/mnt && \
-        mkdir -p $GOPATH/src/github.com/sylabs && \
-        cd $GOPATH/src/github.com/sylabs && \
-        wget -qO- https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_VERSION}/singularity-${SINGULARITY_VERSION}.tar.gz | \
-        tar xzv && \
-        cd singularity && \
-        ./mconfig -p /usr/local && \
-        make -C builddir && \
-        sudo make -C builddir install          
-          
-    - name: Check out code for the container build
-      uses: actions/checkout@v1
+      - name: Setup Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.13'
 
-    - name: Build Container
-      env:
-        SINGULARITY_RECIPE: ${{ matrix.recipe }}
-        OUTPUT_CONTAINER: ${{ matrix.recipe }}.sif
-      run: |
-       ls 
-       if [ -f "${SINGULARITY_RECIPE}" ]; then
-            sudo -E singularity build --notest ${OUTPUT_CONTAINER} ${SINGULARITY_RECIPE}
-       else
-           echo "${SINGULARITY_RECIPE} is not found."
-           echo "Present working directory: $PWD"
-           ls
-       fi
-       ls
-       pwd
-    
-    - name: Test
-      env:
-        SINGULARITY_IMAGE: ${{ matrix.recipe }}.sif
-      run: |
-        echo "Using Singularity image: ${SINGULARITY_IMAGE}"
+      - name: Setup singularity
+        run: |
+          export VERSION=3.6.2
+          wget https://github.com/sylabs/singularity/releases/download/v${VERSION}/singularity-${VERSION}.tar.gz
+          tar -xzf singularity-${VERSION}.tar.gz
+          cd singularity
+          ./mconfig
+          make -C builddir
+          sudo make -C builddir install
 
-        
-        # Test rstan
-        singularity exec ${SINGULARITY_IMAGE} r -e 'library(rstan); example(stan_model, package = "rstan", run.dontrun = TRUE)'
-        { set +x; } 2>/dev/null
-        echo "All tests passed!"
+      - name: Test run
+        env:
+          CI: true
+        run: |
+          # activate conda env
+          export PATH="/usr/share/miniconda/bin:$PATH"
+          source activate snakemake
+          mkdir -p results/models
+          snakemake --use-conda --use-singularity --restart-times 0 -j
+

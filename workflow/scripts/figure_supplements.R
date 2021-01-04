@@ -12,6 +12,10 @@
 
 #+ include=FALSE
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE)
+if (exists("snakemake")) {
+  log <- file(snakemake@log[[1]], open="wt")
+  sink(log, type = "message")
+}
 
 
 #+ libs
@@ -32,10 +36,17 @@ old <- theme_set(theme_cowplot(font_size = 12, font_family = "Helvetica"))
 
 #'
 #+ params
-chains <- 4
+is_ci <- function() {
+  "CI" %in% Sys.getenv()
+}
+chains <- ifelse(is_ci(), 1, 4)
 cores <- chains
 refresh = 0
 rstan_options(auto_write = TRUE, javascript = FALSE)
+if (!dir.exists("results/models")) {
+    message("Creating results/models dir..")
+    dir.create("results/models", recursive = TRUE)
+}
 
 #+ data
 pvalues <- read_csv(here("results/pvalues.csv")) %>% 
@@ -55,6 +66,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_year.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "year", 
@@ -82,6 +94,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons_year__year_detool.rds"))
 conditions <- make_conditions(data, vars = "de_tool")
@@ -114,7 +127,7 @@ f <- anticons ~ year + (year | model)
 mod <- brm(formula = f, 
            data = data, 
            family = family,
-           iter = 4000,  
+           iter = ifelse(is_ci(), 400, 4000),
            chains = chains, 
            cores = cores, 
            refresh = refresh,
@@ -174,6 +187,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
@@ -194,6 +208,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_detool_all.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
@@ -215,6 +230,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_year_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
@@ -242,6 +258,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_organism_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
@@ -264,6 +281,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons_detool__1_model.rds"))
 p <- plot(conditional_effects(mod, 
@@ -285,6 +303,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons_detool__detool_model.rds"))
 p <- plot(conditional_effects(mod, 
@@ -328,6 +347,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/pi0_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
@@ -350,6 +370,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/pi0_year_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
@@ -399,6 +420,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0_detool__1_model.rds"))
 p <- plot(conditional_effects(mod, 
@@ -421,6 +443,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0_detool__detool_model.rds"))
 p <- plot(conditional_effects(mod, 
@@ -463,6 +486,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0__1_model.rds"))
 p <- mod %>%
@@ -490,6 +514,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0__1_librarystrategy.rds"))
 p <- mod %>%
@@ -516,6 +541,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0__1_libraryselection.rds"))
 p <- mod %>%
@@ -541,7 +567,7 @@ mod <- brm(formula = f,
            family = family, 
            chains = chains, 
            cores = cores,
-           iter = 4000, 
+           iter = ifelse(is_ci(), 400, 4000),
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0__1_librarylayout.rds"))
@@ -572,6 +598,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores,
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons__1_model.rds"))
 p <- mod %>%
@@ -600,6 +627,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores,
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons__1_librarystrategy.rds"))
 p <- mod %>%
@@ -627,6 +655,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores,
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons__1_libraryselection.rds"))
 p <- mod %>%
@@ -654,6 +683,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores,
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons__1_librarylayout.rds"))
 p <- mod %>%
