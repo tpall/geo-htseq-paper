@@ -76,6 +76,7 @@ rule preprocess_sequence_metadata:
         "results/data/spots.csv",
     output:
         "results/sequencing_metadata_unique_platform.csv",
+        "results/sequencing_metadata.csv",
     log:
         "results/log/preprocess_sequence_metadata.log",
     conda:
@@ -199,10 +200,10 @@ rule suppl_data:
         "results/data/publications.csv",
         "results/data/scopus_citedbycount.csv",
         "results/pvalues.csv",
+        "results/sequencing_metadata.csv",
     output:
         "results/geo_suppfiles.csv",
         "results/imported_suppfiles.csv",
-        "results/sequencing_metadata.csv",
         "results/README.txt",
     log:
         "results/log/suppl_data.log"
