@@ -29,5 +29,6 @@ rm geo-htseq-until-2019-12-31.tar.gz
 
 Now you should have dataset in "output" subdirectory ready for analysis.
 
+## Workflow graph
 
-
+![rulegraph](images/rulegraph.csv)
