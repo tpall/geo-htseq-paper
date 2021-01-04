@@ -1,12 +1,9 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches_ignore: []
+on: 
+  push
 
+jobs:
   testing:
     runs-on: ubuntu-latest
     steps:
