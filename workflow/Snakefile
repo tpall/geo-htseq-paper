@@ -7,6 +7,10 @@ rule all:
         expand("figures/figure_{n}.pdf", n=list(range(1, 5))),
         expand("figures/figure_S{n}.tiff", n=list(range(1, 15))),
         "results/pall_et_al.pdf",
+        "results/geo_suppfiles.csv",
+        "results/imported_suppfiles.csv",
+        "results/sequencing_metadata.csv",
+        "results/README.txt",
 
 
 rule download:
