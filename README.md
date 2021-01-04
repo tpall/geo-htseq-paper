@@ -31,4 +31,4 @@ Now you should have dataset in "output" subdirectory ready for analysis.
 
 ## Workflow graph
 
-![rulegraph](images/rulegraph.csv)
+![rulegraph](images/rulegraph.svg)
