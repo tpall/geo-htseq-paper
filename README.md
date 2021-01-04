@@ -1,3 +1,4 @@
+![CI](https://github.com/tpall/geo-htseq-paper/workflows/CI/badge.svg)
 
 # Geo-htseq-paper
 
