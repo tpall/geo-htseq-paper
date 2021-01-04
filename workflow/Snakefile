@@ -195,9 +195,9 @@ rule suppl_data:
     input:
         "results/data/document_summaries.csv",
         "results/data/suppfilenames.txt",
-        "resources/data/parsed_suppfiles.csv",
-        "resources/data/publications.csv",
-        "resources/data/scopus_citedbycount.csv",
+        "results/data/parsed_suppfiles.csv",
+        "results/data/publications.csv",
+        "results/data/scopus_citedbycount.csv",
         "results/pvalues.csv",
     output:
         "results/geo_suppfiles.csv",
