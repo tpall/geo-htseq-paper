@@ -2,7 +2,6 @@
 if (exists("snakemake")) {
   log <- file(snakemake@log[[1]], open="wt")
   sink(log, type = "message")
-  
 }
 
 #+ libs
@@ -28,9 +27,12 @@ library(here)
 old <- theme_set(theme_cowplot(font_size = 8, font_family = "Helvetica"))
 
 #+ params
-chains <- 4
+is_ci <- function() {
+  "CI" %in% Sys.getenv()
+}
+chains <- ifelse(is_ci(), 1, 4)
 cores <- chains
-refresh = 200
+refresh = 0
 rstan_options(auto_write = TRUE, javascript = FALSE)
 if (!dir.exists("results/models")) {
     dir.create("results/models", recursive = TRUE)
@@ -55,6 +57,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            chains = chains,
            cores = cores,
+           iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/conforms_year.rds"))
 p <- plot(conditional_effects(mod), plot = FALSE)$year
 p <- p + 
@@ -124,6 +127,7 @@ fit <- brm(Class ~ 1,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/Class_1.rds"))
 
 pe <- posterior_epred(fit)
@@ -208,7 +212,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            prior = priors,
            control = list(adapt_delta = 0.99),
-           iter = 4000,
+           iter = ifelse(is_ci(), 400, 4000),
            file = here("results/models/Class_year__year_detool_year.rds"))
 conditions <- make_conditions(data, vars = "de_tool")
 rownames(conditions) <- conditions$de_tool
@@ -245,7 +249,7 @@ mod <- brm(formula = f,
            cores = chains, 
            refresh = refresh,
            control = list(adapt_delta = 0.99),
-           iter = 2000,
+           iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/Class_detool_2018-19.rds"))
 p <- plot(conditional_effects(mod, 
                               categorical = TRUE, 
@@ -272,6 +276,7 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/pi0_detool.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool",
@@ -292,7 +297,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            prior = prior,
-           iter = 3000,
+           iter = ifelse(is_ci(), 400, 3000),
            control = list(adapt_delta = 0.99, max_treedepth = 15),
            file = here("results/models/pi0_year__year_detool.rds"))
 
