@@ -59,6 +59,7 @@ jobs:
           # activate conda env
           export PATH="/usr/share/miniconda/bin:$PATH"
           source activate snakemake
+          mamba install -c conda-forge pulp=1.6.8
           mkdir -p results/models
           snakemake --use-conda --use-singularity --restart-times 0 -j
 
