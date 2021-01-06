@@ -21,7 +21,7 @@ jobs:
         run: |
           export PATH="/usr/share/miniconda/bin:$PATH"
           conda install -c conda-forge -q mamba
-          mamba create -y -q -c conda-forge -c bioconda -n snakemake snakemake
+          mamba create -y -q -c conda-forge -c bioconda -n snakemake snakemake pulp=1.6.8
 
       - name: Setup apt dependencies
         run: |
@@ -59,7 +59,6 @@ jobs:
           # activate conda env
           export PATH="/usr/share/miniconda/bin:$PATH"
           source activate snakemake
-          mamba install -c conda-forge pulp=1.6.8
           mkdir -p results/models
           snakemake --use-conda --use-singularity --restart-times 0 -j
 
