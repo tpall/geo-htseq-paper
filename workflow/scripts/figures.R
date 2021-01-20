@@ -271,9 +271,11 @@ ggsave(here("figures/figure_3.pdf"), plot = p3, width = 18, height = 12, units =
 f <- pi0 ~ de_tool
 family <- student()
 data <- pvalues_sample
+priors <- set_prior("normal(0, 0.5)", class="b")
 mod <- brm(formula = f, 
            data = data, 
-           family = family, 
+           family = family,
+           prior = priors,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
@@ -317,7 +319,7 @@ p4c <- p$year +
 p4c$layers[[1]]$aes_params$alpha <- 0.2
 
 p4a <- pvalues_sample %>% 
-  filter(Class == "anti-conservative") %>% 
+  filter(Class %in% c("anti-conservative", "uniform")) %>% 
   ggplot() + 
   geom_histogram(aes(pi0), color = "white", binwidth = 0.1) +
   labs(x = expression(pi * 0), y = "Count")

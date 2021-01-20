@@ -354,7 +354,7 @@ p <- plot(conditional_effects(mod,
           plot = FALSE)
 pa <- p$de_tool + 
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
-  labs(y = expression(pi * 0)) +
+  labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 paN <- summary(mod)$nobs
@@ -377,7 +377,7 @@ p <- plot(conditional_effects(mod,
           plot = FALSE)
 pb <- p$de_tool + 
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
-  labs(y = expression(pi * 0)) +
+  labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 pbN <- summary(mod)$nobs
@@ -405,7 +405,7 @@ p <- plot(conditional_effects(mod,
           plot = FALSE)
 pc <- p$de_tool + 
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
-  labs(y = expression(pi * 0)) +
+  labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 pcN <- summary(mod)$nobs
@@ -428,7 +428,7 @@ p <- plot(conditional_effects(mod,
           plot = FALSE)
 pd <- p$de_tool + 
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
-  labs(y = expression(pi * 0)) +
+  labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 pdN <- summary(mod)$nobs
@@ -451,7 +451,7 @@ p <- plot(conditional_effects(mod,
           plot = FALSE)
 pe <- p$de_tool + 
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
-  labs(y = expression(pi * 0)) +
+  labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 peN <- summary(mod)$nobs
@@ -494,7 +494,7 @@ p <- mod %>%
   median_hdci(condition_mean = b_Intercept + r_model) %>%
   ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
   geom_pointinterval() +
-  labs(x = expression(pi * 0)) +
+  labs(x = expression(pi[0])) +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
   theme(axis.title.y = element_blank())
 p$layers[[1]]$aes_params$size <- 1
@@ -522,7 +522,7 @@ p <- mod %>%
   median_hdci(condition_mean = b_Intercept + r_library_strategy) %>%
   ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
   geom_pointinterval() +
-  labs(x = expression(pi * 0), y = "Library strategy") +
+  labs(x = expression(pi[0]), y = "Library strategy") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2))
 p$layers[[1]]$aes_params$size <- 1
 
@@ -549,7 +549,7 @@ p <- mod %>%
   median_hdci(condition_mean = b_Intercept + r_library_selection) %>%
   ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
   geom_pointinterval() +
-  labs(x = expression(pi * 0), y = "Library selection") +
+  labs(x = expression(pi[0]), y = "Library selection") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2))
 p$layers[[1]]$aes_params$size <- 1
 
@@ -576,7 +576,7 @@ p <- mod %>%
   median_hdci(condition_mean = b_Intercept + r_library_layout) %>%
   ggplot(aes(y = condition, x = condition_mean, xmin = .lower, xmax = .upper)) +
   geom_pointinterval() +
-  labs(x = expression(pi * 0), y = "Library layout") +
+  labs(x = expression(pi[0]), y = "Library layout") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2))
 p$layers[[1]]$aes_params$size <- 1
 
