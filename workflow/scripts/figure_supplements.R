@@ -54,6 +54,36 @@ pvalues <- read_csv(here("results/pvalues.csv")) %>%
 pvalues_sample <- read_csv(here("results/pvalues_sample.csv")) %>% 
   rename(de_tool = analysis_platform)
 sequencing_metadata <- read_csv(here("results/sequencing_metadata_unique_platform.csv"))
+de_simulation_results <- read_csv(here("results/data/de_simulation_results.csv"))
+
+
+#+ fig2supp1
+qc_threshold <- function(n_pvals, bins, fdr) {
+  qbinom(1 - 1 / bins * fdr, n_pvals, 1 / bins)
+}
+
+qc_thr <- qc_threshold(n_pvals = 20000, bins = 40, fdr = 0.05)
+
+fig_cap <- glue("Simulated RNA-seq data shows that p value histograms with around one hundred 
+                 true effects out of 20,000 features can be classified as 'uniform'.
+                RNA-seq data was simulated with polyester R package using 20,000 transcripts from human transcriptome 
+                 using grid of 3, 6, and 10 replicates and 100, 200, 400, and 800 effects for two groups. 
+                 Fold changes were set to 0.5 and 2.
+                Differential expression was assessed using DESeq2 R package using default settings 
+                and group 1 versus group 2 contrast.")
+
+#+ fig.cap=fig_cap
+p <- de_simulation_results %>% 
+  mutate(
+    reps = factor(reps, levels = c("N=3", "N=6", "N=10")),
+    n_eff = factor(n_eff, levels = c("Effects=100", "Effects=200", "Effects=400", "Effects=800"))
+  ) %>% 
+  ggplot() +
+  geom_histogram(aes(pvalue), binwidth = 1/40, center = 1/80) +
+  geom_hline(yintercept = qc_thr, color = "red") +
+  facet_grid(reps~n_eff) +
+  scale_x_continuous(breaks = c(0, 0.5, 1))
+ggsave(here("figures/figure_2_figure_supplement_1.tiff"), plot = p, width = 12, height = 8, units = "cm", dpi = 300)
 
 #+ FigS1
 f <- anticons ~ year
@@ -75,7 +105,7 @@ p <- plot(conditional_effects(mod,
 
 fig_cap <- glue("The increasing proportion of anti-conservative histograms. 
                 Binomial logistic model: *{deparse(f)}*, N = {summary(mod)$nobs}. 
-                Lines denote best fit of linear model. Shaded area denotes 95% highest density interval (HDI).")
+                Lines denote best fit of linear model. Shaded area denotes 95% credible region.")
 
 #+ fig.cap=fig_cap 
 p$year + 
@@ -107,7 +137,8 @@ p <- plot(conditional_effects(mod,
 
 fig_cap <- glue("A 2-level binomial logistic model *{deparse(f)}* 
                 reveals that all differential expression analysis tools are associated with 
-                temporally increasing anti-conservative p value histograms, N = {summary(mod)$nobs}. Shaded area, 95% HDI.")
+                temporally increasing anti-conservative p value histograms, N = {summary(mod)$nobs}. 
+                Lines denote best fit of linear model. Shaded area denotes 95% credible region.")
 
 #+fig.cap=fig_cap
 p$year + 
@@ -143,7 +174,7 @@ p <- plot(conditional_effects(mod,
 
 fig_cap <- glue("A 2-level binomial logistic model *{deparse(f)}* reveals that all sequencing instrument models 
 are associated with temporally increasing anti-conservative p value histograms, N = {summary(mod)$nobs}. Only GEO submissions utilizing 
-single sequencing platform were used for model fitting. Shaded area, 95% HDI.")
+single sequencing platform were used for model fitting. Lines denote best fit of linear model. Shaded area denotes 95% credible region.")
 
 #+ fig.height=8, fig.cap=fig_cap
 p$year + 
@@ -169,7 +200,7 @@ p <- data %>%
   theme(legend.title = element_blank(),
         legend.position = c(0.7, 0.8))
 
-fig_cap <- glue("No single data analysis platform dominates the field. 
+fig_cap <- glue("No single differential expression analysis tool dominates the field. 
                 Y-axis shows the proportion of analysis platforms, 
                 x-axis shows publication year of GEO submission, N = {sum(p$data$n)}.")
 
@@ -323,7 +354,7 @@ fig_cap <- glue("Binomial logistic models for proportion of anti-conservative p 
                 C, model conditioned on year of GEO submission: *{pcF}*, N = {pcN}. 
                 D, model conditioned on studied organism (human/mouse/other): *{pdF}*, N = {pdN}. 
                 E, varying intercept model *{peF}* where 'model' stands for sequencing instrument model, N = {peN}. 
-                F, varying intercept and slope model *{pfF}*, N = {pfN}. Error bars, 95% HDI.")
+                F, varying intercept and slope model *{pfF}*, N = {pfN}. Points denote best fit of linear model. Error bars, 95% credible interval.")
 
 for (p in list(pa, pb, pc, pd, pe, pf)) {
   p$layers[[1]]$aes_params$size <- 1
@@ -469,7 +500,7 @@ fig_cap <- glue("Robust (student-t likelihood) modeling of pi0.
                 B, model conditioned on year of GEO submission: *{pbF}*, N = {pbN}. 
                 C, model conditioned on studied organism (human/mouse/other): *{pcF}*, N = {pcN}. 
                 D, varying intercept model *{pdF}* where 'model' stands for sequencing instrument model, N = {pdN}. 
-                E, varying intercept/slope model *{peF}*, N = {peN}. Error bars, 95% HDI.")
+                E, varying intercept/slope model *{peF}*, N = {peN}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
@@ -499,7 +530,7 @@ p <- mod %>%
   theme(axis.title.y = element_blank())
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Modeling dependency of pi0 on sequencing instrument model: *{deparse(f)}*, N = {summary(mod)$nobs}. Error bars, 95% HDI.")
+fig_cap <- glue("Modeling dependency of $\pi_0$ on sequencing instrument model: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
@@ -526,7 +557,7 @@ p <- mod %>%
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2))
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Modeling dependency of pi0 on library strategy: *{deparse(f)}*, N = {summary(mod)$nobs}. Error bars, 95% HDI.")
+fig_cap <- glue("Modeling dependency of $\pi_0$ on library strategy: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
@@ -553,7 +584,7 @@ p <- mod %>%
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2))
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Modeling dependency of pi0 on library selection: *{deparse(f)}*, N = {summary(mod)$nobs}. Error bars, 95% HDI.")
+fig_cap <- glue("Modeling dependency of $\pi_0$ on library selection: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
@@ -580,7 +611,7 @@ p <- mod %>%
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2))
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Modeling dependency of pi0 on library layout: *{deparse(f)}*, N = {summary(mod)$nobs}. Error bars, 95% HDI.")
+fig_cap <- glue("Modeling dependency of $\pi_0$ on library layout: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
@@ -612,7 +643,7 @@ p <- mod %>%
   theme(axis.title.y = element_blank())
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Modeling dependency of proportion of anti-conservative histograms on sequencing platform: *{deparse(f)}*, N = {summary(mod)$nobs}. Error bars, 95% HDI.")
+fig_cap <- glue("Modeling dependency of proportion of anti-conservative histograms on sequencing platform: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
@@ -640,7 +671,7 @@ p <- mod %>%
   scale_x_continuous(limits = c(0, 1))
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Modeling dependency of proportion of anti-conservative histograms on library strategy: *{deparse(f)}*, N = {summary(mod)$nobs}. Error bars, 95% HDI.")
+fig_cap <- glue("Modeling dependency of proportion of anti-conservative histograms on library strategy: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
@@ -668,7 +699,7 @@ p <- mod %>%
   scale_x_continuous(limits = c(0, 1))
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Modeling dependency of proportion of anti-conservative histograms on library selection: *{deparse(f)}*, N = {summary(mod)$nobs}. Error bars, 95% HDI.")
+fig_cap <- glue("Modeling dependency of proportion of anti-conservative histograms on library selection: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
@@ -696,7 +727,7 @@ p <- mod %>%
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2))
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Modeling dependency of proportion of anti-conservative histograms on library layout: *{deparse(f)}*, N = {summary(mod)$nobs}. Error bars, 95% HDI.")
+fig_cap <- glue("Modeling dependency of proportion of anti-conservative histograms on library layout: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
