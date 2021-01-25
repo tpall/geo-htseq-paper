@@ -8,6 +8,7 @@
 #'        toc: FALSE
 #'        includes:
 #'            in_header: preamble.tex
+#' bibliography: main/references.bib
 #' ---
 
 #+ include=FALSE
@@ -78,11 +79,14 @@ ggsave(here("figures/figure_2_figure_supplement_1.tiff"), plot = p, width = 12, 
 
 fig_cap <- glue("Simulated RNA-seq data shows that histograms from p value sets with around one hundred 
                  true effects out of 20,000 features can be classified as 'uniform'.
-                RNA-seq data was simulated with polyester R package using 20,000 transcripts from human transcriptome 
+                RNA-seq data was simulated with polyester R package [@frazee2015] on 20,000 transcripts from human transcriptome 
                  using grid of 3, 6, and 10 replicates and 100, 200, 400, and 800 effects for two groups. 
                  Fold changes were set to 0.5 and 2.
-                Differential expression was assessed using DESeq2 R package using default settings 
-                and group 1 versus group 2 contrast.")
+                Differential expression was assessed using DESeq2 R package [@love2014] using default settings 
+                and group 1 versus group 2 contrast. 
+                Effects denotes in facet labels the number of true effects and N denotes number of replicates.
+                Red line denotes QC threshold used for dividing p histograms into discrete classes.
+                Workflow and code used to run this simulation is available on Github: https://github.com/rstats-tartu/simulate-rnaseq.")
 
 #+ fig.cap=fig_cap
 p
