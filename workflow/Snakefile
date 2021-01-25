@@ -141,6 +141,7 @@ rule figure_supplements:
         "results/pvalues.csv",
         "results/pvalues_sample.csv",
         "results/sequencing_metadata_unique_platform.csv",
+        "results/data/de_simulation_results.csv",
     output:
         expand(
             "figures/figure_{fig}_figure_supplement_{supp}.tiff",
