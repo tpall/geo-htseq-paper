@@ -75,7 +75,7 @@ p <- plot(conditional_effects(mod,
 
 fig_cap <- glue("The increasing proportion of anti-conservative histograms. 
                 Binomial logistic model: *{deparse(f)}*, N = {summary(mod)$nobs}. 
-                Shaded area, 95% highest density interval (HDI).")
+                Lines denote best fit of linear model. Shaded area denotes 95% highest density interval (HDI).")
 
 #+ fig.cap=fig_cap 
 p$year + 
@@ -83,7 +83,7 @@ p$year +
   scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Year")
-ggsave(here("figures/figure_S1.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+ggsave(here("figures/figure_3_figure_supplement_1.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
 
 #' 
 #+ FigS2
@@ -117,7 +117,7 @@ p$year +
        x = "Year") +
   facet_wrap(~ de_tool) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-ggsave(here("figures/figure_S2.tiff"), height = 12, width = 18, dpi = 300, units = "cm")
+ggsave(here("figures/figure_3_figure_supplement_2.tiff"), height = 12, width = 18, dpi = 300, units = "cm")
 
 #' 
 #+ FigS3
@@ -153,7 +153,7 @@ p$year +
        x = "Year") +
   facet_wrap(~ model, labeller = label_wrap_gen(width = 18)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-ggsave(here("figures/figure_S3.tiff"), height = 23, width = 18, dpi = 300, units = "cm")
+ggsave(here("figures/figure_3_figure_supplement_3.tiff"), height = 23, width = 18, dpi = 300, units = "cm")
 
 #'
 #+ FigS4
@@ -175,7 +175,7 @@ fig_cap <- glue("No single data analysis platform dominates the field.
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/figure_S4.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+ggsave(here("figures/figure_3_figure_supplement_4.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
 
 #+ FigS5a
 y_title <- "Prop. anti-cons."
@@ -334,7 +334,7 @@ for (p in list(pa, pb, pc, pd, pe, pf)) {
   plot_annotation(tag_levels = "A") & 
   theme(plot.tag.position = c(0, 1),
         plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
-ggsave(here("figures/figure_S5.tiff"), height = 14, width = 18, dpi = 300, units = "cm")
+ggsave(here("figures/figure_3_figure_supplement_5.tiff"), height = 14, width = 18, dpi = 300, units = "cm")
 
 #' 
 #+ FigS6a
@@ -473,7 +473,7 @@ fig_cap <- glue("Robust (student-t likelihood) modeling of pi0.
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/figure_S6.tiff"), height = 14, width = 18, dpi = 300, units = "cm")
+ggsave(here("figures/figure_4_figure_supplement_1.tiff"), height = 14, width = 18, dpi = 300, units = "cm")
 
 #' 
 #+ FigS7
@@ -503,7 +503,7 @@ fig_cap <- glue("Modeling dependency of pi0 on sequencing instrument model: *{de
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/figure_S7.tiff"), height = 12, width = 18, dpi = 300, units = "cm")
+ggsave(here("figures/figure_4_figure_supplement_2.tiff"), height = 12, width = 18, dpi = 300, units = "cm")
 
 #' 
 #+ FigS8
@@ -530,7 +530,7 @@ fig_cap <- glue("Modeling dependency of pi0 on library strategy: *{deparse(f)}*,
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/figure_S8.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+ggsave(here("figures/figure_4_figure_supplement_3.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
 
 #' 
 #+ FigS9
@@ -557,7 +557,7 @@ fig_cap <- glue("Modeling dependency of pi0 on library selection: *{deparse(f)}*
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/figure_S9.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+ggsave(here("figures/figure_4_figure_supplement_4.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
 
 #' 
 #+  FigS10
@@ -584,7 +584,7 @@ fig_cap <- glue("Modeling dependency of pi0 on library layout: *{deparse(f)}*, N
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/figure_S10.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+ggsave(here("figures/figure_4_figure_supplement_5.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
 
 #' 
 #+ FigS11
@@ -616,7 +616,7 @@ fig_cap <- glue("Modeling dependency of proportion of anti-conservative histogra
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/figure_S11.tiff"), height = 12, width = 18, dpi = 300, units = "cm")
+ggsave(here("figures/figure_3_figure_supplement_6.tiff"), height = 12, width = 18, dpi = 300, units = "cm")
 
 #' 
 #+ FigS12
@@ -644,7 +644,7 @@ fig_cap <- glue("Modeling dependency of proportion of anti-conservative histogra
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/figure_S12.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+ggsave(here("figures/figure_3_figure_supplement_7.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
 
 #' 
 #+ FigS13
@@ -672,7 +672,7 @@ fig_cap <- glue("Modeling dependency of proportion of anti-conservative histogra
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/figure_S13.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+ggsave(here("figures/figure_3_figure_supplement_8.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
 
 #' 
 #+ FigS14
@@ -700,4 +700,4 @@ fig_cap <- glue("Modeling dependency of proportion of anti-conservative histogra
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/figure_S14.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+ggsave(here("figures/figure_3_figure_supplement_9.tiff"), height = 7, width = 10, dpi = 300, units = "cm")

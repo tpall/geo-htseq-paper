@@ -24,5 +24,5 @@ p <- data %>%
   geom_hline(yintercept = qc_thr, color = "red") +
   facet_grid(reps~n_eff) +
   scale_x_continuous(breaks = c(0, 0.5, 1))
-ggsave(here("figures/figure_2_supplementary_figure_1.pdf"), plot = p, width = 12, height = 8, units = "cm", dpi = 300)
+ggsave(here("figures/figure_2_figure_supplement_1.tiff"), plot = p, width = 12, height = 8, units = "cm", dpi = 300)
 
