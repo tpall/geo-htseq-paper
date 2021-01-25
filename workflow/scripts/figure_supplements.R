@@ -64,15 +64,6 @@ qc_threshold <- function(n_pvals, bins, fdr) {
 
 qc_thr <- qc_threshold(n_pvals = 20000, bins = 40, fdr = 0.05)
 
-fig_cap <- glue("Simulated RNA-seq data shows that p value histograms with around one hundred 
-                 true effects out of 20,000 features can be classified as 'uniform'.
-                RNA-seq data was simulated with polyester R package using 20,000 transcripts from human transcriptome 
-                 using grid of 3, 6, and 10 replicates and 100, 200, 400, and 800 effects for two groups. 
-                 Fold changes were set to 0.5 and 2.
-                Differential expression was assessed using DESeq2 R package using default settings 
-                and group 1 versus group 2 contrast.")
-
-#+ fig.cap=fig_cap
 p <- de_simulation_results %>% 
   mutate(
     reps = factor(reps, levels = c("N=3", "N=6", "N=10")),
@@ -84,6 +75,17 @@ p <- de_simulation_results %>%
   facet_grid(reps~n_eff) +
   scale_x_continuous(breaks = c(0, 0.5, 1))
 ggsave(here("figures/figure_2_figure_supplement_1.tiff"), plot = p, width = 12, height = 8, units = "cm", dpi = 300)
+
+fig_cap <- glue("Simulated RNA-seq data shows that histograms from p value sets with around one hundred 
+                 true effects out of 20,000 features can be classified as 'uniform'.
+                RNA-seq data was simulated with polyester R package using 20,000 transcripts from human transcriptome 
+                 using grid of 3, 6, and 10 replicates and 100, 200, 400, and 800 effects for two groups. 
+                 Fold changes were set to 0.5 and 2.
+                Differential expression was assessed using DESeq2 R package using default settings 
+                and group 1 versus group 2 contrast.")
+
+#+ fig.cap=fig_cap
+p
 
 #+ FigS1
 f <- anticons ~ year
@@ -495,7 +497,7 @@ p <- (pa + pb + pc) / (pd + pe + plot_spacer()) +
   plot_annotation(tag_levels = "A") & 
   theme(plot.tag.position = c(0, 1),
         plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
-fig_cap <- glue("Robust (student-t likelihood) modeling of pi0. 
+fig_cap <- glue("Robust (student's t likelihood) modeling of $\\pi_0$. 
                 A, simple model *{paF}* fitted on complete data, N = {paN}. 
                 B, model conditioned on year of GEO submission: *{pbF}*, N = {pbN}. 
                 C, model conditioned on studied organism (human/mouse/other): *{pcF}*, N = {pcN}. 
@@ -530,7 +532,7 @@ p <- mod %>%
   theme(axis.title.y = element_blank())
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Modeling dependency of $\pi_0$ on sequencing instrument model: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
+fig_cap <- glue("Modeling dependency of $\\pi_0$ on sequencing instrument model: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
@@ -557,7 +559,7 @@ p <- mod %>%
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2))
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Modeling dependency of $\pi_0$ on library strategy: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
+fig_cap <- glue("Modeling dependency of $\\pi_0$ on library strategy: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
@@ -584,7 +586,7 @@ p <- mod %>%
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2))
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Modeling dependency of $\pi_0$ on library selection: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
+fig_cap <- glue("Modeling dependency of $\\pi_0$ on library selection: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
@@ -611,7 +613,7 @@ p <- mod %>%
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2))
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Modeling dependency of $\pi_0$ on library layout: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
+fig_cap <- glue("Modeling dependency of $\\pi_0$ on library layout: *{deparse(f)}*, N = {summary(mod)$nobs}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
