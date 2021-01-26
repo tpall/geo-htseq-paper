@@ -151,9 +151,9 @@ Publication data were downloaded from NCBI PubMed database using PubMedId-s from
 
 The code to produce raw dataset is available as a snakemake workflow [@koster2012snakemake] on rstats-tartu/geo-htseq Github repo (https://github.com/rstats-tartu/geo-htseq). Raw dataset produced by the workflow is deposited in Zenodo https://zenodo.org with doi: 10.5281/zenodo.4046422 (http://doi.org/10.5281/zenodo.4046422). 
 
-RNA-seq experiment simulation was done with polyester R package [@frazee2015] and differential expression was assessed using DESeq2 R package [@love2014] using default settings. Code and workflow used to run and analyse RNA-seq simulations is available on Github: https://github.com/rstats-tartu/simulate-rnaseq. Processed data, raw data and workflow with input fasta file is deposited to Zenodo at https://zenodo.org with doi: 10.5281/zenodo.4463803 (http://doi.org/10.5281/zenodo.4463803).
+RNA-seq experiment simulation was done with polyester R package [@frazee2015] and differential expression was assessed using DESeq2 R package [@love2014] using default settings. Code and workflow used to run and analyse RNA-seq simulations is available on Github: https://github.com/rstats-tartu/simulate-rnaseq. Processed data, raw data and workflow with input fasta file is deposited in Zenodo with doi: 10.5281/zenodo.4463803 (http://doi.org/10.5281/zenodo.4463803).
 
-The code to produce article's figures and fit models is deposited on rstats-tartu/geo-htseq-paper Github repo (https://github.com/rstats-tartu/geo-htseq-paper). 
+The code to produce article's figures and fit models is deposited on rstats-tartu/geo-htseq-paper Github repo (https://github.com/rstats-tartu/geo-htseq-paper). Article's input data, code, software required to produce all models and figures in Linux, along with fitted model objects is deposited in Zenodo with doi: 10.5281/zenodo.4469911 (https://zenodo.org/deposit/4469911). 
 Statistical analysis was done in R vers. 4.0.3. Bayesian modelling was done using R libraries rstan (vers. 2.21.2; http://mc-stan.org/) and brms (vers. 2.13.3) [@burkner2018]. ggplot2 (vers. 3.3.1) [@wickham2016ggplot2] R library was used for graphics. Data wrangling was done using tools from tidyverse package [@wickham2019].
 
 # Acknowledgments {-}
