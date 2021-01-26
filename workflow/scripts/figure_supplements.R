@@ -78,8 +78,8 @@ p <- de_simulation_results %>%
   scale_x_continuous(breaks = c(0, 0.5, 1))
 ggsave(here("figures/figure_2_figure_supplement_1.tiff"), plot = p, width = 12, height = 8, units = "cm", dpi = 300)
 
-fig_cap <- glue("Figure 2--figure supplement 1. Simulated RNA-seq data shows that histograms from p value sets with around one hundred 
-                 true effects out of 20,000 features can be classified as 'uniform'.
+fig_cap <- glue('Figure 2--figure supplement 1. Simulated RNA-seq data shows that histograms from p value sets with around one hundred 
+                 true effects out of 20,000 features can be classified as "uniform".
                 RNA-seq data was simulated with polyester R package [@frazee2015] on 20,000 transcripts from human transcriptome 
                  using grid of 3, 6, and 10 replicates and 100, 200, 400, and 800 effects for two groups. 
                  Fold changes were set to 0.5 and 2.
@@ -88,7 +88,7 @@ fig_cap <- glue("Figure 2--figure supplement 1. Simulated RNA-seq data shows tha
                 Effects denotes in facet labels the number of true effects and N denotes number of replicates.
                 Red line denotes QC threshold used for dividing p histograms into discrete classes.
                 Code and workflow used to run these simulations is available on Github: https://github.com/rstats-tartu/simulate-rnaseq.
-                Raw data of the figure is available on Zenodo https://zenodo.org with doi: 10.5281/zenodo.4463803.")
+                Raw data of the figure is available on Zenodo https://zenodo.org with doi: 10.5281/zenodo.4463803.')
 
 #+ fig.cap=fig_cap
 p
