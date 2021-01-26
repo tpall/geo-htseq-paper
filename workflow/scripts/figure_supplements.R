@@ -387,7 +387,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/pi0_detool.rds"))
+           file = here("results/models/pi0_detool_full_data.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
