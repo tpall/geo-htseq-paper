@@ -356,13 +356,13 @@ pf <- p$de_tool +
 pfN <- prettyNum(summary(mod)$nobs, big.mark=',')
 pfF <- deparse(f)
 
-fig_cap <- glue("Figure 3--figure supplement 5. Binomial logistic models for proportion of anti-conservative p value histograms. 
+fig_cap <- glue('Figure 3--figure supplement 5. Binomial logistic models for proportion of anti-conservative p value histograms. 
                 A, simple model *{paF}*, N = {paN}. 
                 B, simple model *{pbF}* fitted on complete data, N = {pbN}. 
                 C, model conditioned on year of GEO submission: *{pcF}*, N = {pcN}. 
                 D, model conditioned on studied organism (human/mouse/other): *{pdF}*, N = {pdN}. 
-                E, varying intercept model *{peF}* where 'model' stands for sequencing instrument model, N = {peN}. 
-                F, varying intercept and slope model *{pfF}*, N = {pfN}. Points denote best fit of linear model. Error bars, 95% credible interval.")
+                E, varying intercept model *{peF}* where "model" stands for sequencing instrument model, N = {peN}. 
+                F, varying intercept and slope model *{pfF}*, N = {pfN}. Points denote best fit of linear model. Error bars, 95% credible interval.')
 
 for (p in list(pa, pb, pc, pd, pe, pf)) {
   p$layers[[1]]$aes_params$size <- 1
