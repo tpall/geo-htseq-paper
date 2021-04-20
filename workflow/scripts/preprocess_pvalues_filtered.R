@@ -21,76 +21,10 @@ if (!exists("snakemake")) {
     pull(Accession) %>%
     n_distinct()
 }
-#' 
-#' if (!exists("snakemake")) {
-#'   document_summaries %>% 
-#'     filter(PDAT<="2019-12-31") %>% 
-#'     group_by(year(PDAT)) %>% 
-#'     count() %>% 
-#'     ungroup() %>% 
-#'     mutate(cumsum = cumsum(n),
-#'            perc = n / cumsum)
-#' }
-#' 
-#' #' Supplementary files. We will throw out also all 'filelist.txt' files.
-#' #+
-#' suppfilenames <- read_lines(here("results/data/suppfilenames.txt")) %>% 
-#'   tibble(suppfilenames = .) %>% 
-#'   filter(
-#'     str_detect(suppfilenames, "suppl"),
-#'     !str_detect(suppfilenames, "suppl/filelist.txt")
-#'   )
-#' 
+
 acc_year <- document_summaries %>%
   select(Accession, PDAT) %>%
   mutate(year = year(PDAT))
-#' 
-#' #' We right join to keep only subset from our time frame.
-#' conformity <- suppfilenames %>% 
-#'   mutate(Accession = str_to_upper(str_extract(suppfilenames, "GS[Ee]\\d+"))) %>% 
-#'   right_join(acc_year) %>%
-#'   mutate(
-#'     conforms = !(is.na(suppfilenames) | str_detect(str_to_lower(suppfilenames), "readme|_raw.tar$|\\.[bs]am$|\\.bed$|\\.fa(sta)?"))
-#'   )
-#' 
-#' #' Total number of files conforming
-#' if (!exists("snakemake")) {
-#'   sum(conformity$conforms)
-#' }
-#' 
-#' #' Total number of GEOs conforming
-#' if (!exists("snakemake")) {
-#'   conformity %>% 
-#'     filter(conforms) %>% 
-#'     pull(Accession) %>% 
-#'     n_distinct()
-#' }
-#' 
-#' #' Number of GEOs conforming per year
-#' conformity_acc <- conformity %>% 
-#'   group_by(Accession, year) %>% 
-#'   summarise(
-#'     conforms = case_when(
-#'       any(conforms) ~ 1,
-#'       TRUE ~ 0
-#'     )) %>% 
-#'   ungroup()
-#' write_csv(conformity_acc, here("results/conformity_acc.csv"))
-#' 
-#' #' Total number of conforming GEO accessions.
-#' #+
-#' total_conforming <- conformity_acc %>% 
-#'   count(conforms)
-#' 
-#' #' Conforming GEO submissions per year.
-#' #+
-#' if (!exists("snakemake")) {
-#'   conformity_acc %>% 
-#'     group_by(year) %>% 
-#'     summarise(conforms = sum(conforms),
-#'               n = n(),
-#'               perc = conforms / n)
-#' }
 
 #' Number of sets with p-values
 #+
