@@ -6,5 +6,6 @@
 README.html
 results/
 .snakemake/
-figures/
+figures/figure_*_figure*
+figures/figure_*pdf
 resources/data
