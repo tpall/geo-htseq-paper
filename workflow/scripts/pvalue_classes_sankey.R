@@ -1,3 +1,9 @@
+if (exists("snakemake")) {
+  log <- file(snakemake@log[[1]], open="wt")
+  sink(log, type = "message")
+}
+
+#+ libs
 library(dplyr)
 library(readr)
 library(purrr)
@@ -114,17 +120,19 @@ by_detool <- pvalues_sample_detools %>%
 sankey_plots <- by_detool %>% 
   pull(sankey)
 
-#' These plots need to be manually saved from RStudio view port
-#' edger: figure_5D.png
-sankey_plots[[1]]
-#' cuffdiff: figure_5B.png
-sankey_plots[[2]]
-#' limma: figure_5E.png
-sankey_plots[[3]]
-#' deseq: figure_5C.png
-sankey_plots[[4]]
-#' unknown: figure_5F.png
-sankey_plots[[5]]
+if (!exists("snakemake")) {
+  #' These plots need to be manually saved from RStudio Viewer
+  #' edger: figure_5D.png
+  sankey_plots[[1]]
+  #' cuffdiff: figure_5B.png
+  sankey_plots[[2]]
+  #' limma: figure_5E.png
+  sankey_plots[[3]]
+  #' deseq: figure_5C.png
+  sankey_plots[[4]]
+  #' unknown: figure_5F.png
+  sankey_plots[[5]]
+}
 
 imgs <- glue::glue("figures/figure_5{LETTERS[1:6]}.png")
 png_to_ggplot <- function(path) {
@@ -146,9 +154,10 @@ titles <- list(A = "Total",
 plots2 <- map2(plots, titles, ~ .x + labs(title = .y) + theme(plot.title = element_text(hjust = 0.5, vjust=-6)))
 patchwork <- wrap_plots(plots2) + 
   plot_annotation(tag_levels = "A")
-ggsave(here("figures/figure_5.tiff"), 
+ggsave(here("figures/figure_5.pdf"), 
        plot = patchwork, width = 18, height = 12, units = "cm", dpi = 300)
 
 rescue_efficiency <- by_detool %>% 
   select(analysis_platform, props) %>% 
   unnest(props)
+
