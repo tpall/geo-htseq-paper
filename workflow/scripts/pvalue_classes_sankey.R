@@ -161,3 +161,41 @@ rescue_efficiency <- by_detool %>%
   select(analysis_platform, props) %>% 
   unnest(props)
 
+#' How much p values were lost by filtering
+#+
+parse_hist <- function(x) {
+  x <- str_remove_all(x, "[:punct:]")
+  x <- str_split(x, pattern = " ")[[1]]
+  sum(as.numeric(x))
+}
+
+drop_out <- parsed_suppfiles %>% 
+  filter(!is.na(Conversion)) %>% 
+  select(Accession, id, Type, Set, hist) %>% 
+  mutate(n = map_dbl(hist, parse_hist),
+         raw_filt = if_else(Type == "raw", "raw", "filtered")) %>% 
+  select(-hist)
+
+set.seed(11)
+drop_out_sample <- drop_out %>% 
+  group_by(Accession, id) %>% 
+  mutate(expval = Type[[2]]) %>% 
+  select(-Type) %>% 
+  pivot_wider(names_from = raw_filt, values_from = n) %>% 
+  group_by(Accession) %>% 
+  sample_n(1) %>% 
+  mutate(prop_out = 1 - filtered/raw)
+
+drop_out_sample <- drop_out_sample %>% 
+  mutate(analysis_platform = case_when(
+    expval == "basemean" ~ "deseq",
+    expval == "aveexpr" ~ "limma",
+    expval == "logcpm" ~ "edger",
+    expval == "fpkm" & str_detect(Set, "p_value") ~ "cuffdiff",
+    TRUE ~ "unknown"
+  ))
+
+drop_out_sample %>% 
+  ggplot() +
+  geom_histogram(aes(prop_out)) +
+  facet_wrap(~analysis_platform, scales = "free_y")
