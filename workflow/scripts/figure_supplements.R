@@ -109,15 +109,19 @@ mod <- brm(formula = f,
 p <- plot(conditional_effects(mod, 
                               effects = "year", 
                               conditions = conditions),
+          line_args = list(color = "black"),
           plot = FALSE)
 
 fig_cap <- glue("Figure 3--figure supplement 1. The increasing proportion of anti-conservative histograms. 
                 Binomial logistic model: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. 
                 Lines denote best fit of linear model. Shaded area denotes 95% credible region.")
 
-#+ fig.cap=fig_cap 
+#+ fig.cap=fig_cap
+points <- data %>% 
+  group_by(year) %>% 
+  summarise_at("anticons", mean)
 p$year + 
-  geom_smooth(color = "black") +
+  geom_point(data = points, aes(year, anticons), inherit.aes = FALSE) +
   scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Year")
@@ -141,6 +145,7 @@ p <- plot(conditional_effects(mod,
                               effects = "year", 
                               conditions = conditions, 
                               re_formula = NULL),
+          line_args = list(color = "black"),
           plot = FALSE)
 
 fig_cap <- glue("Figure 3--figure supplement 2. A 2-level binomial logistic model *{deparse(f)}* 
@@ -149,8 +154,11 @@ fig_cap <- glue("Figure 3--figure supplement 2. A 2-level binomial logistic mode
                 Lines denote best fit of linear model. Shaded area denotes 95% credible region.")
 
 #+fig.cap=fig_cap
+points <- data %>% 
+  group_by(year, de_tool) %>% 
+  summarise_at("anticons", mean)
 p$year + 
-  geom_smooth(color = "black") +
+  geom_point(data = points, aes(year, anticons), inherit.aes = FALSE) +
   scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Year") +
@@ -178,6 +186,7 @@ p <- plot(conditional_effects(mod,
                               effects = "year", 
                               conditions = conditions, 
                               re_formula = NULL),
+          line_args = list(color = "black"),
           plot = FALSE)
 
 fig_cap <- glue("Figure 3--figure supplement 3. A 2-level binomial logistic model *{deparse(f)}* reveals that all sequencing instrument models 
@@ -185,8 +194,12 @@ are associated with temporally increasing anti-conservative p value histograms, 
 single sequencing platform were used for model fitting. Lines denote best fit of linear model. Shaded area denotes 95% credible region.")
 
 #+ fig.height=8, fig.cap=fig_cap
+points <- data %>% 
+  group_by(year, model) %>% 
+  summarise_at("anticons", mean) %>% 
+  na.omit()
 p$year + 
-  geom_smooth(color = "black") +
+  geom_point(data = points, aes(year, anticons), inherit.aes = FALSE) +
   scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
   labs(y = "Proportion of anti-conservative p value histograms",
        x = "Year") +
@@ -274,7 +287,11 @@ mod <- brm(formula = f,
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
+points <- data %>% 
+  group_by(year, de_tool) %>% 
+  summarise_at("anticons", mean)
 pc <- p$de_tool + 
+  geom_point(data = points, aes(de_tool, anticons), inherit.aes = FALSE, color = "gray", position = position_jitter(0.1)) +
   labs(y = y_title) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
@@ -398,6 +415,38 @@ pa <- p$de_tool +
 paN <- prettyNum(summary(mod)$nobs, big.mark=',')
 paF <- deparse(f)
 
+#'
+#+
+f <- pi0 ~ year + (year | de_tool) + (1 | Accession)
+family <- student()
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
+           file = here("results/models/pi0_year__year_detool__1_Accession_full_data.rds"))
+conditions <- make_conditions(data, "de_tool")
+p <- plot(conditional_effects(mod, 
+                              conditions = conditions,
+                              effects = "year"),
+          plot = FALSE)
+
+f <- pi0 ~ de_tool + (1 | Accession)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
+           file = here("results/models/pi0__detool__1_Accession_full_data.rds"))
+conditions <- make_conditions(data, "de_tool")
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool"),
+          plot = FALSE)
+
 #' 
 #+ FigS6b
 f <- pi0 ~ year + de_tool
@@ -413,7 +462,9 @@ mod <- brm(formula = f,
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
+
 pb <- p$de_tool + 
+  geom_point(data = data, aes(de_tool, pi0), inherit.aes = FALSE, color = "gray", position = position_jitter(0.1)) +
   labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
