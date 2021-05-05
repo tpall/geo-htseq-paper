@@ -12,6 +12,7 @@ library(ggplot2)
 library(stringr)
 library(purrr)
 library(lubridate)
+library(patchwork)
 library(cowplot)
 library(Hmisc)
 library(brms)
@@ -83,6 +84,7 @@ pubs_all <- pubs %>%
 pubs_citescore <- pubs_all %>% 
   drop_na() %>% 
   left_join(citations)
+write_csv(pubs_citescore, here("results/pubs_citescore.csv"))
 
 #' Importing document summaries.
 #+
@@ -141,19 +143,7 @@ data <- pvalues_sample %>%
   drop_na() %>% 
   mutate(anticons = as.numeric(Class == "anti-conservative"))
 
-taxa <- data %>% 
-  count(taxon) %>% 
-  arrange(desc(n)) %>% 
-  head(20) %>% 
-  pull(taxon)
-
-data <- data %>% 
-  mutate(Taxon = case_when(
-    taxon %in% taxa ~ taxon,
-    TRUE ~ "other"
-  ))
-
-f <- anticons ~ CiteScore + Taxon + year
+f <- anticons ~ CiteScore + year
 family <- bernoulli()
 mod <- brm(
   formula = f, 
@@ -164,14 +154,42 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   control = list(adapt_delta = 0.99, max_treedepth = 12),
-  file = here("results/models/anticons__CiteScore_Taxon_year.rds")
-  )
-pp_check(mod)
-conditions <- make_conditions(data, "Taxon")
+  file = here("results/models/anticons__CiteScore_year.rds")
+)
 p <- plot(
   conditional_effects(
     mod, 
-    effects = "CiteScore", 
-    conditions = conditions), 
+    effects = "CiteScore"), 
   line_args = list(color = "black"), plot = FALSE)
-p$CiteScore + facet_wrap(~Taxon)
+pa <- p$CiteScore + 
+  scale_y_continuous(limits = c(0, 0.4)) +
+  labs(y = "Proportion of anti-conservative\np value histograms",
+       x = "Journal CiteScore")
+
+f <- anticons ~ log_citations + year
+log_citations <- data %>% 
+  mutate_at("citations", list(log_citations = ~log10(.x + 0.1)))
+mod <- brm(
+  formula = f, 
+  data = log_citations,
+  family = family, 
+  chains = chains, 
+  cores = cores, 
+  refresh = refresh,
+  iter = ifelse(is_ci(), 400, 2000),
+  control = list(adapt_delta = 0.99, max_treedepth = 12),
+  file = here("results/models/anticons__log_citations_year.rds")
+)
+p <- plot(
+  conditional_effects(
+    mod, 
+    effects = "log_citations"), 
+  line_args = list(color = "black"), plot = FALSE)
+pb <- p$log_citations +
+  scale_y_continuous(limits = c(0, 0.4)) +
+  scale_x_continuous(breaks = c(-1, 0, 1, 2, 3, 4), labels = c(0, 1, 10, 100, 1000, 1000)) +
+  labs(y = "Proportion of anti-conservative\np value histograms",
+       x = "Article citations")
+
+p <- pa + pb + plot_annotation(tag_levels = "A")
+ggsave(here("figures/figure_6.pdf"), height = 8, width = 12, dpi = 300, units = "cm")
