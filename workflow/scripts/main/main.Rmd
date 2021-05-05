@@ -184,7 +184,7 @@ Raw p value sets with anti-conservative shape were used to calculate the $\pi_0$
 
 ## Publication data {-}
 
-Publication data were downloaded from NCBI PubMed database using PubMedId-s from GEO document summaries. Citation data were downloaded from Elsevier Scopus database using PubMedId-s. Sequence read library metadata were downloaded from NCBI SRA database using GEO accessions. 
+Publication data were downloaded from NCBI PubMed database using PubMedId-s from GEO document summaries. Article citation data was downloaded from Elsevier Scopus database using PubMedId-s. Journal CiteScore data from years 2011-2019 (October 2020) was downloaded from Elsevier. Sequence read library metadata were downloaded from NCBI SRA database using GEO accessions. 
 
 ## Modelling {-}
 
