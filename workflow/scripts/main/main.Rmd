@@ -68,7 +68,7 @@ According to GEO submission requirements, the processed data files may contain r
 
 ## P value histograms {-}
 
-(ref:fig2) Classes of p value histograms. A. Summary of p value histograms identified from GEO supplementary files. One p value set was randomly sampled from each GEO series where p values were identified. N = 2,109. 95% CI denotes credible intervals calculated from a binomial model. B. Examples of p value histogram classes. Red line denotes QC threshold used for dividing p value histograms into discrete classes.
+(ref:fig2) Classes of p value histograms. A. Examples of p value histogram classes. Red line denotes QC threshold used for dividing p value histograms into discrete classes. B. Summary of p value histograms identified from GEO supplementary files. One p value set was randomly sampled from each GEO series where p values were identified. N = 2,109. 95% CI denotes credible intervals calculated from a binomial model.
 
 ```{r fig2, fig.cap="(ref:fig2)", fig.align="center", out.width="12cm"}
 knitr::include_graphics(here::here("figures/figure_2.pdf"))
