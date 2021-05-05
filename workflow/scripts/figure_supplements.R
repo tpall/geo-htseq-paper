@@ -58,8 +58,35 @@ pvalues_sample <- read_csv(here("results/pvalues_sample.csv")) %>%
 sequencing_metadata <- read_csv(here("results/sequencing_metadata_unique_platform.csv"))
 de_simulation_results <- read_csv(here("results/data/de_simulation_results.csv"))
 
-
+#' Figure 2 figure supplement 1
 #+ fig2supp1
+number_of_pvalues <- pvalues %>%
+  select(Accession, id, hist, anticons) %>% 
+  rowwise() %>% 
+  mutate(
+    hist = sum(as.numeric(str_trim(str_extract_all(hist, "[0-9 ]+")[[1]]))),
+    anticons = if_else(as.logical(anticons), "anti-conservative", "all other classes")
+    ) %>% 
+  distinct() %>% 
+  rename(n_pvalues = hist)
+
+p <- number_of_pvalues %>% 
+  ggplot() +
+  geom_histogram(aes(n_pvalues), binwidth = 0.1) +
+  geom_vline(xintercept = median(number_of_pvalues$n_pvalues), linetype = "dashed") +
+  facet_wrap(~anticons, scales = "free_y") +
+  scale_x_log10() +
+  labs(x = expression(Number~of~p~values~(log[10])), y = "Count") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+ggsave(here("figures/figure_2_figure_supplement_1.tiff"), plot = p, width = 12, height = 8, units = "cm", dpi = 300)
+
+fig_cap <- glue('Figure 2--figure supplement 1. P value set size distribution. Dashed line denotes the median ({prettyNum(median(number_of_pvalues$n_pvalues), big.mark=',')}) number of features. From each GEO series only one of each unique length was considered, N={prettyNum(nrow(number_of_pvalues), big.mark=',')} p value sets.')
+
+#+ fig.cap=fig_cap
+p
+
+#' Figure 2 figure supplement 2
+#+ fig2supp2
 qc_threshold <- function(n_pvals, bins, fdr) {
   qbinom(1 - 1 / bins * fdr, n_pvals, 1 / bins)
 }
@@ -76,9 +103,9 @@ p <- de_simulation_results %>%
   geom_hline(yintercept = qc_thr, color = "red") +
   facet_grid(reps~n_eff) +
   scale_x_continuous(breaks = c(0, 0.5, 1))
-ggsave(here("figures/figure_2_figure_supplement_1.tiff"), plot = p, width = 12, height = 8, units = "cm", dpi = 300)
+ggsave(here("figures/figure_2_figure_supplement_2.tiff"), plot = p, width = 12, height = 8, units = "cm", dpi = 300)
 
-fig_cap <- glue('Figure 2--figure supplement 1. Simulated RNA-seq data shows that histograms from p value sets with around one hundred 
+fig_cap <- glue('Figure 2--figure supplement 2. Simulated RNA-seq data shows that histograms from p value sets with around one hundred 
                  true effects out of 20,000 features can be classified as "uniform".
                 RNA-seq data was simulated with polyester R package [@frazee2015] on 20,000 transcripts from human transcriptome 
                  using grid of 3, 6, and 10 replicates and 100, 200, 400, and 800 effects for two groups. 
