@@ -26,9 +26,10 @@ header-includes: >
   \usepackage{lipsum}
 bibliography: references.bib
 output:
+  bookdown::word_document2: default
+  rticles::arxiv_article: default
   bookdown::pdf_book:
     base_format: rticles::arxiv_article
-  rticles::arxiv_article: default
 ---
 
 ```{r include=FALSE}
