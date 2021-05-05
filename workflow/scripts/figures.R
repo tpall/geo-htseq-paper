@@ -61,9 +61,13 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/conforms_year.rds"))
 
-p <- plot(conditional_effects(mod), plot = FALSE, line_args = list(color = "black"))$year
+p <- plot(conditional_effects(mod), plot = FALSE, line_args = list(color = "black", size = 1/2))$year
 p <- p + 
-  geom_point(data = conformity_acc %>% group_by(year) %>% summarise_at("conforms", list(conforms = mean)), aes(year, conforms), inherit.aes = FALSE) +
+  geom_point(
+    data = conformity_acc %>% group_by(year) %>% summarise_at("conforms", list(conforms = mean)), 
+    aes(year, conforms), 
+    inherit.aes = FALSE,
+    size = 1/2) +
   labs(x = "Year", y = "Proportion of submissions conforming\nwith GEO submission guidelines") +
   scale_x_continuous(breaks = seq(2006, 2019, by = 2))
 ggsave(here("figures/figure_1.pdf"), plot = p, height = 6, width = 7, dpi = 300, units = "cm")
@@ -292,33 +296,6 @@ p4b <- p$de_tool +
 p4b$layers[[1]]$aes_params$size <- 1
 
 #+
-f <- pi0 ~ year + (year | de_tool)
-prior <- c(prior(normal(0, 0.5), class = b), prior(lkj(3), class = cor), prior(student_t(5, 0, 0.5), class = sigma))
-mod <- brm(formula = f, 
-           data = data, 
-           family = family, 
-           chains = chains, 
-           cores = cores, 
-           refresh = refresh,
-           prior = prior,
-           iter = ifelse(is_ci(), 400, 3000),
-           control = list(adapt_delta = 0.99, max_treedepth = 15),
-           file = here("results/models/pi0_year__year_detool.rds"))
-conditions <- make_conditions(data, vars = "de_tool")
-rownames(conditions) <- conditions$de_tool
-p <- plot(conditional_effects(mod, 
-                              effects = "year",
-                              conditions = conditions,
-                              re_formula = NULL),
-          plot = FALSE, 
-          line_args = list(color = "black"))
-p4c <- p$year + 
-  geom_point(data = data, aes(year, pi0), inherit.aes = FALSE, size = 0.1, position = position_jitter(0.3)) +
-  facet_wrap(~ de_tool) +
-  scale_x_continuous(breaks = seq(2009, 2019, 2)) +
-  labs(y = expression(pi[0]))
-p4c$layers[[1]]$aes_params$alpha <- 0.2
-
 p4a <- pvalues_sample %>% 
   filter(Class %in% c("anti-conservative", "uniform")) %>% 
   ggplot() + 
@@ -326,7 +303,5 @@ p4a <- pvalues_sample %>%
   labs(x = expression(pi * 0), y = "Count")
 
 #+ Fig4, fig.cap=""
-p4 <- (p4a + p4b) / p4c + 
-  plot_layout(heights = c(1, 2)) +
-  plot_annotation(tag_levels = "A")
-ggsave(here("figures/figure_4.pdf"), plot = p4, width = 18, height = 12, units = "cm", dpi = 300)
+p4 <- p4a + p4b + plot_annotation(tag_levels = "A")
+ggsave(here("figures/figure_4.pdf"), plot = p4, width = 18, height = 8, units = "cm", dpi = 300)
