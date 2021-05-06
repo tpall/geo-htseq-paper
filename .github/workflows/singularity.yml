@@ -58,7 +58,7 @@ jobs:
         run: |
           # activate conda env
           export PATH="/usr/share/miniconda/bin:$PATH"
-          source activate snakemake
+          conda activate snakemake
           mkdir -p results/models
           snakemake --use-conda --use-singularity --restart-times 0 -j
 
