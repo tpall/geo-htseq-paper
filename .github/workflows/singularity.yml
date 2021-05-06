@@ -21,7 +21,7 @@ jobs:
         run: |
           export PATH="/usr/share/miniconda/bin:$PATH"
           conda install -c conda-forge -q mamba
-          mamba create -y -q -c conda-forge -c bioconda -n snakemake snakemake pulp
+          mamba create -y -q -c conda-forge -c bioconda -n snakemake snakemake=5.32.2 pulp
 
       - name: Setup apt dependencies
         run: |
