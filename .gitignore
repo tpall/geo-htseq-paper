@@ -8,4 +8,8 @@ results/
 .snakemake/
 figures/figure_*_figure*
 figures/figure_*pdf
-resources/data
+resources/*
+!resources/data
+resources/data/*
+!resources/data/CiteScore*xlsx
+
