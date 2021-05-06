@@ -142,7 +142,7 @@ rule figures:
     log:
         "results/log/figures.log",
     container:
-        "shub://tpall/geo-htseq-paper:latest"
+        "docker://rstatstartu/rstanverse:latest"
     resources:
         runtime=1440,
         mem_mb=8000,
@@ -169,7 +169,7 @@ rule figure_supplements:
     log:
         "results/log/figure_supplements.log",
     container:
-        "shub://tpall/geo-htseq-paper:latest"
+        "docker://rstatstartu/rstanverse:latest"
     resources:
         runtime=1440,
         mem_mb=8000,
@@ -187,7 +187,7 @@ rule main:
     output:
         "results/main.pdf",
     container:
-        "shub://tpall/geo-htseq-paper:latest"
+        "docker://rstatstartu/rstanverse:latest"
     resources:
         runtime=120,
         mem_mb=8000,
