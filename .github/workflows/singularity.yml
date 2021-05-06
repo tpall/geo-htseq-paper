@@ -46,7 +46,7 @@ jobs:
         run: |
           export VERSION=3.6.2
           wget https://github.com/sylabs/singularity/archive/refs/tags/v${VERSION}.tar.gz
-          tar -xzf ${VERSION}.tar.gz
+          tar -xzf v${VERSION}.tar.gz
           cd singularity
           ./mconfig
           make -C builddir
