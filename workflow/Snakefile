@@ -2,17 +2,18 @@ localrules:
     all,
     staple,
 
+FIGS=list(range(1, 7))
 
 rule all:
     input:
         "results/figure_supplements.pdf",
         "results/main.pdf",
-        expand("figures/figure_{n}.pdf", n=list(range(1, 5))),
+        expand("figures/figure_{n}.pdf", n=FIGS),
         expand(
             "figures/figure_{fig}_figure_supplement_{supp}.tiff",
             zip,
-            fig=[2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
-            supp=[1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5],
+            fig=[2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5],
+            supp=[1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 1],
         ),
         "results/pall_et_al.pdf",
         "results/geo_suppfiles.csv",
@@ -92,6 +93,25 @@ rule preprocess_pvalues:
         "scripts/preprocess_pvalues.R"
 
 
+rule preprocess_pvalues_filtered:
+    input:
+        "results/data/document_summaries.csv",
+        "results/data/parsed_suppfiles.csv",
+    output:
+        "results/pvalues_filtered.csv",
+        "results/pvalues_filtered_sample.csv",
+        "results/pvalues_filtered_acc.csv",
+    log:
+        "results/log/preprocess_pvalues_filtered.log",
+    conda:
+        "envs/environment.yml"
+    resources:
+        runtime=120,
+        mem_mb=4000,
+    script:
+        "scripts/preprocess_pvalues_filtered.R"
+
+
 rule preprocess_sequence_metadata:
     input:
         "results/data/spots.csv",
@@ -117,13 +137,8 @@ rule figures:
         "results/data/parsed_suppfiles.csv",
         "results/pvalues_acc.csv",
     output:
-        expand("figures/figure_{n}.pdf", n=list(range(1, 5))),
-        "results/files_to_check_pi0.txt", # "results/models/conforms_year.rds",
-         # "results/models/Class_1.rds",
-         # "results/models/Class_year__year_detool_year.rds",
-         # "results/models/Class_detool_2018-19.rds",
-         # "results/models/pi0_detool.rds",
-         # "results/models/pi0_year__year_detool.rds",
+        expand("figures/figure_{n}.pdf", n=FIGS),
+        "results/files_to_check_pi0.txt",
     log:
         "results/log/figures.log",
     container:
@@ -146,31 +161,10 @@ rule figure_supplements:
         expand(
             "figures/figure_{fig}_figure_supplement_{supp}.tiff",
             zip,
-            fig=[2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
-            supp=[1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5],
+            fig=[2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5],
+            supp=[1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 1],
         ),
-        "results/figure_supplements.pdf", # "results/models/anticons_year.rds",
-         # "results/models/anticons_year__year_detool.rds",
-         # "results/models/anticons_year__year_model.rds",
-         # "results/models/anticons_detool.rds",
-         # "results/models/anticons_detool_all.rds",
-         # "results/models/anticons_year_detool.rds",
-         # "results/models/anticons_organism_detool.rds",
-         # "results/models/anticons_detool__1_model.rds",
-         # "results/models/anticons_detool__detool_model.rds",
-         # "results/models/pi0_detool.rds",
-         # "results/models/pi0_year_detool.rds",
-         # "results/models/pi0_organism_detool.rds",
-         # "results/models/pi0_detool__1_model.rds",
-         # "results/models/pi0_detool__detool_model.rds",
-         # "results/models/pi0__1_model.rds",
-         # "results/models/pi0__1_librarystrategy.rds",
-         # "results/models/pi0__1_libraryselection.rds",
-         # "results/models/pi0__1_librarylayout.rds",
-         # "results/models/anticons__1_model.rds",
-         # "results/models/anticons__1_librarystrategy.rds",
-         # "results/models/anticons__1_libraryselection.rds",
-         # "results/models/anticons__1_librarylayout.rds",
+        "results/figure_supplements.pdf", 
     log:
         "results/log/figure_supplements.log",
     container:
@@ -187,7 +181,7 @@ rule figure_supplements:
 
 rule main:
     input:
-        expand("figures/figure_{n}.pdf", n=list(range(1, 5))),
+        expand("figures/figure_{n}.pdf", n=FIGS),
         "results/figure_supplements.pdf",
     output:
         "results/main.pdf",
