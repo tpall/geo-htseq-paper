@@ -835,7 +835,7 @@ col_types <- cols(
 sequencing_metadata <- read_csv(here("results/sequencing_metadata_unique_platform.csv"), col_types = col_types)
 
 
-#+ fig2supp1
+#+ 
 qc_threshold <- function(n_pvals, bins, fdr) {
   qbinom(1 - 1 / bins * fdr, n_pvals, 1 / bins)
 }
