@@ -100,7 +100,6 @@ qc_threshold <- function(n_pvals, bins, fdr) {
 }
 qc_thr <- qc_threshold(n_pvals = 20000, bins = 40, fdr = 0.05)
 
-
 #'
 #+ Fig5-Supp1A
 y_title <- "Prop. anti-cons."
@@ -148,8 +147,8 @@ pbN <- prettyNum(summary(mod)$nobs, big.mark=',')
 pbF <- deparse(f)
 
 
-#' Fig5-Supp1
-#+
+#' 
+#+ Fig5-Supp1
 for (p in list(pa, pb)) {
   p$layers[[1]]$aes_params$size <- 1
 }
@@ -165,4 +164,4 @@ fig_cap <- glue("Figure 5--figure supplement 1. Removal of low-count genes from 
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/figure_5_figure_supplement_1.tiff"), height = 14, width = 18, dpi = 300, units = "cm")
+ggsave(here("figures/figure_5_figure_supplement_1.tiff"), height = 7, width = 12, dpi = 300, units = "cm")
