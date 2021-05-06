@@ -144,11 +144,7 @@ fig_cap <- glue("Figure 3--figure supplement 1. The increasing proportion of ant
                 Lines denote best fit of linear model. Shaded area denotes 95% credible region.")
 
 #+ fig.cap=fig_cap
-points <- data %>% 
-  group_by(year) %>% 
-  summarise_at("anticons", mean)
 p$year + 
-  geom_point(data = points, aes(year, anticons), inherit.aes = FALSE) +
   scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Year")
@@ -181,11 +177,7 @@ fig_cap <- glue("Figure 3--figure supplement 2. A 2-level binomial logistic mode
                 Lines denote best fit of linear model. Shaded area denotes 95% credible region.")
 
 #+fig.cap=fig_cap
-points <- data %>% 
-  group_by(year, de_tool) %>% 
-  summarise_at("anticons", mean)
 p$year + 
-  geom_point(data = points, aes(year, anticons), inherit.aes = FALSE) +
   scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Year") +
@@ -221,12 +213,7 @@ are associated with temporally increasing anti-conservative p value histograms, 
 single sequencing platform were used for model fitting. Lines denote best fit of linear model. Shaded area denotes 95% credible region.")
 
 #+ fig.height=8, fig.cap=fig_cap
-points <- data %>% 
-  group_by(year, model) %>% 
-  summarise_at("anticons", mean) %>% 
-  na.omit()
 p$year + 
-  geom_point(data = points, aes(year, anticons), inherit.aes = FALSE) +
   scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
   labs(y = "Proportion of anti-conservative p value histograms",
        x = "Year") +
@@ -314,11 +301,8 @@ mod <- brm(formula = f,
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
-points <- data %>% 
-  group_by(year, de_tool) %>% 
-  summarise_at("anticons", mean)
+
 pc <- p$de_tool + 
-  geom_point(data = points, aes(de_tool, anticons), inherit.aes = FALSE, color = "gray", position = position_jitter(0.1)) +
   labs(y = y_title) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
@@ -491,7 +475,6 @@ p <- plot(conditional_effects(mod,
           plot = FALSE)
 
 pb <- p$de_tool + 
-  geom_point(data = data, aes(de_tool, pi0), inherit.aes = FALSE, color = "gray", position = position_jitter(0.1)) +
   labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
