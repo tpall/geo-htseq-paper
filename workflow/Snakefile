@@ -155,6 +155,7 @@ rule figure_supplements:
     input:
         "results/pvalues.csv",
         "results/pvalues_sample.csv",
+        "results/pvalues_filtered.csv",
         "results/sequencing_metadata_unique_platform.csv",
         "results/data/de_simulation_results.csv",
     output:
