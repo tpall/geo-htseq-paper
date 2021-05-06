@@ -22,6 +22,7 @@ library(viridis)
 library(brms)
 library(rstan)
 library(tidybayes)
+library(modelr)
 library(magick)
 library(networkD3)
 library(here)
@@ -631,6 +632,27 @@ pa <- p$CiteScore +
   scale_y_continuous(limits = c(0, 0.4)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Journal CiteScore")
+h1 <- hypothesis(mod, "CiteScore>0")
+citescore_es <- data %>% 
+  data_grid(CiteScore = c(0.1, 60), year = year) %>% 
+  add_fitted_draws(mod) %>% 
+  ungroup() %>% 
+  select(CiteScore, .value) %>% 
+  pivot_wider(names_from = CiteScore, values_from = .value) %>% 
+  unnest(cols = c(`0.1`, `60`)) %>% 
+  transmute(es = `0.1` - `60`)
+citescore_es %>% 
+  median_qi()
+citescore_es %>% 
+  transmute(es = es > 0) %>% 
+  mean_qi()
+citescore_es %>% 
+  transmute(es = es > 0.05) %>% 
+  mean_qi()
+citescore_es %>% 
+  ggplot() +
+  geom_histogram(aes(es), bins = 100) +
+  geom_vline(xintercept = 0, linetype = "dashed")
 
 f <- anticons ~ log_citations + year
 log_citations <- data %>% 
@@ -653,9 +675,10 @@ p <- plot(
   line_args = list(color = "black"), plot = FALSE)
 pb <- p$log_citations +
   scale_y_continuous(limits = c(0, 0.4)) +
-  scale_x_continuous(breaks = c(-1, 0, 1, 2, 3, 4), labels = c(0, 1, 10, 100, 1000, 1000)) +
+  scale_x_continuous(breaks = c(-1, 0, 1, 2, 3, 4), labels = c(0, 1, 10, 100, 1000, 10000)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Article citations")
+o <- hypothesis(mod, "log_citations > 0")
 
 p <- pa + pb + plot_annotation(tag_levels = "A")
 ggsave(here("figures/figure_6.pdf"), height = 8, width = 12, dpi = 300, units = "cm")
