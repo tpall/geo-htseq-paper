@@ -118,6 +118,20 @@ knitr::include_graphics(here::here("figures/figure_5.pdf"))
 The proportion of rescued p value histograms differ considerably between analysis platforms. The platform with the lowest pre-rescue proportion of anti-conservative histograms (2.6%), cuffdiff, increased to 37% (14.2-fold; Figure \ref{fig:fig5}B). In contrast, DESeq/DESeq2 increased from 28% to 71% (2.5-fold; Figure \ref{fig:fig5}C), edgeR increased from 51% to 68% (1.34-fold; Figure \ref{fig:fig5}D), limma increased from 58% to 76% (1.34-fold; Figure \ref{fig:fig5}E), and the class "other" increased from 25% to 58% (2.33-fold; Figure \ref{fig:fig5}F). For all platforms, the vast majority of rescued p value distributions came from classes "bimodal" and "other", while almost no rescue was detected from conservative histograms.
 To see, whether our intervention would reduce or abolish the dependence of p value distribution type and $\pi_0$ on the analysis platform, we modeled the dependence on data analytic platform of the type of post-intervention p value sets and of $\pi_0$-s, as calculated from rescued anti-conservative p value sets (Figure 5--figure supplement 1). The results did not substantially differ from those obtained from the full pre-rescue p value sets, indicating that applying low-counts filtering does not change the dependency on analysis platform (**compare Figs...**). 
 
+## Publication impact {-}
+
+We investigated whether the experiments, whose statistical analysis resulted on anti-conservative p value distributions, were published, on average, in higher performing journals, and whether such papers collect more citations. For journal performance we used the Elsevier CiteScore, which employs a relatively long three-year window and all document types published in a given journal, making it a more stable and robust metric than journal IF [@zijlstra2016citescore]. Our analysis suggests a negative association, where, in comparisons with the lowest ranked journals, the experiments with anti-conservative p value distributions are underrepresented by 0.26--17.7 percentage points (95% CI) in journals with the highest cite scores  (Figure \ref{fig:fig6}A). This is qualitatively similar to an observed negative association of reproducibility of qPCR experiments with a journal quality metric [@bustin2013need]. However, it must be noted that in our analysis the weight of evidence for the negative association is moderate at best (the posterior probability of a negative association is 0.98, and the probability that the full effect size (CiteScore of 0.1 vs. 60) is in an arbitrarily meaningful range, above 5 percentage points, is 0.74).    
+
+
+In our analysis of citations we failed to find a statistically supported association of experiments containing anti-conservative p value histograms with citations per resulting paper (Figure \ref{fig:fig6}B). However, the wide confidence band indicates that this result cannot be construed as a claim of no effect, as reasonably big effects in both directions are consistent with the evidence.
+
+(ref:fig6) Association of anti-conservative p value distributions with publication impact. A. Increased journal CiteScore is related to decreasing proportion of anti-conservative p value histograms. Line denotes best fit of linear model *anticons $\sim$ CiteScore + year*, bernoulli likelihood. Shaded area denotes 95% credible region. N=1544. B. Relationship of article citations with the proportion of anti-conservative p value histograms. Line denotes best fit of linear model *anticons $\sim$ citations + year*, bernoulli likelihood. Shaded area denotes 95% credible region. N=1544.
+
+```{r fig6, fig.align='center', out.width="14cm", fig.cap="(ref:fig6)"}
+knitr::include_graphics(here::here("figures/figure_6.pdf"))
+```
+
+
 # Discussion {-}
 
 In this work we have calculated five indicators of health of the HT-seq field: (i) the proportion of GEO submissions with published analysis endpoints in a tabular format, (ii) the relative fractions of classes of p value distribution shapes, (iii) the association of p value distribution shapes with DE analysis tool, (iv) the estimated proportion of true null effects (the $\pi_0$ ) for each experiment, and (v) the association of $\pi_0$ values with DE analysis tool. We believe that (i) indicates reproducibility, (ii) the quality of p value calculations (use of correct distributional models, etc.), (iv) the experimental design and data pre-processing choices, and that (iii) and (v) indicate bias. 
@@ -184,7 +198,7 @@ Raw p value sets with anti-conservative shape were used to calculate the $\pi_0$
 
 ## Publication data {-}
 
-Publication data were downloaded from NCBI PubMed database using PubMedId-s from GEO document summaries. Article citation data was downloaded from Elsevier Scopus database using PubMedId-s. Journal CiteScore data from years 2011-2019 (October 2020) was downloaded from Elsevier. Sequence read library metadata were downloaded from NCBI SRA database using GEO accessions. 
+Publication data were downloaded from NCBI PubMed database using PubMedId-s from GEO document summaries. Article citation data was downloaded from Elsevier Scopus database using PubMedId-s. Journal CiteScore data from years 2011-2019 (October 2020) was downloaded from Elsevier. Yearly journal CiteScore data was merged with GEO series journal publications using journal ISSN/ESSN and articles' publication year. Sequence read library metadata were downloaded from NCBI SRA database using GEO accessions.
 
 ## Modelling {-}
 
