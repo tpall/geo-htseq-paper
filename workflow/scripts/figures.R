@@ -650,6 +650,10 @@ citescore_es %>%
   transmute(es = es > 0.05) %>% 
   mean_qi()
 citescore_es %>% 
+  transmute(es = es < -0.05) %>% 
+  mean_qi() %>% 
+  mutate_at(c("es", ".lower", ".upper"), prettyNum)
+citescore_es %>% 
   ggplot() +
   geom_histogram(aes(es), bins = 100) +
   geom_vline(xintercept = 0, linetype = "dashed")
