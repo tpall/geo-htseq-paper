@@ -791,6 +791,7 @@ fig_cap <- glue("Figure 3--figure supplement 9. Modeling dependency of proportio
 p
 ggsave(here("figures/figure_3_figure_supplement_9.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
 
+#'
 #+ data-filtered
 col_types <- cols(
   Accession = col_character(),
@@ -832,20 +833,11 @@ col_types <- cols(
   tax_id = col_double(),
   reads = col_double()
 )
-sequencing_metadata <- read_csv(here("results/sequencing_metadata_unique_platform.csv"), col_types = col_types)
 
-
-#+ 
-qc_threshold <- function(n_pvals, bins, fdr) {
-  qbinom(1 - 1 / bins * fdr, n_pvals, 1 / bins)
-}
-qc_thr <- qc_threshold(n_pvals = 20000, bins = 40, fdr = 0.05)
-
-#'
-#+ Fig5-Supp1A
+#+ Fig5S1a
 y_title <- "Prop. anti-cons."
-data <- pvalues
 f <- anticons ~ de_tool
+data <- pvalues_sample
 mod <- brm(formula = f, 
            data = data, 
            family = family, 
@@ -853,7 +845,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/anticons_detool_all_filtered.rds"))
+           file = here("results/models/anticons_detool_filtered.rds"))
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -865,7 +857,144 @@ paN <- prettyNum(summary(mod)$nobs, big.mark=',')
 paF <- deparse(f)
 
 #'
-#+ Fig5-Supp1b
+#+ Fig5S1b
+data <- pvalues
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
+           file = here("results/models/anticons_detool_all_filtered.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool"),
+          plot = FALSE)
+pb <- p$de_tool + 
+  labs(y = y_title) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+pbN <- prettyNum(summary(mod)$nobs, big.mark=',')
+pbF <- deparse(f)
+
+#' 
+#+ Fig5S1c
+f <- anticons ~ year + de_tool
+data <- pvalues_sample
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
+           file = here("results/models/anticons_year_detool_filtered.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool"),
+          plot = FALSE)
+pc <- p$de_tool + 
+  labs(y = y_title) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+pcN <- prettyNum(summary(mod)$nobs, big.mark=',')
+pcF <- deparse(f)
+
+#' 
+#+ Fig5S1d
+data <- pvalues_sample %>% 
+  inner_join(sequencing_metadata) %>% 
+  mutate(organism = case_when(
+    tax_id == 9606 ~ "human",
+    tax_id == 10090 ~ "mouse",
+    TRUE ~ "other"
+  ))
+f <- anticons ~ organism + de_tool
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
+           file = here("results/models/anticons_organism_detool_filtered.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool"),
+          plot = FALSE)
+pd <- p$de_tool + 
+  labs(y = y_title) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+pdN <- prettyNum(summary(mod)$nobs, big.mark=',')
+pdF <- deparse(f)
+
+#' 
+#+ Fig5S1e
+f <- anticons ~ de_tool + (1 | model)
+data <- pvalues_sample %>% 
+  inner_join(sequencing_metadata)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("results/models/anticons_detool__1_model_filtered.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool"),
+          plot = FALSE)
+pe <- p$de_tool + 
+  labs(y = y_title) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+peN <- prettyNum(summary(mod)$nobs, big.mark=',')
+peF <- deparse(f)
+
+#' 
+#+ Fig5S1f
+f <- anticons ~ de_tool + (de_tool | model)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("results/models/anticons_detool__detool_model_filtered.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool"),
+          plot = FALSE)
+pf <- p$de_tool + 
+  labs(y = y_title) +
+  scale_y_continuous(breaks = seq(0, 1, by = 0.2)) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+pfN <- prettyNum(summary(mod)$nobs, big.mark=',')
+pfF <- deparse(f)
+
+fig_cap <- glue('Figure 5--figure supplement 1. Binomial logistic models for proportion of anti-conservative p value histograms. 
+                A, simple model *{paF}*, N = {paN}. 
+                B, simple model *{pbF}* fitted on complete data, N = {pbN}. 
+                C, model conditioned on year of GEO submission: *{pcF}*, N = {pcN}. 
+                D, model conditioned on studied organism (human/mouse/other): *{pdF}*, N = {pdN}. 
+                E, varying intercept model *{peF}* where "model" stands for sequencing instrument model, N = {peN}. 
+                F, varying intercept and slope model *{pfF}*, N = {pfN}. Points denote best fit of linear model. Error bars, 95% credible interval.')
+
+for (p in list(pa, pb, pc, pd, pe, pf)) {
+  p$layers[[1]]$aes_params$size <- 1
+}
+
+#+ f5s1, fig.cap=fig_cap
+(pa + pb + pc) / (pd + pe + pf) + 
+  plot_annotation(tag_levels = "A") & 
+  theme(plot.tag.position = c(0, 1),
+        plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
+ggsave(here("figures/figure_5_figure_supplement_1.tiff"), height = 14, width = 18, dpi = 300, units = "cm")
+
+#' 
+#+ Fig5S2a
 f <- pi0 ~ de_tool
 family <- student()
 data <- pvalues
@@ -880,6 +1009,28 @@ mod <- brm(formula = f,
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
+pa <- p$de_tool + 
+  labs(y = expression(pi[0])) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+paN <- prettyNum(summary(mod)$nobs, big.mark=',')
+paF <- deparse(f)
+
+#' 
+#+ Fig5S2b
+f <- pi0 ~ year + de_tool
+data <- pvalues_sample
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
+           file = here("results/models/pi0_year_detool_filtered.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool"),
+          plot = FALSE)
 pb <- p$de_tool + 
   labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
@@ -887,23 +1038,91 @@ pb <- p$de_tool +
 pbN <- prettyNum(summary(mod)$nobs, big.mark=',')
 pbF <- deparse(f)
 
+#' 
+#+ Fig5S2c
+data <- pvalues_sample %>% 
+  inner_join(sequencing_metadata) %>% 
+  mutate(organism = case_when(
+    tax_id == 9606 ~ "human",
+    tax_id == 10090 ~ "mouse",
+    TRUE ~ "other"
+  ))
+f <- pi0 ~ organism + de_tool
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           file = here("results/models/pi0_organism_detool_filtered.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool"),
+          plot = FALSE)
+pc <- p$de_tool + 
+  labs(y = expression(pi[0])) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+pcN <- prettyNum(summary(mod)$nobs, big.mark=',')
+pcF <- deparse(f)
 
 #' 
-#+ Fig5-Supp1
-for (p in list(pa, pb)) {
+#+ Fig5S2d
+f <- pi0 ~ de_tool + (1 | model)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("results/models/pi0_detool__1_model_filtered.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool"),
+          plot = FALSE)
+pd <- p$de_tool + 
+  labs(y = expression(pi[0])) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+pdN <- prettyNum(summary(mod)$nobs, big.mark=',')
+pdF <- deparse(f)
+
+#' 
+#+ Fig5S2e
+f <- pi0 ~ de_tool + (de_tool | model)
+mod <- brm(formula = f, 
+           data = data, 
+           family = family, 
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
+           control = list(adapt_delta = 0.99, max_treedepth = 12),
+           file = here("results/models/pi0_detool__detool_model_filtered.rds"))
+p <- plot(conditional_effects(mod, 
+                              effects = "de_tool"),
+          plot = FALSE)
+pe <- p$de_tool + 
+  labs(y = expression(pi[0])) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+peN <- prettyNum(summary(mod)$nobs, big.mark=',')
+peF <- deparse(f)
+
+for (p in list(pa, pb, pc, pd, pe)) {
   p$layers[[1]]$aes_params$size <- 1
 }
-p <- pa + pb +
+p <- (pa + pb + pc) / (pd + pe + plot_spacer()) + 
   plot_annotation(tag_levels = "A") & 
   theme(plot.tag.position = c(0, 1),
         plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
-
-fig_cap <- glue("Figure 5--figure supplement 1. Removal of low-count genes from p value sets. 
-                A, Binomial logistic model for proportion of anti-conservative p value histograms, *{pbF}* model was fitted on complete data, N = {pbN}.
-                B, Robust (student's t likelihood) modeling of $\\pi_0$, *{paF}* model was fitted on complete data, N = {paN}. 
-                Points denote best fit of linear model. Error bars denote 95% credible interval.")
+fig_cap <- glue("Figure 5--figure supplement 2. Robust (student's t likelihood) modeling of $\\pi_0$. 
+                A, simple model *{paF}* fitted on complete data, N = {paN}. 
+                B, model conditioned on year of GEO submission: *{pbF}*, N = {pbN}. 
+                C, model conditioned on studied organism (human/mouse/other): *{pcF}*, N = {pcN}. 
+                D, varying intercept model *{pdF}* where 'model' stands for sequencing instrument model, N = {pdN}. 
+                E, varying intercept/slope model *{peF}*, N = {peN}. Points denote best fit of linear model. Error bars denote 95% credible interval.")
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/figure_5_figure_supplement_1.tiff"), height = 7, width = 12, dpi = 300, units = "cm")
-
+ggsave(here("figures/figure_5_figure_supplement_2.tiff"), height = 14, width = 18, dpi = 300, units = "cm")
