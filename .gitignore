@@ -12,3 +12,4 @@ resources/*
 !resources/data
 resources/data/*
 !resources/data/CiteScore*xlsx
+!resources/images
