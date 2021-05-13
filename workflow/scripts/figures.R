@@ -582,17 +582,6 @@ doc_pubs <- document_summaries %>%
   group_by(year) %>% 
   summarise(published = sum(published), total = n())
 
-cbind(year = doc_pubs$year, Hmisc::binconf(doc_pubs$published, doc_pubs$total)) %>% 
-  as_tibble() %>% 
-  ggplot() +
-  geom_line(aes(year, PointEst)) +
-  geom_ribbon(aes(year, ymin = Lower, ymax = Upper), alpha = 0.3) +
-  scale_x_continuous(breaks = doc_pubs$year) +
-  labs(
-    x = "Year", 
-    y = "Proportion of GEO series with journal article",
-    caption = "Proportion of published GEO series that are related to journal publication. Gray area denotes binomial 95% confidence interval.")
-
 #' Add Accession to PubMedIds
 #+
 acc_pmid <- document_summaries %>% 
