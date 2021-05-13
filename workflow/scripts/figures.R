@@ -500,7 +500,7 @@ if (!exists("snakemake")) {
 #' Importing publication data.
 #+
 publications <- read_csv(
-  here("resources/data/publications.csv"),
+  here("results/data/publications.csv"),
   col_types = cols(
     .default = col_character(),
     Id = col_character(),
@@ -518,7 +518,7 @@ pubs <- publications %>%
 #' Importing citation data.
 #+
 citations <- read_csv(
-  here("resources/data/scopus_citedbycount.csv"),
+  here("results/data/scopus_citedbycount.csv"),
   col_types = cols(
     PubMedIds = col_character(),
     citations = col_double()
@@ -557,7 +557,7 @@ pubs_citescore <- pubs_all %>%
 #' Importing document summaries.
 #+
 document_summaries <- read_csv(
-  here("resources/data/document_summaries.csv"),
+  here("results/data/document_summaries.csv"),
   col_types = cols(
     .default = col_character(),
     Id = col_character(),

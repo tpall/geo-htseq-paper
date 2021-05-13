@@ -136,6 +136,8 @@ rule figures:
         "results/sequencing_metadata_unique_platform.csv",
         "results/data/parsed_suppfiles.csv",
         "results/pvalues_acc.csv",
+        "results/data/scopus_citedbycount.csv",
+        "results/data/publications.csv",
         expand("figures/figure_5{panel}.png", panel=["A","B", "C", "D", "E", "F"]),
     output:
         expand("figures/figure_{n}.pdf", n=FIGS),
