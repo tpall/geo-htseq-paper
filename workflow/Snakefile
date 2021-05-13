@@ -136,6 +136,7 @@ rule figures:
         "results/sequencing_metadata_unique_platform.csv",
         "results/data/parsed_suppfiles.csv",
         "results/pvalues_acc.csv",
+        expand("figures/figure_5{panel}.png", panel=["A","B", "C", "D", "E", "F"]),
     output:
         expand("figures/figure_{n}.pdf", n=FIGS),
         "results/files_to_check_pi0.txt",
