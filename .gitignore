@@ -12,4 +12,5 @@ resources/*
 !resources/data
 resources/data/*
 !resources/data/CiteScore*xlsx
+!resources/data/publications.csv
 !resources/images
