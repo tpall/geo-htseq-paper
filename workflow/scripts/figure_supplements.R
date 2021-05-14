@@ -6,7 +6,7 @@
 #'    rmarkdown::pdf_document:
 #'        number_sections: FALSE
 #'        toc: FALSE
-#'        urlcolor: blue
+#' urlcolor: blue
 #' header-includes:
 #' - \usepackage{caption}
 #' - \captionsetup[figure]{labelformat=empty}
