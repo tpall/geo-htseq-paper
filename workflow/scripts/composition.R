@@ -4,6 +4,7 @@ library(cowplot)
 library(patchwork)
 library(here)
 library(brms)
+library(tidybayes)
 
 old <- theme(theme_cowplot())
 
@@ -59,18 +60,29 @@ composition %>%
 
 data <- composition %>% 
   mutate(log_reads = log10(spots))
-  
+
 f <- log_reads ~ year
 m <- brm(f, 
          data = data, 
          family = student(), 
          file = here("results/models/spots__year.rds")
 )
-
-p <- plot(conditional_effects(m), plot = FALSE, points = TRUE)
-py <- p$year + 
+# pp_check(m) + scale_x_log10()
+p_year <- plot(conditional_effects(m), plot = FALSE)$year
+# p_sigma <- plot(conditional_effects(m, dpar = "sigma"), plot = FALSE)$year +
+#   scale_x_continuous(breaks = seq(from = min(data$year), to = max(data$year), 2)) +
+#   theme_cowplot()
+py <- p_year + 
+  geom_point(
+    data = drop_na(data), aes(year, log_reads), 
+    inherit.aes = FALSE,
+    position = position_jitter(0.5), size = 1/3
+    ) +
   scale_x_continuous(breaks = seq(from = min(data$year), to = max(data$year), 2)) +
+  scale_y_log10() +
+  labs(y = "Median number of\nreads per sample, log10") +
   theme_cowplot()
+py$layers <- rev(py$layers)
 
 col_types <- cols(
   Accession = col_character(),
@@ -99,8 +111,15 @@ m <- brm(f,
 
 p <- plot(conditional_effects(m), plot = FALSE)
 pac <- p$log_reads +
+  labs(x = "Median number of\nreads per sample, log10",
+       y = "Proportion of anti-conservative\np value sets") +
   theme_cowplot()
 
-p <- py + pac + plot_annotation(tag_levels = "A")
-ggsave(here("figures/figure_composition.png"), plot = p)
-
+fig.cap <- str_wrap("Figure: Modelling of sequencing depth. A. 
+                    Temporal change in sequencing depth. 
+                    Log-transformed median libray size was modeled against year of GEO submission, model formula: log_reads ~ year, Student's likelihood. 
+                    N = 31497. Blue line denotes model best fit. Gray area denotes 95% credible interval. Black points denote original data. Download model: https://gin.g-node.org/tpall/geo-htseq-paper/raw/96b9ccb224f18e4d0f0f23dabcd940a2011172be/models/spots__year.rds.
+                    B. Proportion of anti-conservative p value histograms versus sequencing depth, model formula anticons ~ log_reads, bernoulli likelihood. N = 2081. Blue line denotes model best fit. Gray area denotes 95% credible interval. Download model: https://gin.g-node.org/tpall/geo-htseq-paper/raw/96b9ccb224f18e4d0f0f23dabcd940a2011172be/models/anticons__year_logreads.rds.",
+                    width=120)
+p <- py + pac + plot_annotation(tag_levels = "A", caption = fig.cap) 
+ggsave(here("figures/figure_composition.png"), plot = p, width = 7, height = 5)
