@@ -142,8 +142,8 @@ p <- plot(conditional_effects(mod,
 
 fig_cap <- glue("Figure 3--figure supplement 1. The increasing proportion of anti-conservative histograms. 
                 Binomial logistic model: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. 
-                Download model object [anticons_year.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_year.rds).
-                Lines denote best fit of linear model. Shaded area denotes 95% credible region.")
+                Lines denote best fit of linear model. Shaded area denotes 95% credible region.
+                The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_year.rds.")
 
 #+ fig.cap=fig_cap
 p$year + 
@@ -176,8 +176,8 @@ p <- plot(conditional_effects(mod,
 fig_cap <- glue("Figure 3--figure supplement 2. A 2-level binomial logistic model *{deparse(f)}* 
                 reveals that all differential expression analysis tools are associated with 
                 temporally increasing anti-conservative p value histograms, N = {prettyNum(summary(mod)$nobs, big.mark=',')}.
-                Download model object [anticons_year__year_detool.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_year__year_detool.rds).
-                Lines denote best fit of linear model. Shaded area denotes 95% credible region.")
+                Lines denote best fit of linear model. Shaded area denotes 95% credible region.
+                The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_year__year_detool.rds.")
 
 #+fig.cap=fig_cap
 p$year + 
@@ -212,10 +212,9 @@ p <- plot(conditional_effects(mod,
           plot = FALSE)
 
 fig_cap <- glue("Figure 3--figure supplement 3. A 2-level binomial logistic model *{deparse(f)}* reveals that all sequencing instrument models 
-are associated with temporally increasing anti-conservative p value histograms, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. 
-Download model object [anticons_year__year_model.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_year__year_model.rds).
-Only GEO submissions utilizing 
-single sequencing platform were used for model fitting. Lines denote best fit of linear model. Shaded area denotes 95% credible region.")
+are associated with temporally increasing anti-conservative p value histograms, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Only GEO submissions utilizing 
+single sequencing platform were used for model fitting. Lines denote best fit of linear model. Shaded area denotes 95% credible region.
+                The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_year__year_model.rds.")
 
 #+ fig.height=8, fig.cap=fig_cap
 p$year + 
@@ -391,11 +390,18 @@ pfF <- deparse(f)
 
 fig_cap <- glue('Figure 3--figure supplement 5. Binomial logistic models for proportion of anti-conservative p value histograms. 
                 A, simple model *{paF}*, N = {paN}. 
-                B, simple model *{pbF}* fitted on complete data, N = {pbN}. Download model object [anticons_detool_all.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool_all.rds).
-                C, model conditioned on year of GEO submission: *{pcF}*, N = {pcN}. Download model object [anticons_year_detool.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_year_detool.rds).
-                D, model conditioned on studied organism (human/mouse/other): *{pdF}*, N = {pdN}. Download model object [anticons_organism_detool.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_organism_detool.rds).
-                E, varying intercept model *{peF}* where "model" stands for sequencing instrument model, N = {peN}. Download model object [anticons_detool__1_model.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool__1_model.rds).
-                F, varying intercept and slope model *{pfF}*, N = {pfN}. Download model object [anticons_detool__detool_model.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool__detool_model.rds). Points denote best fit of linear model. Error bars, 95% credible interval.')
+                B, simple model *{pbF}* fitted on complete data, N = {pbN}.
+                C, model conditioned on year of GEO submission: *{pcF}*, N = {pcN}.
+                D, model conditioned on studied organism (human/mouse/other): *{pdF}*, N = {pdN}. 
+                E, varying intercept model *{peF}* where "model" stands for sequencing instrument model, N = {peN}. 
+                F, varying intercept and slope model *{pfF}*, N = {pfN}. 
+                Points denote best fit of linear model. Error bars, 95% credible interval. 
+                The model object related to panel A can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool.rds. 
+                The model object related to panel B can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool_all.rds. 
+                The model object related to panel C can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_year_detool.rds. 
+                The model object related to panel D can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_organism_detool.rds. 
+                The model object related to panel E can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool__1_model.rds. 
+                The model object related to panel F can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool__detool_model.rds.')
 
 for (p in list(pa, pb, pc, pd, pe, pf)) {
   p$layers[[1]]$aes_params$size <- 1
@@ -565,11 +571,16 @@ p <- (pa + pb + pc) / (pd + pe + plot_spacer()) +
   theme(plot.tag.position = c(0, 1),
         plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
 fig_cap <- glue("Figure 4--figure supplement 1. Robust (student's t likelihood) modeling of $\\pi_0$. 
-                A, simple model *{paF}* fitted on complete data, N = {paN}. Download model object [pi0_detool_full_data.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_detool_full_data.rds).
-                B, model conditioned on year of GEO submission: *{pbF}*, N = {pbN}. Download model object [pi0_year_detool.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_year_detool.rds).
-                C, model conditioned on studied organism (human/mouse/other): *{pcF}*, N = {pcN}. Download model object [pi0_organism_detool.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_organism_detool.rds).
-                D, varying intercept model *{pdF}* where 'model' stands for sequencing instrument model, N = {pdN}. Download model object [pi0_detool__1_model.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_detool__1_model.rds).
-                E, varying intercept/slope model *{peF}*, N = {peN}. Download model object [pi0_detool__detool_model.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_detool__detool_model.rds). Points denote best fit of linear model. Error bars denote 95% credible interval.")
+                A, simple model *{paF}* fitted on complete data, N = {paN}. 
+                B, model conditioned on year of GEO submission: *{pbF}*, N = {pbN}. 
+                C, model conditioned on studied organism (human/mouse/other): *{pcF}*, N = {pcN}. 
+                D, varying intercept model *{pdF}* where 'model' stands for sequencing instrument model, N = {pdN}. 
+                E, varying intercept/slope model *{peF}*, N = {peN}. Points denote best fit of linear model. Error bars denote 95% credible interval.
+                The model object related to panel A can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_detool_full_data.rds. 
+                The model object related to panel B can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_year_detool.rds. 
+                The model object related to panel C can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_organism_detool.rds. 
+                The model object related to panel D can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_detool__1_model.rds. 
+                The model object related to panel E can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_detool__detool_model.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -598,7 +609,7 @@ p <- mod %>%
   theme(axis.title.y = element_blank())
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Figure 4--figure supplement 2. Modeling dependency of $\\pi_0$ on sequencing instrument model: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Download model object [pi0__1_model.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0__1_model.rds). Points denote best fit of linear model. Error bars denote 95% credible interval.")
+fig_cap <- glue("Figure 4--figure supplement 2. Modeling dependency of $\\pi_0$ on sequencing instrument model: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Error bars denote 95% credible interval. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0__1_model.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -624,7 +635,7 @@ p <- mod %>%
   labs(x = expression(pi[0]), y = "Library strategy")
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Figure 4--figure supplement 3. Modeling dependency of $\\pi_0$ on library strategy: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Download model object [pi0__1_librarystrategy.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0__1_librarystrategy.rds). Points denote best fit of linear model. Error bars denote 95% credible interval.")
+fig_cap <- glue("Figure 4--figure supplement 3. Modeling dependency of $\\pi_0$ on library strategy: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Error bars denote 95% credible interval. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0__1_librarystrategy.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -650,7 +661,7 @@ p <- mod %>%
   labs(x = expression(pi[0]), y = "Library selection")
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Figure 4--figure supplement 4. Modeling dependency of $\\pi_0$ on library selection: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Download model object [pi0__1_libraryselection.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0__1_libraryselection.rds). Points denote best fit of linear model. Error bars denote 95% credible interval.")
+fig_cap <- glue("Figure 4--figure supplement 4. Modeling dependency of $\\pi_0$ on library selection: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Error bars denote 95% credible interval. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0__1_libraryselection.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -676,7 +687,7 @@ p <- mod %>%
   labs(x = expression(pi[0]), y = "Library layout")
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Figure 4--figure supplement 5. Modeling dependency of $\\pi_0$ on library layout: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Download model object [pi0__1_librarylayout.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0__1_librarylayout.rds). Points denote best fit of linear model. Error bars denote 95% credible interval.")
+fig_cap <- glue("Figure 4--figure supplement 5. Modeling dependency of $\\pi_0$ on library layout: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Error bars denote 95% credible interval. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0__1_librarylayout.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -707,7 +718,7 @@ p <- mod %>%
   theme(axis.title.y = element_blank())
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Figure 3--figure supplement 6. Modeling dependency of proportion of anti-conservative histograms on sequencing platform: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Download model object [anticons__1_model.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons__1_model.rds). Points denote best fit of linear model. Error bars denote 95% credible interval.")
+fig_cap <- glue("Figure 3--figure supplement 6. Modeling dependency of proportion of anti-conservative histograms on sequencing platform: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Error bars denote 95% credible interval. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons__1_model.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -735,7 +746,7 @@ p <- mod %>%
   scale_x_continuous(limits = c(0, 1))
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Figure 3--figure supplement 7. Modeling dependency of proportion of anti-conservative histograms on library strategy: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Download model object [anticons__1_librarystrategy.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons__1_librarystrategy.rds). Points denote best fit of linear model. Error bars denote 95% credible interval.")
+fig_cap <- glue("Figure 3--figure supplement 7. Modeling dependency of proportion of anti-conservative histograms on library strategy: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Error bars denote 95% credible interval. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons__1_librarystrategy.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -763,7 +774,7 @@ p <- mod %>%
   scale_x_continuous(limits = c(0, 1))
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Figure 3--figure supplement 8. Modeling dependency of proportion of anti-conservative histograms on library selection: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Download model object [anticons__1_libraryselection.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons__1_libraryselection.rds). Points denote best fit of linear model. Error bars denote 95% credible interval.")
+fig_cap <- glue("Figure 3--figure supplement 8. Modeling dependency of proportion of anti-conservative histograms on library selection: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Error bars denote 95% credible interval. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons__1_libraryselection.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -790,7 +801,7 @@ p <- mod %>%
   labs(x = "Proportion of anti-conservative histograms", y = "Library layout")
 p$layers[[1]]$aes_params$size <- 1
 
-fig_cap <- glue("Figure 3--figure supplement 9. Modeling dependency of proportion of anti-conservative histograms on library layout: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Download model object [anticons__1_librarylayout.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons__1_librarylayout.rds). Points denote best fit of linear model. Error bars denote 95% credible interval.")
+fig_cap <- glue("Figure 3--figure supplement 9. Modeling dependency of proportion of anti-conservative histograms on library layout: *{deparse(f)}*, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Error bars denote 95% credible interval. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons__1_librarylayout.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -980,12 +991,18 @@ pfN <- prettyNum(summary(mod)$nobs, big.mark=',')
 pfF <- deparse(f)
 
 fig_cap <- glue('Figure 5--figure supplement 1. Binomial logistic models for proportion of anti-conservative p value histograms. 
-                A, simple model *{paF}*, N = {paN}. Download model object [anticons_detool_filtered.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool_filtered.rds).
-                B, simple model *{pbF}* fitted on complete data, N = {pbN}. Download model object [anticons_detool_all_filtered.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool_all_filtered.rds).
-                C, model conditioned on year of GEO submission: *{pcF}*, N = {pcN}. Download model object [anticons_year_detool_filtered.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_year_detool_filtered.rds).
-                D, model conditioned on studied organism (human/mouse/other): *{pdF}*, N = {pdN}. Download model object [anticons_organism_detool_filtered.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_organism_detool_filtered.rds).
-                E, varying intercept model *{peF}* where "model" stands for sequencing instrument model, N = {peN}. Download model object [anticons_detool__1_model_filtered.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool__1_model_filtered.rds).
-                F, varying intercept and slope model *{pfF}*, N = {pfN}. Download model object [anticons_detool__detool_model_filtered.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool__detool_model_filtered.rds). Points denote best fit of linear model. Error bars, 95% credible interval.')
+                A, simple model *{paF}*, N = {paN}. 
+                B, simple model *{pbF}* fitted on complete data, N = {pbN}. 
+                C, model conditioned on year of GEO submission: *{pcF}*, N = {pcN}. 
+                D, model conditioned on studied organism (human/mouse/other): *{pdF}*, N = {pdN}. 
+                E, varying intercept model *{peF}* where "model" stands for sequencing instrument model, N = {peN}. 
+                F, varying intercept and slope model *{pfF}*, N = {pfN}. Points denote best fit of linear model. Error bars, 95% credible interval. 
+                The model object related to panel A can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool_filtered.rds. 
+                The model object related to panel B can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool_all_filtered.rds. 
+                The model object related to panel C can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_year_detool_filtered.rds. 
+                The model object related to panel D can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_organism_detool_filtered.rds. 
+                The model object related to panel E can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool__1_model_filtered.rds. 
+                The model object related to panel F can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_detool__detool_model_filtered.rds.')
 
 for (p in list(pa, pb, pc, pd, pe, pf)) {
   p$layers[[1]]$aes_params$size <- 1
@@ -1122,11 +1139,16 @@ p <- (pa + pb + pc) / (pd + pe + plot_spacer()) +
   theme(plot.tag.position = c(0, 1),
         plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
 fig_cap <- glue("Figure 5--figure supplement 2. Robust (student's t likelihood) modeling of $\\pi_0$. 
-                A, simple model *{paF}* fitted on complete data, N = {paN}. Download model object [pi0_detool_full_data_filtered.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_detool_full_data_filtered.rds).
-                B, model conditioned on year of GEO submission: *{pbF}*, N = {pbN}. Download model object [pi0_year_detool_filtered.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_year_detool_filtered.rds).
-                C, model conditioned on studied organism (human/mouse/other): *{pcF}*, N = {pcN}. Download model object [pi0_organism_detool_filtered.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_organism_detool_filtered.rds).
-                D, varying intercept model *{pdF}* where 'model' stands for sequencing instrument model, N = {pdN}. Download model object [pi0_detool__1_model_filtered.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_detool__1_model_filtered.rds).
-                E, varying intercept/slope model *{peF}*, N = {peN}. Download model object [pi0_detool__detool_model_filtered.rds](https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_detool__detool_model_filtered.rds). Points denote best fit of linear model. Error bars denote 95% credible interval.")
+                A, simple model *{paF}* fitted on complete data, N = {paN}. 
+                B, model conditioned on year of GEO submission: *{pbF}*, N = {pbN}. 
+                C, model conditioned on studied organism (human/mouse/other): *{pcF}*, N = {pcN}. 
+                D, varying intercept model *{pdF}* where 'model' stands for sequencing instrument model, N = {pdN}. 
+                E, varying intercept/slope model *{peF}*, N = {peN}. Points denote best fit of linear model. Error bars denote 95% credible interval.
+                The model object related to panel A can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_detool_full_data_filtered.rds. 
+                The model object related to panel B can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_year_detool_filtered.rds. 
+                The model object related to panel C can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_organism_detool_filtered.rds. 
+                The model object related to panel D can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_detool__1_model_filtered.rds. 
+                The model object related to panel E can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/pi0_detool__detool_model_filtered.rds.")
 
 #+ fig.cap=fig_cap
 p

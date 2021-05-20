@@ -26,7 +26,8 @@ header-includes: >
   \usepackage{lipsum}
 bibliography: references.bib
 output:
-  bookdown::word_document2
+  bookdown::pdf_book:
+    base_format: rticles::arxiv_article
 ---
 
 ```{r include=FALSE}
