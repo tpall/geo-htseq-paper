@@ -189,6 +189,7 @@ rule main:
         "results/figure_supplements.pdf",
     output:
         "results/main.pdf",
+        "results/main.docx"
     container:
         "docker://rstatstartu/rstanverse:latest"
     resources:
@@ -197,7 +198,7 @@ rule main:
     threads: 4
     shell:
         """
-        Rscript -e 'rmarkdown::render(here::here("workflow/scripts/main/main.Rmd"), output_dir = here::here("results"))'
+        Rscript -e 'rmarkdown::render(here::here("workflow/scripts/main/main.Rmd"), output_dir = here::here("results"), output_format = "all")'
         """
 
 
