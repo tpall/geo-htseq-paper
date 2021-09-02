@@ -28,7 +28,7 @@ bibliography: references.bib
 output:
   bookdown::pdf_book:
     base_format: rticles::arxiv_article
-  bookdown::word_document2
+  bookdown::word_document2: default
 ---
 
 ```{r include=FALSE}
