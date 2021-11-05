@@ -133,13 +133,27 @@ pvalues <- parsed_suppfiles %>%
   group_by(id, Set) %>% 
   mutate(var = get_var(c("logcpm"=logcpm, "rpkm"=rpkm, "fpkm"=fpkm, "basemean"=basemean, "aveexpr"=aveexpr))) %>%
   ungroup() %>% 
-  mutate(analysis_platform = case_when(
-    var == "basemean" ~ "deseq",
-    var == "aveexpr" ~ "limma",
-    var == "logcpm" ~ "edger",
-    var == "fpkm" & str_detect(Set, "p_value") ~ "cuffdiff",
-    TRUE ~ "unknown"
-  )) %>% 
+  mutate( # parsing analysis platform using expression level variable name
+    analysis_platform_from_expression = case_when(
+      var == "basemean" ~ "deseq",
+      var == "aveexpr" ~ "limma",
+      var == "logcpm" ~ "edger",
+      var == "fpkm" & str_detect(Set, "p_value") ~ "cuffdiff",
+      TRUE ~ "unknown"
+    ), # parsing analysis platform using file names
+    analysis_platform_from_filename = case_when(
+      str_detect(str_to_lower(id), "deseq") ~ "deseq",
+      str_detect(str_to_lower(id), "edger") ~ "edger",
+      str_detect(str_to_lower(id), "limma") ~ "limma",
+      str_detect(str_to_lower(id), "cuff") ~ "cuffdiff",
+      TRUE ~ "unknown"
+    ), # assigning analysis platform using file names and expression level variable name
+    analysis_platform = case_when(
+      analysis_platform_from_expression == analysis_platform_from_filename ~ analysis_platform_from_expression,
+      analysis_platform_from_filename == "unknown" ~ analysis_platform_from_expression,
+      TRUE ~ analysis_platform_from_filename
+      )
+  ) %>%
   select(Accession, id, Set, Class = raw, analysis_platform) %>% 
   left_join(acc_year) %>% 
   left_join(pi0) %>% 

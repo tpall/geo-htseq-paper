@@ -32,9 +32,9 @@ old <- theme_set(theme_cowplot(font_size = 8, font_family = "Helvetica"))
 is_ci <- function() {
   "CI" %in% Sys.getenv()
 }
-chains <- ifelse(is_ci(), 1, 4)
+chains <- 1 #ifelse(is_ci(), 1, 4)
 cores <- chains
-refresh = 0
+refresh = 200
 rstan_options(auto_write = TRUE, javascript = FALSE)
 if (!dir.exists("results/models")) {
     dir.create("results/models", recursive = TRUE)
@@ -51,27 +51,31 @@ sequencing_metadata <- read_csv(here("results/sequencing_metadata_unique_platfor
 #'
 #+ fig1
 f <- conforms ~ year
-data <- conformity_acc
+# We will rescale years, so that year = 0 is the year of first submission
+data <- conformity_acc %>% 
+  mutate_at("year", ~.x - min(.x))
 family <- bernoulli()
 mod <- brm(formula = f, 
            data = data, 
            family = family, 
+           prior = prior("normal(0, 2)", class = "b"),
            refresh = refresh,
            chains = chains,
            cores = cores,
            control = list(adapt_delta = 0.95, max_treedepth = 12),
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/conforms_year.rds"))
+           file = here("results/models/conforms_year.rds"),
+           file_refit = "on_change")
 
 p <- plot(conditional_effects(mod), plot = FALSE, line_args = list(color = "black", size = 1/2))$year
 p <- p + 
   geom_point(
-    data = conformity_acc %>% group_by(year) %>% summarise_at("conforms", list(conforms = mean)), 
+    data = data %>% group_by(year) %>% summarise_at("conforms", list(conforms = mean)), 
     aes(year, conforms), 
     inherit.aes = FALSE,
     size = 1/2) +
   labs(x = "Year", y = "Proportion of submissions conforming\nwith GEO submission guidelines") +
-  scale_x_continuous(breaks = seq(2006, 2019, by = 2))
+  scale_x_continuous(breaks = seq(0, 12, by = 2), labels = seq(2008, 2020, by = 2))
 ggsave(here("figures/figure_1.pdf"), plot = p, height = 6, width = 7, dpi = 300, units = "cm")
 
 #' 
@@ -213,21 +217,23 @@ ggsave(here("figures/figure_2.pdf"), plot = p2, width = 12, height = 8, units = 
 #+ fig3
 f <- Class ~ year + (year | de_tool)
 family <- categorical()
-data <- pvalues_sample
+# We will rescale years, so that year = 0 is the year of first submission
+data <- pvalues_sample %>% 
+  mutate_at("year", ~.x - min(.x))
 get_prior(f, data, family)
 priors <- c(
   set_prior("lkj(3)", class = "cor"),
-  set_prior("normal(0, 0.5)", class = "b"),
-  set_prior("normal(0, 0.5)", class = "sd", dpar = "muuniform"),
-  set_prior("normal(0, 0.5)", class = "sd", dpar = "mubimodal"),
-  set_prior("normal(0, 0.5)", class = "sd", dpar = "muconservative"),
-  set_prior("normal(0, 0.5)", class = "sd", dpar = "muother")
+  set_prior("normal(0, 2)", class = "b"),
+  set_prior("normal(0, 2)", class = "sd", dpar = "muuniform"),
+  set_prior("normal(0, 2)", class = "sd", dpar = "mubimodal"),
+  set_prior("normal(0, 2)", class = "sd", dpar = "muconservative"),
+  set_prior("normal(0, 2)", class = "sd", dpar = "muother")
   )
 mod <- brm(formula = f, 
            data = data, 
            family = family, 
-           chains = 3, 
-           cores = 3, 
+           chains = chains, 
+           cores = cores, 
            refresh = refresh,
            prior = priors,
            control = list(adapt_delta = 0.99),
@@ -242,7 +248,7 @@ p <- plot(conditional_effects(mod,
                               re_formula = NULL),
           plot = FALSE)
 p3a <- p$`year:cats__` + 
-  scale_x_continuous(breaks = seq(2009, 2019, by = 2)) +
+  scale_x_continuous(breaks = seq(0, 10, by = 2), labels = seq(range(pvalues_sample$year)[1], range(pvalues_sample$year)[2], 2)) +
   facet_wrap(~de_tool, nrow = 1) +
   labs(y = "Proportion",
        x = "Year") +
@@ -255,7 +261,7 @@ p3a$layers[[1]]$aes_params$alpha <- 0.2
 #+
 f <- Class ~ de_tool
 family <- categorical()
-data <- pvalues_sample %>% filter(year >= 2018) # keep only values from 2018-2019!!!
+data <- pvalues_sample %>% filter(year >= 2018) # keep only values from 2018 and up!
 # get_prior(f, data, family)
 priors <- c(
   set_prior("normal(0, 1)", class = "b", dpar = "muuniform")
@@ -272,8 +278,7 @@ mod <- brm(formula = f,
            file = here("results/models/Class_detool_2018-19.rds"))
 p <- plot(conditional_effects(mod, 
                               categorical = TRUE, 
-                              effects = "de_tool",
-                              re_formula = NULL), 
+                              effects = "de_tool"), 
           plot = FALSE)
 p3b <- p$`de_tool:cats__` + 
   labs(y = "Proportion") +
@@ -290,7 +295,7 @@ ggsave(here("figures/figure_3.pdf"), plot = p3, width = 18, height = 12, units =
 f <- pi0 ~ de_tool
 family <- student()
 data <- pvalues_sample
-priors <- set_prior("normal(0, 0.5)", class="b")
+priors <- set_prior("normal(0, 2)", class="b")
 mod <- brm(formula = f, 
            data = data, 
            family = family,
@@ -417,7 +422,9 @@ sankey_plots <- by_detool %>%
 if (!exists("snakemake")) {
   #' These plots need to be manually saved from RStudio Viewer
   #' edger: figure_5D.png
-  sankey_plots[[1]]
+  html <- tempfile(fileext = ".html")
+  saveNetwork(sankey_plots[[1]], html)
+  webshot(html, here("figures/figure_5D.png"))
   #' cuffdiff: figure_5B.png
   sankey_plots[[2]]
   #' limma: figure_5E.png
@@ -547,7 +554,7 @@ pubs_all <- pubs %>%
   left_join(citescores) %>% 
   select(PubMedIds, year, Title, CiteScore) %>% 
   distinct() %>% 
-  filter(year <= 2019)
+  filter(year <= 2020)
 
 pubs_citescore <- pubs_all %>% 
   drop_na() %>% 
