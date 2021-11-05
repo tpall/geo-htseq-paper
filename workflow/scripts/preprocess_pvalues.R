@@ -17,14 +17,14 @@ library(here)
 document_summaries <- read_csv(here("results/data/document_summaries.csv"))
 if (!exists("snakemake")) {
   document_summaries %>% 
-    filter(PDAT<="2019-12-31") %>% 
+    filter(PDAT<="2020-12-31") %>% 
     pull(Accession) %>% 
     n_distinct()
 }
 
 if (!exists("snakemake")) {
   document_summaries %>% 
-    filter(PDAT<="2019-12-31") %>% 
+    filter(PDAT<="2020-12-31") %>% 
     group_by(year(PDAT)) %>% 
     count() %>% 
     ungroup() %>% 
@@ -45,17 +45,18 @@ acc_year <- document_summaries %>%
   select(Accession, PDAT) %>% 
   mutate(year = year(PDAT))
 
-#' We right join to keep only subset from our time frame.
+#' Keep only subset from our time frame. Recheck inner_join!
 conformity <- suppfilenames %>% 
   mutate(Accession = str_to_upper(str_extract(suppfilenames, "GS[Ee]\\d+"))) %>% 
-  right_join(acc_year) %>%
+  full_join(acc_year) %>%
   mutate(
-    conforms = !(is.na(suppfilenames) | str_detect(str_to_lower(suppfilenames), "readme|_raw.tar$|\\.[bs]am$|\\.bed$|\\.fa(sta)?"))
+    conforms = !(is.na(suppfilenames) | str_detect(str_to_lower(suppfilenames), c("readme", "\\.[bs]am", "\\.bed", "\\.fa(sta)?") %>% str_c("(.\\gz)?", collapse = "|")))
   )
 
 #' Total number of files conforming
 if (!exists("snakemake")) {
   sum(conformity$conforms)
+  mean(conformity$conforms)
 }
 
 #' Total number of GEOs conforming
@@ -94,8 +95,16 @@ if (!exists("snakemake")) {
 
 #' Number of sets with p-values, 
 parsed_suppfiles_raw <- read_csv(here("results/data/parsed_suppfiles.csv"))
+
+#' let's test how much raw.tar files comply
+parsed_suppfiles_raw %>% 
+  filter(str_detect(id, "RAW\\.tar")) %>% 
+  separate(id, c("file", "archive"), sep = " from ")
+parsed_suppfiles_raw %>% 
+  filter(str_detect(id, "RAW\\.tar")) %>% 
+  .[c(305, 51354, 68125, 92959, 114157, 144694, 152308), ]
+
 parsed_suppfiles <- parsed_suppfiles_raw %>% 
-  filter(!str_detect(id, "_RAW.tar")) %>% 
   mutate(Accession = str_to_upper(str_extract(id, "GS[Ee]\\d+"))) %>% 
   select(Accession, everything())
 
@@ -118,8 +127,8 @@ hist <- parsed_suppfiles %>%
   select(Accession, id, Set, FDR_pval, hist)
 
 pvalues <- parsed_suppfiles %>% 
+  select(Accession, id, Set, Type, Class) %>% 
   filter(!is.na(Type)) %>% 
-  select(Accession, id, Set, Type, Class) %>%
   pivot_wider(names_from = Type, values_from = Class) %>% 
   group_by(id, Set) %>% 
   mutate(var = get_var(c("logcpm"=logcpm, "rpkm"=rpkm, "fpkm"=fpkm, "basemean"=basemean, "aveexpr"=aveexpr))) %>%

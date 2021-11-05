@@ -15,9 +15,10 @@ library(here)
 #' #' Number of unique GEOs
 #' #+
 document_summaries <- read_csv(here("results/data/document_summaries.csv"))
+
 if (!exists("snakemake")) {
   document_summaries %>%
-    filter(PDAT<="2019-12-31") %>%
+    filter(PDAT<="2020-12-31") %>%
     pull(Accession) %>%
     n_distinct()
 }

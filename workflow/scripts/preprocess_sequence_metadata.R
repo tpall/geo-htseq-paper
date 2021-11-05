@@ -10,18 +10,28 @@ library(here)
 
 spots_raw <- read_csv(here("results/data/spots.csv")) %>% 
   rename_all(str_to_lower)
+
 probs <- problems(spots_raw)
 
-spots_raw <- spots_raw %>% 
-  mutate_all(as.character)
+if (nrow(probs) > 0) {
+  
+  spots_raw <- spots_raw %>% 
+    mutate_all(as.character)
+  
+  #' Fix missing columns
+  columns_off <- spots_raw[probs$row, ]
+  colnames(columns_off) <- c(setdiff(colnames(columns_off), "sample_name"), "sample_name")
+  
+  columns_ok <- spots_raw[-probs$row, ]
+  
+  spots_col_fix <- bind_rows(columns_ok, columns_off)
+  
+} else {
+  spots_col_fix <- spots_raw
+}
 
-#' Fix missing columns
-columns_off <- spots_raw[probs$row, ]
-colnames(columns_off) <- c(setdiff(colnames(columns_off), "sample_name"), "sample_name")
 
-columns_ok <- spots_raw[-probs$row, ]
 
-spots_col_fix <- bind_rows(columns_ok, columns_off)
 
 #' Fix cases with missing platform.
 #+
