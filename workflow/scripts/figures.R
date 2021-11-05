@@ -25,6 +25,7 @@ library(tidybayes)
 library(modelr)
 library(magick)
 library(networkD3)
+library(webshot)
 library(here)
 old <- theme_set(theme_cowplot(font_size = 8, font_family = "Helvetica"))
 
@@ -329,7 +330,6 @@ ggsave(here("figures/figure_4.pdf"), plot = p4, width = 18, height = 8, units = 
 #' ## Figure 5 
 #+
 parsed_suppfiles2 <- parsed_suppfiles_raw %>% 
-  filter(!str_detect(id, "_RAW.tar")) %>% 
   mutate(Accession = str_to_upper(str_extract(id, "GS[Ee]\\d+"))) %>% 
   select(Accession, everything())
 
@@ -373,10 +373,15 @@ make_sankey <- function(data) {
 }
 
 #' figure_5A.png
-if (!exists("snakemake")) {
-  pvalues_sample2 %>%
-    make_sankey()
+#+
+save_sankey_as_webshot <- function(p, path) {
+  html <- tempfile(fileext = ".html")
+  saveNetwork(p, html)
+  webshot(html, path)
 }
+
+save_sankey_as_webshot(pvalues_sample2 %>% make_sankey(), here("figures/figure_5A.png"))
+
 
 get_props <- function(data) {
   raw <- data %>% 
@@ -416,24 +421,21 @@ by_detool <- pvalues_sample_detools %>%
   nest() %>% 
   mutate(sankey = map(data, make_sankey),
          props = map(data, get_props))
+
 sankey_plots <- by_detool %>% 
   pull(sankey)
 
-if (!exists("snakemake")) {
-  #' These plots need to be manually saved from RStudio Viewer
-  #' edger: figure_5D.png
-  html <- tempfile(fileext = ".html")
-  saveNetwork(sankey_plots[[1]], html)
-  webshot(html, here("figures/figure_5D.png"))
-  #' cuffdiff: figure_5B.png
-  sankey_plots[[2]]
-  #' limma: figure_5E.png
-  sankey_plots[[3]]
-  #' deseq: figure_5C.png
-  sankey_plots[[4]]
-  #' unknown: figure_5F.png
-  sankey_plots[[5]]
-}
+#' edger: figure_5D.png
+save_sankey_as_webshot(sankey_plots[[1]], here("figures/figure_5D.png"))
+#' cuffdiff: figure_5B.png
+save_sankey_as_webshot(sankey_plots[[2]], here("figures/figure_5B.png"))
+#' limma: figure_5E.png
+save_sankey_as_webshot(sankey_plots[[3]], here("figures/figure_5E.png"))
+#' deseq: figure_5C.png
+save_sankey_as_webshot(sankey_plots[[4]], here("figures/figure_5C.png"))
+#' unknown: figure_5F.png
+save_sankey_as_webshot(sankey_plots[[5]], here("figures/figure_5F.png"))
+
 
 imgs <- glue::glue("figures/figure_5{LETTERS[1:6]}.png")
 png_to_ggplot <- function(path) {
@@ -488,13 +490,27 @@ drop_out_sample <- drop_out %>%
   mutate(prop_out = 1 - filtered/raw)
 
 drop_out_sample <- drop_out_sample %>% 
-  mutate(analysis_platform = case_when(
-    expval == "basemean" ~ "deseq",
-    expval == "aveexpr" ~ "limma",
-    expval == "logcpm" ~ "edger",
-    expval == "fpkm" & str_detect(Set, "p_value") ~ "cuffdiff",
-    TRUE ~ "unknown"
-  ))
+  mutate( # parsing analysis platform using expression level variable name
+    analysis_platform_from_expression = case_when(
+      expval == "basemean" ~ "deseq",
+      expval == "aveexpr" ~ "limma",
+      expval == "logcpm" ~ "edger",
+      expval == "fpkm" & str_detect(Set, "p_value") ~ "cuffdiff",
+      TRUE ~ "unknown"
+    ), # parsing analysis platform using file names
+    analysis_platform_from_filename = case_when(
+      str_detect(str_to_lower(id), "deseq") ~ "deseq",
+      str_detect(str_to_lower(id), "edger") ~ "edger",
+      str_detect(str_to_lower(id), "limma") ~ "limma",
+      str_detect(str_to_lower(id), "cuff") ~ "cuffdiff",
+      TRUE ~ "unknown"
+    ), # assigning analysis platform using file names and expression level variable name
+    analysis_platform = case_when(
+      analysis_platform_from_expression == analysis_platform_from_filename ~ analysis_platform_from_expression,
+      analysis_platform_from_filename == "unknown" ~ analysis_platform_from_expression,
+      TRUE ~ analysis_platform_from_filename
+    )
+  ) %>%
 
 if (!exists("snakemake")) {
   drop_out_sample %>% 
@@ -604,7 +620,10 @@ data <- pvalues_sample %>%
               left_join(pubs_citescore) %>% 
               drop_na()) %>% 
   drop_na() %>% 
-  mutate(anticons = as.numeric(Class == "anti-conservative"))
+  mutate(
+    anticons = as.numeric(Class == "anti-conservative"),
+    year = year - min(year)
+    )
 
 f <- anticons ~ CiteScore + year
 family <- bernoulli()
@@ -628,13 +647,13 @@ pa <- p$CiteScore +
   scale_y_continuous(limits = c(0, 0.4)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Journal CiteScore")
-h1 <- hypothesis(mod, "CiteScore>0")
+h1 <- hypothesis(mod, "CiteScore > 0")
 citescore_es <- data %>% 
-  data_grid(CiteScore = c(0.1, 60), year = year) %>% 
-  add_fitted_draws(mod) %>% 
+  data_grid(CiteScore = c(0.1, 60), year = 0) %>% 
+  add_epred_draws(mod) %>% 
   ungroup() %>% 
-  select(CiteScore, .value) %>% 
-  pivot_wider(names_from = CiteScore, values_from = .value) %>% 
+  select(CiteScore, .draw, .epred) %>% 
+  pivot_wider(names_from = CiteScore, values_from = .epred) %>% 
   unnest(cols = c(`0.1`, `60`)) %>% 
   transmute(es = `0.1` - `60`)
 citescore_es %>% 
@@ -651,12 +670,13 @@ citescore_es %>%
   mutate_at(c("es", ".lower", ".upper"), prettyNum)
 citescore_es %>% 
   ggplot() +
-  geom_histogram(aes(es), bins = 100) +
+  geom_density(aes(es)) +
   geom_vline(xintercept = 0, linetype = "dashed")
 
 f <- anticons ~ log_citations + year
 log_citations <- data %>% 
-  mutate_at("citations", list(log_citations = ~log10(.x + 0.1)))
+  mutate_at("citations", list(log_citations = ~log10(.x + 0.1))) %>% 
+  mutate(year = year - min(year))
 mod <- brm(
   formula = f, 
   data = log_citations,
