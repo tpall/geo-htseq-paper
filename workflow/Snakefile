@@ -25,14 +25,14 @@ rule all:
 
 rule download:
     output:
-        "results/geo-htseq-until-2020-12-31.tar.gz",
+        "results/geo-htseq-dataset.tar.gz",
     log:
         "results/log/download.log",
     resources:
         runtime=120,
         mem_mb=4000,
     shell:
-        "curl -o {output} https://zenodo.org/record/5356064/files/geo-htseq-until-2020-12-31.tar.gz?download=1 2> {log}"
+        "curl -o {output} https://zenodo.org/record/5702316/files/geo-htseq-until-2020-12-31.tar.gz?download=1 2> {log}"
 
 
 rule download_simulation:
@@ -138,7 +138,6 @@ rule figures:
         "results/pvalues_acc.csv",
         "results/data/scopus_citedbycount.csv",
         "results/data/publications.csv",
-        expand("figures/figure_5{panel}.png", panel=["A","B", "C", "D", "E", "F"]),
     output:
         expand("figures/figure_{n}.pdf", n=FIGS),
         "results/files_to_check_pi0.txt",
