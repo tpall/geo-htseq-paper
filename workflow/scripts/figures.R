@@ -29,6 +29,11 @@ library(webshot)
 library(here)
 old <- theme_set(theme_cowplot(font_size = 8, font_family = "Helvetica"))
 
+
+if (!is_phantomjs_installed()) {
+   install_phantomjs()
+} 
+
 #+ params
 is_ci <- function() {
   "CI" %in% Sys.getenv()
