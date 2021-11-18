@@ -449,6 +449,7 @@ png_to_ggplot <- function(path) {
     annotation_custom(rasterGrob(img)) +
     theme(axis.line = element_blank())
 }
+
 plots <- imgs %>% 
   map(png_to_ggplot)
 
@@ -515,7 +516,7 @@ drop_out_sample <- drop_out_sample %>%
       analysis_platform_from_filename == "unknown" ~ analysis_platform_from_expression,
       TRUE ~ analysis_platform_from_filename
     )
-  ) %>%
+  )
 
 if (!exists("snakemake")) {
   drop_out_sample %>% 
@@ -535,6 +536,7 @@ publications <- read_csv(
     HasAbstract = col_double(),
     PmcRefCount = col_double()
   ))
+
 pubs <- publications %>% 
   mutate_at(c("ISSN", "ESSN"), str_remove_all, "-") %>% 
   mutate(year = as.numeric(str_extract(PubDate, "^\\d{4}"))) %>% 
@@ -643,6 +645,7 @@ mod <- brm(
   control = list(adapt_delta = 0.99, max_treedepth = 12),
   file = here("results/models/anticons__CiteScore_year.rds")
 )
+
 p <- plot(
   conditional_effects(
     mod, 
@@ -652,6 +655,7 @@ pa <- p$CiteScore +
   scale_y_continuous(limits = c(0, 0.4)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Journal CiteScore")
+
 h1 <- hypothesis(mod, "CiteScore > 0")
 citescore_es <- data %>% 
   data_grid(CiteScore = c(0.1, 60), year = 0) %>% 
