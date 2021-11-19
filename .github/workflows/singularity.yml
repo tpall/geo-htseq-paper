@@ -62,5 +62,6 @@ jobs:
           conda activate snakemake
           mkdir -p results/models
           singularity --version
+          singularity version
           snakemake --use-conda --use-singularity --restart-times 0 -j
 
