@@ -44,10 +44,10 @@ jobs:
 
       - name: Setup singularity
         run: |
-          export VERSION=3.9.0
-          wget https://github.com/sylabs/singularity/releases/download/v${VERSION}/singularity-ce-${VERSION}.tar.gz
-          tar -xzf singularity-ce-${VERSION}.tar.gz
-          cd singularity-ce-${VERSION}
+          export VERSION=3.7.3
+          wget https://github.com/sylabs/singularity/releases/download/v${VERSION}/singularity-${VERSION}.tar.gz
+          tar -xzf singularity-${VERSION}.tar.gz
+          cd singularity
           ./mconfig
           make -C builddir
           sudo make -C builddir install
