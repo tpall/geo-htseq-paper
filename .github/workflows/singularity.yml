@@ -44,8 +44,8 @@ jobs:
 
       - name: Setup singularity
         run: |
-          export VERSION=3.7.3
-          wget https://github.com/sylabs/singularity/releases/download/v${VERSION}/singularity-${VERSION}.tar.gz
+          export VERSION=3.8.0
+          wget https://github.com/hpcng/singularity/releases/download/v${VERSION}/singularity-${VERSION}.tar.gz
           tar -xzf singularity-${VERSION}.tar.gz
           cd singularity
           ./mconfig
