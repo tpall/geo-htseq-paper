@@ -40,12 +40,12 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@v2
         with:
-          go-version: '1.13'
+          go-version: '1.16'
 
       - name: Setup singularity
         run: |
-          export VERSION=3.6.2
-          wget https://github.com/sylabs/singularity/archive/refs/tags/v${VERSION}.tar.gz
+          export VERSION=3.9.0
+          wget https://github.com/sylabs/singularity/releases/download/v${VERSION}/singularity-ce-${VERSION}.tar.gz
           tar -xzf v${VERSION}.tar.gz
           cd singularity-${VERSION}
           ./mconfig
