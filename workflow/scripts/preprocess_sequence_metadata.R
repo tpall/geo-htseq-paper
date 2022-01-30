@@ -12,20 +12,24 @@ spots_raw <- read_csv(here("results/data/spots.csv")) %>%
   rename_all(str_to_lower)
 probs <- problems(spots_raw)
 
-spots_raw <- spots_raw %>% 
-  mutate_all(as.character)
-
-#' Fix missing columns
-columns_off <- spots_raw[probs$row, ]
-colnames(columns_off) <- c(setdiff(colnames(columns_off), "sample_name"), "sample_name")
-
-columns_ok <- spots_raw[-probs$row, ]
-
-spots_col_fix <- bind_rows(columns_ok, columns_off)
+if (nrow(probs > 0)) {
+  spots_raw <- spots_raw %>% 
+    mutate_all(as.character)
+  
+  #' Fix missing columns
+  columns_off <- spots_raw[probs$row, ]
+  colnames(columns_off) <- c(setdiff(colnames(columns_off), "sample_name"), "sample_name")
+  
+  columns_ok <- spots_raw[-probs$row, ]
+  
+  spots <- bind_rows(columns_ok, columns_off)
+} else {
+  spots <- spots_raw
+}
 
 #' Fix cases with missing platform.
 #+
-seq_platform <- spots_col_fix %>% 
+seq_platform <- spots %>% 
   mutate_at(vars(platform, model), str_to_lower) %>% 
   mutate(model = case_when(
     is.na(model) & !is.na(platform) ~ platform,
