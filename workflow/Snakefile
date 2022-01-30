@@ -1,3 +1,5 @@
+container: "docker://rstatstartu/rstanverse:latest"
+
 localrules:
     all,
     staple,
@@ -83,8 +85,6 @@ rule preprocess_pvalues:
         "results/pvalues_acc.csv",
     log:
         "results/log/preprocess_pvalues.log",
-    conda:
-        "envs/environment.yml"
     resources:
         runtime=120,
         mem_mb=4000,
@@ -100,8 +100,6 @@ rule preprocess_sequence_metadata:
         "results/sequencing_metadata.csv",
     log:
         "results/log/preprocess_sequence_metadata.log",
-    conda:
-        "envs/environment.yml"
     resources:
         runtime=120,
         mem_mb=4000,
@@ -126,8 +124,6 @@ rule figures:
          # "results/models/pi0_year__year_detool.rds",
     log:
         "results/log/figures.log",
-    container:
-        "shub://tpall/geo-htseq-paper:latest"
     resources:
         runtime=1440,
         mem_mb=8000,
@@ -173,8 +169,6 @@ rule figure_supplements:
          # "results/models/anticons__1_librarylayout.rds",
     log:
         "results/log/figure_supplements.log",
-    container:
-        "shub://tpall/geo-htseq-paper:latest"
     resources:
         runtime=1440,
         mem_mb=8000,
@@ -191,8 +185,6 @@ rule main:
         "results/figure_supplements.pdf",
     output:
         "results/main.pdf",
-    container:
-        "shub://tpall/geo-htseq-paper:latest"
     resources:
         runtime=120,
         mem_mb=8000,
@@ -235,8 +227,6 @@ rule suppl_data:
         "results/README.txt",
     log:
         "results/log/suppl_data.log",
-    conda:
-        "envs/environment.yml"
     resources:
         runtime=120,
         mem_mb=8000,
