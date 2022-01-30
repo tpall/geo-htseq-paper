@@ -193,16 +193,16 @@ ggsave(here("figures/figure_2.pdf"), plot = p2, width = 12, height = 8, units = 
 #+ fig3
 f <- Class ~ year + (year | de_tool)
 family <- categorical()
-data <- pvalues_sample
+data <- pvalues_sample %>% 
+  drop_na(Class, year, de_tool)
 get_prior(f, data, family)
 priors <- c(
   set_prior("lkj(3)", class = "cor"),
-  set_prior("normal(0, 0.5)", class = "b"),
-  set_prior("normal(0, 0.5)", class = "sd", dpar = "muuniform"),
-  set_prior("normal(0, 0.5)", class = "sd", dpar = "mubimodal"),
-  set_prior("normal(0, 0.5)", class = "sd", dpar = "muconservative"),
-  set_prior("normal(0, 0.5)", class = "sd", dpar = "muother")
-  )
+  set_prior("normal(0, 0.5)", class = "b", dpar = "muuniform"),
+  set_prior("normal(0, 0.5)", class = "b", dpar = "mubimodal"),
+  set_prior("normal(0, 0.5)", class = "b", dpar = "muconservative"),
+  set_prior("normal(0, 0.5)", class = "b", dpar = "muother")
+)
 mod <- brm(formula = f, 
            data = data, 
            family = family, 
@@ -210,7 +210,7 @@ mod <- brm(formula = f,
            cores = 3, 
            refresh = refresh,
            prior = priors,
-           control = list(adapt_delta = 0.99),
+           control = list(adapt_delta = 0.99, max_treedepth = 15),
            iter = ifelse(is_ci(), 400, 4000),
            file = here("results/models/Class_year__year_detool_year.rds"))
 conditions <- make_conditions(data, vars = "de_tool")
@@ -222,7 +222,7 @@ p <- plot(conditional_effects(mod,
                               re_formula = NULL),
           plot = FALSE)
 p3a <- p$`year:cats__` + 
-  scale_x_continuous(breaks = seq(2009, 2019, by = 2)) +
+  scale_x_continuous(breaks = seq(2009, 2020, by = 2)) +
   facet_wrap(~de_tool, nrow = 1) +
   labs(y = "Proportion",
        x = "Year") +
@@ -235,7 +235,7 @@ p3a$layers[[1]]$aes_params$alpha <- 0.2
 #+
 f <- Class ~ de_tool
 family <- categorical()
-data <- pvalues_sample %>% filter(year >= 2018) # keep only values from 2018-2019!!!
+data <- pvalues_sample %>% filter(year >= 2018) # keep only values from 2018 and up
 get_prior(f, data, family)
 priors <- c(
   set_prior("normal(0, 1)", class = "b", dpar = "muuniform")
