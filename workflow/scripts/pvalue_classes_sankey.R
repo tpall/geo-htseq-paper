@@ -12,6 +12,7 @@ library(tidyr)
 library(lubridate)
 library(here)
 library(networkD3)
+library(webshot)
 library(ggplot2)
 library(grid)
 library(patchwork)
@@ -78,8 +79,10 @@ make_sankey <- function(data) {
 }
 
 #' figure_5A.png
-pvalues_sample %>% 
+f5a <- pvalues_sample %>% 
   make_sankey()
+saveNetwork(f5a, here("figures", "figure_5A.html"))
+webshot(here("figures", "figure_5A.html"), here("figures", "figure_5A.png"))
 
 get_props <- function(data) {
   raw <- data %>% 
@@ -120,19 +123,15 @@ by_detool <- pvalues_sample_detools %>%
 sankey_plots <- by_detool %>% 
   pull(sankey)
 
-if (!exists("snakemake")) {
-  #' These plots need to be manually saved from RStudio Viewer
-  #' edger: figure_5D.png
-  sankey_plots[[1]]
-  #' cuffdiff: figure_5B.png
-  sankey_plots[[2]]
-  #' limma: figure_5E.png
-  sankey_plots[[3]]
-  #' deseq: figure_5C.png
-  sankey_plots[[4]]
-  #' unknown: figure_5F.png
-  sankey_plots[[5]]
-}
+by_detool$fig <- c("figure_5C.png", "figure_5D.png", "figure_5B.png", "figure_5E.png", "figure_5F.png")
+by_detool$html <- c("figure_5C.html", "figure_5D.html", "figure_5B.html", "figure_5E.html", "figure_5F.html")
+by_detool %>% 
+  mutate(html_path = here("figures", html),
+         fig_path = here("figures", fig),
+         save_html = map2(sankey, html_path, saveNetwork),
+         save_png = map2(html_path, fig_path, webshot)
+         )
+
 
 imgs <- glue::glue("figures/figure_5{LETTERS[1:6]}.png")
 png_to_ggplot <- function(path) {
@@ -154,8 +153,7 @@ titles <- list(A = "Total",
 plots2 <- map2(plots, titles, ~ .x + labs(title = .y) + theme(plot.title = element_text(hjust = 0.5, vjust=-6)))
 patchwork <- wrap_plots(plots2) + 
   plot_annotation(tag_levels = "A")
-ggsave(here("figures/figure_5.pdf"), 
-       plot = patchwork, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/figure_5.pdf"), plot = patchwork, width = 18, height = 12, units = "cm", dpi = 300)
 
 rescue_efficiency <- by_detool %>% 
   select(analysis_platform, props) %>% 
