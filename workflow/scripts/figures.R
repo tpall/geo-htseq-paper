@@ -32,7 +32,7 @@ is_ci <- function() {
 }
 chains <- ifelse(is_ci(), 1, 4)
 cores <- chains
-refresh = 0
+refresh = 200
 rstan_options(auto_write = TRUE, javascript = FALSE)
 if (!dir.exists("results/models")) {
     dir.create("results/models", recursive = TRUE)
@@ -194,25 +194,45 @@ ggsave(here("figures/figure_2.pdf"), plot = p2, width = 12, height = 8, units = 
 f <- Class ~ year + (year | de_tool)
 family <- categorical()
 data <- pvalues_sample %>% 
-  drop_na(Class, year, de_tool)
+  select(Class, year, de_tool) %>% 
+  drop_na()
 get_prior(f, data, family)
+
+data %>% 
+  count(de_tool, Class, year) %>% 
+  group_by(de_tool, year) %>% 
+  mutate(p = n / sum(n)) %>% 
+  ggplot(aes(year, p, color = Class)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~de_tool)
+
 priors <- c(
   set_prior("lkj(3)", class = "cor"),
-  set_prior("normal(0, 0.5)", class = "b", dpar = "muuniform"),
-  set_prior("normal(0, 0.5)", class = "b", dpar = "mubimodal"),
-  set_prior("normal(0, 0.5)", class = "b", dpar = "muconservative"),
-  set_prior("normal(0, 0.5)", class = "b", dpar = "muother")
+  set_prior("student_t(3, 0, 1)", class = "Intercept"),
+  set_prior("normal(0, 0.1)", class = "b", dpar = "muuniform"),
+  set_prior("student_t(3, 0, 0.1)", class = "sd", dpar = "muuniform"),
+  set_prior("normal(0, 0.1)", class = "b", dpar = "mubimodal"),
+  set_prior("student_t(3, 0, 0.1)", class = "sd", dpar = "mubimodal"),
+  set_prior("normal(0, 0.1)", class = "b", dpar = "muconservative"),
+  set_prior("student_t(3, 0, 0.1)", class = "sd", dpar = "muconservative"),
+  set_prior("normal(0, 0.1)", class = "b", dpar = "muother"),
+  set_prior("student_t(3, 0, 0.1)", class = "sd", dpar = "muother")
 )
 mod <- brm(formula = f, 
            data = data, 
            family = family, 
-           chains = 3, 
-           cores = 3, 
+           chains = chains, 
+           cores = chains, 
            refresh = refresh,
            prior = priors,
-           control = list(adapt_delta = 0.99, max_treedepth = 15),
-           iter = ifelse(is_ci(), 400, 4000),
+           iter = ifelse(is_ci(), 400, 2400),
            file = here("results/models/Class_year__year_detool_year.rds"))
+
+yrep_fit_posterior <- posterior_predict(mod, ndraws = 10)
+sum(is.na(yrep_fit_posterior))
+length(yrep_fit_posterior)
+
 conditions <- make_conditions(data, vars = "de_tool")
 rownames(conditions) <- conditions$de_tool
 p <- plot(conditional_effects(mod, 
