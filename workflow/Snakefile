@@ -9,7 +9,7 @@ rule all:
     input:
         "results/figure_supplements.pdf",
         "results/main.pdf",
-        expand("figures/figure_{n}.pdf", n=list(range(1, 5))),
+        expand("figures/figure_{n}.pdf", n=list(range(1, 6))),
         expand(
             "figures/figure_{fig}_figure_supplement_{supp}.tiff",
             zip,
