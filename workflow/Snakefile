@@ -132,6 +132,23 @@ rule figures:
         "scripts/figures.R"
 
 
+rule figures:
+    input:
+        "results/data/parsed_suppfiles.csv",
+    output:
+        "figures/figure_5.pdf",
+        expand("figures/figure_5{n}.pdf", n=["A","B","C","D","E","F"]),
+        temp(expand("figures/figure_5{n}.html", n=["A","B","C","D","E","F"])),
+    log:
+        "results/log/figure5.log",
+    resources:
+        runtime=1440,
+        mem_mb=8000,
+    threads: 4
+    script:
+        "scripts/pvalue_classes_sankey.R"
+
+
 rule figure_supplements:
     input:
         "results/pvalues.csv",
