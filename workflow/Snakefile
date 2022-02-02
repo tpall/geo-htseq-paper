@@ -132,12 +132,12 @@ rule figures:
         "scripts/figures.R"
 
 
-rule figures:
+rule figure5:
     input:
         "results/data/parsed_suppfiles.csv",
     output:
         "figures/figure_5.pdf",
-        expand("figures/figure_5{n}.pdf", n=["A","B","C","D","E","F"]),
+        expand("figures/figure_5{n}.png", n=["A","B","C","D","E","F"]),
         temp(expand("figures/figure_5{n}.html", n=["A","B","C","D","E","F"])),
     log:
         "results/log/figure5.log",
