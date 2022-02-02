@@ -3,9 +3,12 @@
 .RData
 .Ruserdata
 *Rproj
+.DS_Store
+.vscode
 README.html
 results/
 .snakemake/
-figures/figure_*_figure*
-figures/figure_*pdf
+figures/
 resources/data
+*tar.gz
+output
