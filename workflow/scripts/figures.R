@@ -225,26 +225,46 @@ f <- Class ~ year + (year | de_tool)
 family <- categorical()
 # We will rescale years, so that year = 0 is the year of first submission
 data <- pvalues_sample %>% 
-  mutate_at("year", ~.x - min(.x))
+  mutate_at("year", ~.x - min(.x)) %>%
+  select(Class, year, de_tool) %>% 
+  drop_na()
 get_prior(f, data, family)
+
+data %>% 
+  count(de_tool, Class, year) %>% 
+  group_by(de_tool, year) %>% 
+  mutate(p = n / sum(n)) %>% 
+  ggplot(aes(year, p, color = Class)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~de_tool)
+
 priors <- c(
   set_prior("lkj(3)", class = "cor"),
-  set_prior("normal(0, 2)", class = "b"),
-  set_prior("normal(0, 2)", class = "sd", dpar = "muuniform"),
-  set_prior("normal(0, 2)", class = "sd", dpar = "mubimodal"),
-  set_prior("normal(0, 2)", class = "sd", dpar = "muconservative"),
-  set_prior("normal(0, 2)", class = "sd", dpar = "muother")
-  )
+  set_prior("student_t(3, 0, 1)", class = "Intercept"),
+  set_prior("normal(0, 0.1)", class = "b", dpar = "muuniform"),
+  set_prior("student_t(3, 0, 0.1)", class = "sd", dpar = "muuniform"),
+  set_prior("normal(0, 0.1)", class = "b", dpar = "mubimodal"),
+  set_prior("student_t(3, 0, 0.1)", class = "sd", dpar = "mubimodal"),
+  set_prior("normal(0, 0.1)", class = "b", dpar = "muconservative"),
+  set_prior("student_t(3, 0, 0.1)", class = "sd", dpar = "muconservative"),
+  set_prior("normal(0, 0.1)", class = "b", dpar = "muother"),
+  set_prior("student_t(3, 0, 0.1)", class = "sd", dpar = "muother")
+)
 mod <- brm(formula = f, 
            data = data, 
            family = family, 
            chains = chains, 
-           cores = cores, 
+           cores = chains, 
            refresh = refresh,
            prior = priors,
-           control = list(adapt_delta = 0.99),
-           iter = ifelse(is_ci(), 400, 4000),
+           iter = ifelse(is_ci(), 400, 2400),
            file = here("results/models/Class_year__year_detool_year.rds"))
+
+yrep_fit_posterior <- posterior_predict(mod, ndraws = 10)
+sum(is.na(yrep_fit_posterior))
+length(yrep_fit_posterior)
+
 conditions <- make_conditions(data, vars = "de_tool")
 rownames(conditions) <- conditions$de_tool
 p <- plot(conditional_effects(mod, 

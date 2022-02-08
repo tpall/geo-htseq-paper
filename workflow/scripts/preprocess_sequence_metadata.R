@@ -24,18 +24,14 @@ if (nrow(probs) > 0) {
   
   columns_ok <- spots_raw[-probs$row, ]
   
-  spots_col_fix <- bind_rows(columns_ok, columns_off)
-  
+  spots <- bind_rows(columns_ok, columns_off)
 } else {
-  spots_col_fix <- spots_raw
+  spots <- spots_raw
 }
-
-
-
 
 #' Fix cases with missing platform.
 #+
-seq_platform <- spots_col_fix %>% 
+seq_platform <- spots %>% 
   mutate_at(vars(platform, model), str_to_lower) %>% 
   mutate(model = case_when(
     is.na(model) & !is.na(platform) ~ platform,
