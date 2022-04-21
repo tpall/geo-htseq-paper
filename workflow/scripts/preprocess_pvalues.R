@@ -95,15 +95,6 @@ if (!exists("snakemake")) {
 
 #' Number of sets with p-values, 
 parsed_suppfiles_raw <- read_csv(here("results/data/parsed_suppfiles.csv"))
-
-#' let's test how much raw.tar files comply
-parsed_suppfiles_raw %>% 
-  filter(str_detect(id, "RAW\\.tar")) %>% 
-  separate(id, c("file", "archive"), sep = " from ")
-parsed_suppfiles_raw %>% 
-  filter(str_detect(id, "RAW\\.tar")) %>% 
-  .[c(305, 51354, 68125, 92959, 114157, 144694, 152308), ]
-
 parsed_suppfiles <- parsed_suppfiles_raw %>% 
   mutate(Accession = str_to_upper(str_extract(id, "GS[Ee]\\d+"))) %>% 
   select(Accession, everything())
