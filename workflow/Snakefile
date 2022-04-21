@@ -137,7 +137,7 @@ rule figures:
         "results/data/scopus_citedbycount.csv",
         "results/data/publications.csv",
     output:
-        expand("figures/figure_{n}.pdf", n=FIGS),
+        expand("figures/figure_{n}.pdf", n=[1, 2, 3, 4, 6]),
         "results/files_to_check_pi0.txt",
     log:
         "results/log/figures.log",
