@@ -17,14 +17,14 @@ library(here)
 document_summaries <- read_csv(here("results/data/document_summaries.csv"))
 if (!exists("snakemake")) {
   document_summaries %>% 
-    filter(PDAT<="2020-12-31") %>% 
+    filter(PDAT <= "2020-12-31") %>% 
     pull(Accession) %>% 
     n_distinct()
 }
 
 if (!exists("snakemake")) {
   document_summaries %>% 
-    filter(PDAT<="2020-12-31") %>% 
+    filter(PDAT <= "2020-12-31") %>% 
     group_by(year(PDAT)) %>% 
     count() %>% 
     ungroup() %>% 
@@ -32,7 +32,7 @@ if (!exists("snakemake")) {
            perc = n / cumsum)
 }
 
-#' Supplementary files. We will throw out also all 'filelist.txt' files.
+#' Supplementary files. We discard all 'filelist.txt' files.
 #+
 suppfilenames <- read_lines(here("results/data/suppfilenames.txt")) %>% 
   tibble(suppfilenames = .) %>% 
@@ -50,7 +50,7 @@ conformity <- suppfilenames %>%
   mutate(Accession = str_to_upper(str_extract(suppfilenames, "GS[Ee]\\d+"))) %>% 
   full_join(acc_year) %>%
   mutate(
-    conforms = !(is.na(suppfilenames) | str_detect(str_to_lower(suppfilenames), c("readme", "\\.[bs]am", "\\.bed", "\\.fa(sta)?") %>% str_c("(.\\gz)?", collapse = "|")))
+    conforms = !(is.na(suppfilenames) | str_detect(str_to_lower(suppfilenames), c("readme", "\\.[bs]am", "\\.bed") %>% str_c("(\\.gz)?", collapse = "|")))
   )
 
 #' Total number of files conforming
@@ -98,6 +98,38 @@ parsed_suppfiles_raw <- read_csv(here("results/data/parsed_suppfiles.csv"))
 parsed_suppfiles <- parsed_suppfiles_raw %>% 
   mutate(Accession = str_to_upper(str_extract(id, "GS[Ee]\\d+"))) %>% 
   select(Accession, everything())
+
+blacklist <- read_lines(here("results/data/blacklist.txt")) %>% 
+  str_trim() %>% 
+  tibble(suppfilenames = .) %>% 
+  mutate(Accession = str_to_upper(str_extract(suppfilenames, "GS[Ee]\\d+"))) %>% 
+  select(Accession, everything())
+
+c(parsed_suppfiles$Accession, blacklist$Accession) %>% 
+  n_distinct()
+
+unnested_suppfiles <- parsed_suppfiles %>% 
+  mutate(
+    splits = str_split(id, " from "),
+    suppfile = map_chr(splits, ~ifelse(str_detect(.x[length(.x)], "RAW.tar$"), .x[length(.x) - 1], .x[length(.x)]))
+  )
+
+unnested_suppfiles_conforms <- unnested_suppfiles %>% 
+  select(Accession, suppfile, note) %>% 
+  distinct() %>% 
+  mutate(
+    conforms = !(is.na(suppfile) | str_detect(str_to_lower(suppfile), c("readme", "\\.[bs]am", "\\.bed") %>% str_c("(\\.gz)?", collapse = "|")))
+  )
+
+unnested_suppfiles_conforms %>% 
+  group_by(Accession) %>% 
+  summarise(
+    conforms = case_when(
+      any(conforms) ~ 1,
+      TRUE ~ 0
+    )) %>% 
+  ungroup()
+
 
 #' Parse analysis platform
 get_var <- function(x) {
@@ -180,6 +212,23 @@ if (!exists("snakemake")) {
   geo_import %>% 
     pull(id) %>% 
     n_distinct()
+
+parse_from <- function(x) {
+  if (str_detect(x, "^sheet")) {
+    nosheet <- str_split(x, " from ") %>% 
+      unlist() %>% 
+      str_subset("^[^sheet]") %>% 
+      str_c(collapse = " from ")
+    return(nosheet)
+  }
+  return(x)
+}
+
+geo_import %>% 
+  mutate(id1 = map_chr(id, parse_from)) %>% 
+  select(id1) %>% 
+  distinct()
+  
 }
 
 #' notes
