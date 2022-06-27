@@ -33,14 +33,14 @@ if (nrow(probs) > 0) {
 #+
 seq_platform <- spots %>% 
   mutate_at(vars(platform, model), str_to_lower) %>% 
-  mutate(model = case_when(
-    is.na(model) & !is.na(platform) ~ platform,
-    TRUE ~ model
-  ),
-  model = case_when(
-    !str_detect(model, platform) ~ str_c(platform, model, sep = " "),
-    TRUE ~ model
-  ))
+  mutate(
+    model = ifelse(is.na(model) & platform == "bgiseq-500", platform, model),
+    platform = ifelse(platform == "bgiseq-500" & model == "bgiseq-500", "bgiseq", platform),
+    model = ifelse(is.na(model) & platform == "hiseq x ten", platform, model),
+    platform = ifelse(platform == "hiseq x ten" & model == "hiseq x ten", "illumina", platform),
+    model = ifelse(is.na(model) & str_detect(platform, "illumina"), platform, model),
+    platform = ifelse(str_detect(model, "illumina"), "illumina", platform),
+    )
 
 sequencing_metadata <- seq_platform %>% 
   mutate_at("spots", as.numeric) %>% 
