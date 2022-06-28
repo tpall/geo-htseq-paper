@@ -64,5 +64,5 @@ jobs:
           singularity buildcfg
           singularity --version
           singularity version
-          snakemake --use-conda --use-singularity --restart-times 0 -j
+          snakemake --use-conda --use-singularity --restart-times 0 --verbose -j1
 
