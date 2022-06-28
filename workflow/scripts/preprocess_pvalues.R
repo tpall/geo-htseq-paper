@@ -114,6 +114,18 @@ unnested_suppfiles <- parsed_suppfiles %>%
     suppfile = map_chr(splits, ~ifelse(str_detect(.x[length(.x)], "RAW.tar$"), .x[length(.x) - 1], .x[length(.x)]))
   )
 
+#' Number of p value sets per GEO submission
+unnested_suppfiles %>% 
+  filter(Type == "raw") %>% 
+  count(Accession) %>% 
+  summarise_at("n", list(mean = mean, median = median, min = min, max = max))
+
+unnested_suppfiles %>% 
+  filter(Type == "raw") %>% 
+  count(Accession) %>% 
+  summarise(n1 = mean(n == 1),
+            n1_3 = mean(n <=3 ))
+
 unnested_suppfiles_conforms <- unnested_suppfiles %>% 
   select(Accession, suppfile, note) %>% 
   distinct() %>% 
