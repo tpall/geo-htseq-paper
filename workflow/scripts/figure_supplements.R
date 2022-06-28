@@ -44,7 +44,7 @@ is_ci <- function() {
 }
 chains <- ifelse(is_ci(), 1, 4)
 cores <- chains
-refresh = 0
+refresh <- 0
 rstan_options(auto_write = TRUE, javascript = FALSE)
 if (!dir.exists("results/models")) {
     message("Creating results/models dir..")
@@ -133,7 +133,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/anticons_year.rds"))
+           file = here("results/models/anticons_year.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "year", 
                               conditions = conditions),
@@ -163,7 +164,9 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/anticons_year__year_detool.rds"))
+           file = here("results/models/anticons_year__year_detool.rds"),
+           file_refit = "on_change"
+           )
 conditions <- make_conditions(data, vars = "de_tool")
 row.names(conditions) <- conditions$de_tool
 p <- plot(conditional_effects(mod, 
@@ -201,7 +204,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/anticons_year__year_model.rds"))
+           file = here("results/models/anticons_year__year_model.rds"),
+           file_refit = "on_change")
 conditions <- make_conditions(data, vars = "model")
 row.names(conditions) <- str_wrap(conditions$model, width = 20)
 p <- plot(conditional_effects(mod, 
@@ -258,7 +262,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/anticons_detool.rds"))
+           file = here("results/models/anticons_detool.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -279,7 +284,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/anticons_detool_all.rds"))
+           file = here("results/models/anticons_detool_all.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -301,7 +307,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/anticons_year_detool.rds"))
+           file = here("results/models/anticons_year_detool.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -330,7 +337,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/anticons_organism_detool.rds"))
+           file = here("results/models/anticons_organism_detool.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -354,7 +362,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/anticons_detool__1_model.rds"))
+           file = here("results/models/anticons_detool__1_model.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -376,7 +385,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/anticons_detool__detool_model.rds"))
+           file = here("results/models/anticons_detool__detool_model.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -426,7 +436,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/pi0_detool_full_data.rds"))
+           file = here("results/models/pi0_detool_full_data.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -448,7 +459,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/pi0_year__year_detool__1_Accession_full_data.rds"))
+           file = here("results/models/pi0_year__year_detool__1_Accession_full_data.rds"),
+           file_refit = "on_change")
 conditions <- make_conditions(data, "de_tool")
 p <- plot(conditional_effects(mod, 
                               conditions = conditions,
@@ -463,7 +475,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/pi0__detool__1_Accession_full_data.rds"))
+           file = here("results/models/pi0__detool__1_Accession_full_data.rds"),
+           file_refit = "on_change")
 conditions <- make_conditions(data, "de_tool")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
@@ -480,7 +493,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/pi0_year_detool.rds"))
+           file = here("results/models/pi0_year_detool.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -508,7 +522,8 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           file = here("results/models/pi0_organism_detool.rds"))
+           file = here("results/models/pi0_organism_detool.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -530,7 +545,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/pi0_detool__1_model.rds"))
+           file = here("results/models/pi0_detool__1_model.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -552,7 +568,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/pi0_detool__detool_model.rds"))
+           file = here("results/models/pi0_detool__detool_model.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -599,7 +616,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/pi0__1_model.rds"))
+           file = here("results/models/pi0__1_model.rds"),
+           file_refit = "on_change")
 p <- mod %>%
   spread_draws(b_Intercept, r_model[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_model) %>%
@@ -626,7 +644,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/pi0__1_librarystrategy.rds"))
+           file = here("results/models/pi0__1_librarystrategy.rds"),
+           file_refit = "on_change")
 p <- mod %>%
   spread_draws(b_Intercept, r_library_strategy[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_library_strategy) %>%
@@ -652,7 +671,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/pi0__1_libraryselection.rds"))
+           file = here("results/models/pi0__1_libraryselection.rds"),
+           file_refit = "on_change")
 p <- mod %>%
   spread_draws(b_Intercept, r_library_selection[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_library_selection) %>%
@@ -678,7 +698,8 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 4000),
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/pi0__1_librarylayout.rds"))
+           file = here("results/models/pi0__1_librarylayout.rds"),
+           file_refit = "on_change")
 p <- mod %>%
   spread_draws(b_Intercept, r_library_layout[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_library_layout) %>%
@@ -707,7 +728,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/anticons__1_model.rds"))
+           file = here("results/models/anticons__1_model.rds"),
+           file_refit = "on_change")
 p <- mod %>%
   spread_draws(b_Intercept, r_model[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_model) %>%
@@ -735,7 +757,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/anticons__1_librarystrategy.rds"))
+           file = here("results/models/anticons__1_librarystrategy.rds"),
+           file_refit = "on_change")
 p <- mod %>%
   spread_draws(b_Intercept, r_library_strategy[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_library_strategy) %>%
@@ -763,7 +786,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/anticons__1_libraryselection.rds"))
+           file = here("results/models/anticons__1_libraryselection.rds"),
+           file_refit = "on_change")
 p <- mod %>%
   spread_draws(b_Intercept, r_library_selection[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_library_selection) %>%
@@ -791,7 +815,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/anticons__1_librarylayout.rds"))
+           file = here("results/models/anticons__1_librarylayout.rds"),
+           file_refit = "on_change")
 p <- mod %>%
   spread_draws(b_Intercept, r_library_layout[condition,]) %>%
   median_hdci(condition_mean = b_Intercept + r_library_layout) %>%
@@ -861,7 +886,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/anticons_detool_filtered.rds"))
+           file = here("results/models/anticons_detool_filtered.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -882,7 +908,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/anticons_detool_all_filtered.rds"))
+           file = here("results/models/anticons_detool_all_filtered.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -904,7 +931,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/anticons_year_detool_filtered.rds"))
+           file = here("results/models/anticons_year_detool_filtered.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -920,8 +948,8 @@ pcF <- deparse(f)
 data <- pvalues_sample %>% 
   inner_join(sequencing_metadata) %>% 
   mutate(organism = case_when(
-    tax_id == 9606 ~ "human",
-    tax_id == 10090 ~ "mouse",
+    tax_id == "9606" ~ "human",
+    tax_id == "10090" ~ "mouse",
     TRUE ~ "other"
   ))
 f <- anticons ~ organism + de_tool
@@ -932,7 +960,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/anticons_organism_detool_filtered.rds"))
+           file = here("results/models/anticons_organism_detool_filtered.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -956,7 +985,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/anticons_detool__1_model_filtered.rds"))
+           file = here("results/models/anticons_detool__1_model_filtered.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -978,7 +1008,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/anticons_detool__detool_model_filtered.rds"))
+           file = here("results/models/anticons_detool__detool_model_filtered.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -1027,7 +1058,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/pi0_detool_full_data_filtered.rds"))
+           file = here("results/models/pi0_detool_full_data_filtered.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -1049,7 +1081,8 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/pi0_year_detool_filtered.rds"))
+           file = here("results/models/pi0_year_detool_filtered.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -1065,8 +1098,8 @@ pbF <- deparse(f)
 data <- pvalues_sample %>% 
   inner_join(sequencing_metadata) %>% 
   mutate(organism = case_when(
-    tax_id == 9606 ~ "human",
-    tax_id == 10090 ~ "mouse",
+    tax_id == "9606" ~ "human",
+    tax_id == "10090" ~ "mouse",
     TRUE ~ "other"
   ))
 f <- pi0 ~ organism + de_tool
@@ -1076,7 +1109,8 @@ mod <- brm(formula = f,
            chains = chains, 
            cores = cores, 
            refresh = refresh,
-           file = here("results/models/pi0_organism_detool_filtered.rds"))
+           file = here("results/models/pi0_organism_detool_filtered.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -1098,7 +1132,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/pi0_detool__1_model_filtered.rds"))
+           file = here("results/models/pi0_detool__1_model_filtered.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
@@ -1120,7 +1155,8 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
-           file = here("results/models/pi0_detool__detool_model_filtered.rds"))
+           file = here("results/models/pi0_detool__detool_model_filtered.rds"),
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool"),
           plot = FALSE)
