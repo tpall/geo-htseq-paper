@@ -103,8 +103,6 @@ rule preprocess_pvalues_filtered:
         "results/pvalues_filtered_acc.csv",
     log:
         "results/log/preprocess_pvalues_filtered.log",
-    conda:
-        "envs/environment.yml"
     resources:
         runtime=120,
         mem_mb=4000,
