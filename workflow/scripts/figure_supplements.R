@@ -81,7 +81,9 @@ p <- number_of_pvalues %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 ggsave(here("figures/figure_2_figure_supplement_1.tiff"), plot = p, width = 12, height = 8, units = "cm", dpi = 300)
 
-fig_cap <- glue('Figure 2--figure supplement 1. P value set size distribution. Dashed line denotes the median ({prettyNum(median(number_of_pvalues$n_pvalues), big.mark=',')}) number of features. From each GEO series only one of each unique length was considered, N={prettyNum(nrow(number_of_pvalues), big.mark=',')} p value sets.')
+number_of_pvalues_formatted <- prettyNum(nrow(number_of_pvalues), big.mark=',')
+median_number_of_pvalues_formatted <- prettyNum(median(number_of_pvalues$n_pvalues), big.mark=',')
+fig_cap <- glue('Figure 2--figure supplement 1. P value set size distribution. Dashed line denotes the median ({median_number_of_pvalues_formatted}) number of features. From each GEO series only one of each unique length was considered, N={number_of_pvalues_formatted} p value sets.')
 
 #+ fig.cap=fig_cap
 p
