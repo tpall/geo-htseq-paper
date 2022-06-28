@@ -31,7 +31,7 @@ old <- theme_set(theme_cowplot(font_size = 8, font_family = "Helvetica"))
 
 
 if (!is_phantomjs_installed()) {
-   install_phantomjs()
+  install_phantomjs()
 } 
 
 #+ params
@@ -43,7 +43,7 @@ cores <- chains
 refresh = 200
 rstan_options(auto_write = TRUE, javascript = FALSE)
 if (!dir.exists("results/models")) {
-    dir.create("results/models", recursive = TRUE)
+  dir.create("results/models", recursive = TRUE)
 }
 
 #+ data
@@ -51,6 +51,10 @@ conformity_acc <- read_csv(here("results/conformity_acc.csv"))
 pvalues <- read_csv(here("results/pvalues.csv")) %>% 
   rename(de_tool = analysis_platform)
 pvalues_sample <- read_csv(here("results/pvalues_sample.csv")) %>% 
+  rename(de_tool = analysis_platform)
+pvalues_filtered <- read_csv(here("results/pvalues_filtered.csv")) %>% 
+  rename(de_tool = analysis_platform)
+pvalues_filtered_sample <- read_csv(here("results/pvalues_filtered_sample.csv")) %>% 
   rename(de_tool = analysis_platform)
 sequencing_metadata <- read_csv(here("results/sequencing_metadata_unique_platform.csv"))
 
@@ -157,7 +161,9 @@ fit <- brm(Class ~ 1,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/Class_1.rds"))
+           file = here("results/models/Class_1.rds"),
+           file_refit = "on_change"
+)
 
 pe <- posterior_epred(fit)
 classes_props <- pe[1:dim(pe)[1], 1, 1:5] %>% 
@@ -196,7 +202,7 @@ fig2b <- hist_data_plots %>%
   mutate(
     data = map(hist, ~tibble(x = seq(0, 1, length.out = length(.x)), y = .x)),
     Class = factor(Class, levels = c("uniform", "bimodal", "other", "anti-conservative", "conservative"))
-    ) %>% 
+  ) %>% 
   select(Class, QC_thr, data) %>% 
   unnest(data) %>% 
   ggplot() +
@@ -259,7 +265,9 @@ mod <- brm(formula = f,
            refresh = refresh,
            prior = priors,
            iter = ifelse(is_ci(), 400, 2400),
-           file = here("results/models/Class_year__year_detool_year.rds"))
+           file = here("results/models/Class_year__year_detool_year.rds"),
+           file_refit = "on_change"
+)
 
 yrep_fit_posterior <- posterior_predict(mod, ndraws = 10)
 sum(is.na(yrep_fit_posterior))
@@ -301,7 +309,9 @@ mod <- brm(formula = f,
            refresh = refresh,
            control = list(adapt_delta = 0.99),
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/Class_detool_2018-19.rds"))
+           file = here("results/models/Class_detool_2018-19.rds"),
+           file_refit = "on_change"
+)
 p <- plot(conditional_effects(mod, 
                               categorical = TRUE, 
                               effects = "de_tool"), 
@@ -330,7 +340,9 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/pi0_detool_sample.rds"))
+           file = here("results/models/pi0_detool_sample.rds"),
+           file_refit = "on_change"
+)
 p <- plot(conditional_effects(mod, 
                               effects = "de_tool",
                               re_formula = NULL),
@@ -358,15 +370,26 @@ parsed_suppfiles2 <- parsed_suppfiles_raw %>%
   mutate(Accession = str_to_upper(str_extract(id, "GS[Ee]\\d+"))) %>% 
   select(Accession, everything())
 
-set.seed(11)
-pvalues_sample2 <- parsed_suppfiles2 %>% 
-  filter(!is.na(Conversion)) %>% 
-  mutate(Type = if_else(Type == "raw", "raw", "filtered")) %>% 
-  select(Accession, id, Type, Class, Set) %>% 
-  pivot_wider(names_from = Type, values_from = Class) %>% 
-  group_by(Accession) %>% 
-  sample_n(1) %>% 
-  ungroup()
+# set.seed(11)
+# pvalues_sample2 <- parsed_suppfiles2 %>%
+#   filter(!is.na(Conversion)) %>%
+#   mutate(Type = if_else(Type == "raw", "raw", "filtered")) %>%
+#   select(Accession, id, Type, Class, Set) %>%
+#   pivot_wider(names_from = Type, values_from = Class) %>%
+#   group_by(Accession) %>%
+#   sample_n(1) %>%
+#   ungroup()
+
+pvalues_sample2 <- pvalues %>% 
+  select(Accession, id, Set, raw = Class, de_tool) %>% 
+  inner_join(
+    pvalues_filtered %>% 
+      select(Accession, id, Set, filtered = Class, de_tool)
+  ) %>% 
+  inner_join(
+    pvalues_sample %>% 
+      select(Accession, id, Set)
+  )
 
 make_sankey <- function(data) {
   links <-  data %>% 
@@ -426,41 +449,15 @@ if (!exists("snakemake")) {
   get_props(pvalues_sample2)
 }
 
-de_tools <- parsed_suppfiles2 %>% 
-  filter(!is.na(Conversion), Type != "raw") %>% 
-  mutate(analysis_platform = case_when(
-    Type == "basemean" ~ "deseq",
-    Type == "aveexpr" ~ "limma",
-    Type == "logcpm" ~ "edger",
-    Type == "fpkm" & str_detect(Set, "p_value") ~ "cuffdiff",
-    TRUE ~ "unknown"
-  )) %>% 
-  select(Accession, id, analysis_platform) %>% 
-  distinct()
-
-pvalues_sample_detools <- pvalues_sample2 %>% 
-  left_join(de_tools)
-
-by_detool <- pvalues_sample_detools %>% 
-  group_by(analysis_platform) %>% 
+by_detool <- pvalues_sample2 %>% 
+  group_by(de_tool) %>% 
   nest() %>% 
   mutate(sankey = map(data, make_sankey),
          props = map(data, get_props))
 
-sankey_plots <- by_detool %>% 
-  pull(sankey)
-
-#' edger: figure_5D.png
-save_sankey_as_webshot(sankey_plots[[1]], here("figures/figure_5D.png"))
-#' cuffdiff: figure_5B.png
-save_sankey_as_webshot(sankey_plots[[2]], here("figures/figure_5B.png"))
-#' limma: figure_5E.png
-save_sankey_as_webshot(sankey_plots[[3]], here("figures/figure_5E.png"))
-#' deseq: figure_5C.png
-save_sankey_as_webshot(sankey_plots[[4]], here("figures/figure_5C.png"))
-#' unknown: figure_5F.png
-save_sankey_as_webshot(sankey_plots[[5]], here("figures/figure_5F.png"))
-
+by_detool$path <- c("figures/figure_5B.png", "figures/figure_5C.png", "figures/figure_5E.png", "figures/figure_5F.png", "figures/figure_5D.png")
+by_detool %>% 
+  mutate(res = map2(sankey, path, ~save_sankey_as_webshot(.x, here(.y))))
 
 imgs <- glue::glue("figures/figure_5{LETTERS[1:6]}.png")
 png_to_ggplot <- function(path) {
@@ -473,12 +470,8 @@ png_to_ggplot <- function(path) {
 plots <- imgs %>% 
   map(png_to_ggplot)
 
-titles <- list(A = "Total",
-               B = "cuffdiff",
-               C = "deseq",
-               D = "edger",
-               E = "limma",
-               F = "unknown")
+titles <- as.list(c("Total", by_detool %>% arrange(path) %>% pull(de_tool)))
+names(titles) <- LETTERS[1:6]
 
 plots2 <- map2(plots, titles, ~ .x + labs(title = .y) + theme(plot.title = element_text(hjust = 0.5, vjust=-6)))
 patchwork <- wrap_plots(plots2) + 
@@ -487,63 +480,8 @@ ggsave(here("figures/figure_5.pdf"),
        plot = patchwork, width = 18, height = 12, units = "cm", dpi = 300)
 
 rescue_efficiency <- by_detool %>% 
-  select(analysis_platform, props) %>% 
+  select(de_tool, props) %>% 
   unnest(props)
-
-#' How much p values were lost by filtering
-#+
-parse_hist <- function(x) {
-  x <- str_remove_all(x, "[:punct:]")
-  x <- str_split(x, pattern = " ")[[1]]
-  sum(as.numeric(x))
-}
-
-drop_out <- parsed_suppfiles2 %>% 
-  filter(!is.na(Conversion)) %>% 
-  select(Accession, id, Type, Set, hist) %>% 
-  mutate(n = map_dbl(hist, parse_hist),
-         raw_filt = if_else(Type == "raw", "raw", "filtered")) %>% 
-  select(-hist)
-
-set.seed(11)
-drop_out_sample <- drop_out %>% 
-  group_by(Accession, id) %>% 
-  mutate(expval = Type[[2]]) %>% 
-  select(-Type) %>% 
-  pivot_wider(names_from = raw_filt, values_from = n) %>% 
-  group_by(Accession) %>% 
-  sample_n(1) %>% 
-  mutate(prop_out = 1 - filtered/raw)
-
-drop_out_sample <- drop_out_sample %>% 
-  mutate( # parsing analysis platform using expression level variable name
-    analysis_platform_from_expression = case_when(
-      expval == "basemean" ~ "deseq",
-      expval == "aveexpr" ~ "limma",
-      expval == "logcpm" ~ "edger",
-      expval == "fpkm" & str_detect(Set, "p_value") ~ "cuffdiff",
-      TRUE ~ "unknown"
-    ), # parsing analysis platform using file names
-    analysis_platform_from_filename = case_when(
-      str_detect(str_to_lower(id), "deseq") ~ "deseq",
-      str_detect(str_to_lower(id), "edger") ~ "edger",
-      str_detect(str_to_lower(id), "limma") ~ "limma",
-      str_detect(str_to_lower(id), "cuff") ~ "cuffdiff",
-      TRUE ~ "unknown"
-    ), # assigning analysis platform using file names and expression level variable name
-    analysis_platform = case_when(
-      analysis_platform_from_expression == analysis_platform_from_filename ~ analysis_platform_from_expression,
-      analysis_platform_from_filename == "unknown" ~ analysis_platform_from_expression,
-      TRUE ~ analysis_platform_from_filename
-    )
-  )
-
-if (!exists("snakemake")) {
-  drop_out_sample %>% 
-    ggplot() +
-    geom_histogram(aes(prop_out)) +
-    facet_wrap(~analysis_platform, scales = "free_y")
-}
 
 #' Figure 6
 #' Importing publication data.
@@ -650,7 +588,7 @@ data <- pvalues_sample %>%
   mutate(
     anticons = as.numeric(Class == "anti-conservative"),
     year = year - min(year)
-    )
+  )
 
 f <- anticons ~ CiteScore + year
 family <- bernoulli()
@@ -663,7 +601,8 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   control = list(adapt_delta = 0.99, max_treedepth = 12),
-  file = here("results/models/anticons__CiteScore_year.rds")
+  file = here("results/models/anticons__CiteScore_year.rds"),
+  file_refit = "on_change"
 )
 
 p <- plot(
@@ -715,7 +654,8 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   control = list(adapt_delta = 0.99, max_treedepth = 12),
-  file = here("results/models/anticons__log_citations_year.rds")
+  file = here("results/models/anticons__log_citations_year.rds"),
+  file_refit = "on_change"
 )
 p <- plot(
   conditional_effects(
