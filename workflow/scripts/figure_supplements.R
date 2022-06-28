@@ -47,8 +47,8 @@ cores <- chains
 refresh <- 0
 rstan_options(auto_write = TRUE, javascript = FALSE)
 if (!dir.exists("results/models")) {
-    message("Creating results/models dir..")
-    dir.create("results/models", recursive = TRUE)
+  message("Creating results/models dir..")
+  dir.create("results/models", recursive = TRUE)
 }
 
 #+ data
@@ -67,7 +67,7 @@ number_of_pvalues <- pvalues %>%
   mutate(
     hist = sum(as.numeric(str_trim(str_extract_all(hist, "[0-9 ]+")[[1]]))),
     anticons = if_else(as.logical(anticons), "anti-conservative", "all other classes")
-    ) %>% 
+  ) %>% 
   distinct() %>% 
   rename(n_pvalues = hist)
 
@@ -148,7 +148,7 @@ fig_cap <- glue("Figure 3--figure supplement 1. The increasing proportion of ant
 
 #+ fig.cap=fig_cap
 p$year + 
-  scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
+  scale_x_continuous(breaks = seq(2010, 2020, by = 2)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Year")
 ggsave(here("figures/figure_3_figure_supplement_1.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
@@ -166,7 +166,7 @@ mod <- brm(formula = f,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons_year__year_detool.rds"),
            file_refit = "on_change"
-           )
+)
 conditions <- make_conditions(data, vars = "de_tool")
 row.names(conditions) <- conditions$de_tool
 p <- plot(conditional_effects(mod, 
@@ -184,7 +184,7 @@ fig_cap <- glue("Figure 3--figure supplement 2. A 2-level binomial logistic mode
 
 #+fig.cap=fig_cap
 p$year + 
-  scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
+  scale_x_continuous(breaks = seq(2010, 2020, by = 2)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Year") +
   facet_wrap(~ de_tool) +
@@ -222,11 +222,11 @@ single sequencing platform were used for model fitting. Lines denote best fit of
 
 #+ fig.height=8, fig.cap=fig_cap
 p$year + 
-  scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
+  scale_x_continuous(breaks = seq(2010, 2020, by = 2)) +
   labs(y = "Proportion of anti-conservative p value histograms",
        x = "Year") +
   facet_wrap(~ model, labeller = label_wrap_gen(width = 18)) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), strip.text = element_text(size = 8))
 ggsave(here("figures/figure_3_figure_supplement_3.tiff"), height = 23, width = 18, dpi = 300, units = "cm")
 
 #'
@@ -238,7 +238,7 @@ p <- data %>%
   ggplot() +
   geom_line(aes(year, Proportion, color = de_tool), size = 1) +
   scale_color_viridis_d() +
-  scale_x_continuous(breaks = seq(2010, 2019, by = 3)) +
+  scale_x_continuous(breaks = seq(2010, 2020, by = 2)) +
   labs(x = "Year") +
   theme(legend.title = element_blank(),
         legend.position = c(0.7, 0.8))
