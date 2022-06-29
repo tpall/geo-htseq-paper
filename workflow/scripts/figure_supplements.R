@@ -24,6 +24,7 @@ if (exists("snakemake")) {
 #+ libs
 library(stats) # masks filter
 library(readr)
+library(tidyr)
 library(dplyr)
 library(ggplot2)
 library(extrafont)
@@ -169,14 +170,21 @@ mod <- brm(formula = f,
            file = here("results/models/anticons_year__year_detool.rds"),
            file_refit = "on_change"
 )
-conditions <- make_conditions(data, vars = "de_tool")
-row.names(conditions) <- conditions$de_tool
-p <- plot(conditional_effects(mod, 
-                              effects = "year", 
-                              conditions = conditions, 
-                              re_formula = NULL),
-          line_args = list(color = "black"),
-          plot = FALSE)
+# conditions <- make_conditions(data, vars = "de_tool")
+# row.names(conditions) <- conditions$de_tool
+# p <- plot(conditional_effects(mod, 
+#                               effects = "year", 
+#                               conditions = conditions, 
+#                               re_formula = NULL),
+#           line_args = list(color = "black"),
+#           plot = FALSE)
+
+draws <- data %>% 
+  add_epred_draws(mod, ndraws = 100)
+
+p <- draws %>% 
+  ggplot(aes(year, .epred, group = 1)) +
+  stat_lineribbon(point_interval = median_qi, .width = 0.95, fill = "gray65")
 
 fig_cap <- glue("Figure 3--figure supplement 2. A 2-level binomial logistic model *{deparse(f)}* 
                 reveals that all differential expression analysis tools are associated with 
@@ -185,7 +193,7 @@ fig_cap <- glue("Figure 3--figure supplement 2. A 2-level binomial logistic mode
                 The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_year__year_detool.rds.")
 
 #+fig.cap=fig_cap
-p$year + 
+p + 
   scale_x_continuous(breaks = seq(2010, 2020, by = 2)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Year") +
@@ -196,7 +204,9 @@ ggsave(here("figures/figure_3_figure_supplement_2.tiff"), height = 12, width = 1
 #' 
 #+ FigS3
 data <- pvalues_sample %>% 
-  inner_join(sequencing_metadata)
+  inner_join(sequencing_metadata) %>% 
+  select(Accession, id, Set, anticons, year, model) %>% 
+  drop_na()
 f <- anticons ~ year + (year | model)
 mod <- brm(formula = f, 
            data = data, 
@@ -208,32 +218,32 @@ mod <- brm(formula = f,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons_year__year_model.rds"),
            file_refit = "on_change")
-conditions <- make_conditions(data, vars = "model")
-row.names(conditions) <- str_wrap(conditions$model, width = 20)
-p <- plot(conditional_effects(mod, 
-                              effects = "year", 
-                              conditions = conditions, 
-                              re_formula = NULL),
-          line_args = list(color = "black"),
-          plot = FALSE)
+
+draws <- data %>% 
+  filter(!(model %in% c("454 gs flx", "454 gs flx titanium", "dnbseq-g400", "dnbseq-g50", "illumina miniseq", "ion s5", "helicos heliscope"))) %>% 
+  add_epred_draws(mod, ndraws = 100)
+
+p <- draws %>% 
+  ggplot(aes(year, .epred, group = 1)) +
+  stat_lineribbon(point_interval = median_qi, .width = 0.95, fill = "gray65") +
+  facet_wrap(~ model, labeller = label_wrap_gen(width = 18))
 
 fig_cap <- glue("Figure 3--figure supplement 3. A 2-level binomial logistic model *{deparse(f)}* reveals that all sequencing instrument models 
 are associated with temporally increasing anti-conservative p value histograms, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Only GEO submissions utilizing 
-single sequencing platform were used for model fitting. Lines denote best fit of linear model. Shaded area denotes 95% credible region.
+single sequencing platform were used for model fitting. Lines denote best fit of linear model. Shaded area denotes 95% credible region. 
                 The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/9b48a750d8833d38cd73698d4de18a7abbe1b223/models/anticons_year__year_model.rds.")
 
 #+ fig.height=8, fig.cap=fig_cap
-p$year + 
+p + 
   scale_x_continuous(breaks = seq(2010, 2020, by = 2)) +
   labs(y = "Proportion of anti-conservative p value histograms",
        x = "Year") +
-  facet_wrap(~ model, labeller = label_wrap_gen(width = 18)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), strip.text = element_text(size = 8))
 ggsave(here("figures/figure_3_figure_supplement_3.tiff"), height = 23, width = 18, dpi = 300, units = "cm")
 
 #'
 #+ FigS4
-p <- data %>% 
+p <- pvalues_sample %>% 
   count(year, de_tool) %>% 
   add_count(year, name = "total", wt = n) %>% 
   mutate(Proportion = n / total) %>% 
