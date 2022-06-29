@@ -224,6 +224,8 @@ p2 <- wrap_elements(fig2b)  + wrap_elements(fig2a) +
   plot_annotation(tag_levels = "A") +
   plot_layout(design = layout)
 ggsave(here("figures/figure_2.pdf"), plot = p2, width = 12, height = 8, units = "cm", dpi = 300)
+ggsave(here("figures/figure_2.eps"), plot = p2, width = 12, height = 8, units = "cm", dpi = 300)
+ggsave(here("figures/figure_2.png"), plot = p2, width = 12, height = 8, units = "cm", dpi = 300)
 
 #'
 #+ fig3
@@ -324,6 +326,8 @@ p3b <- p$`de_tool:cats__` +
 p3b$layers[[1]]$aes_params$size <- 1
 p3 <- p3a / p3b + plot_annotation(tag_levels = "A") +  plot_layout(guides = 'auto')
 ggsave(here("figures/figure_3.pdf"), plot = p3, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/figure_3.eps"), plot = p3, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/figure_3.png"), plot = p3, width = 18, height = 12, units = "cm", dpi = 300)
 
 #'
 #'
@@ -359,9 +363,30 @@ p4a <- pvalues_sample %>%
   geom_histogram(aes(pi0), color = "white", binwidth = 0.1) +
   labs(x = expression(pi * 0), y = "Count")
 
+cancer <- read_csv(here("results/data/cancer.csv")) %>% 
+  mutate(cancer = 1)
+data <- pvalues_sample %>% 
+  left_join(cancer) %>% 
+  mutate(cancer = ifelse(is.na(cancer), 0, cancer)) %>% 
+  select(Accession, id, pi0, cancer) %>% 
+  drop_na()
+
+p4c <- data %>% 
+  ggplot(aes(pi0, factor(cancer))) +
+  stat_histinterval(breaks = 10, point_interval = mean_qi) +
+  labs(x = expression(pi * 0)) +
+  scale_y_discrete(labels = c("non-cancer", "cancer")) +
+  theme(axis.title.y = element_blank())
+
+data %>% 
+  group_by(cancer) %>% 
+  summarise_at("pi0", list(mean = mean, sd = sd))
+
 #+ Fig4, fig.cap=""
-p4 <- p4a + p4b + plot_annotation(tag_levels = "A")
-ggsave(here("figures/figure_4.pdf"), plot = p4, width = 18, height = 8, units = "cm", dpi = 300)
+p4 <- p4a + p4b + p4c + plot_annotation(tag_levels = "A")
+ggsave(here("figures/figure_4.pdf"), plot = p4, width = 24, height = 8, units = "cm", dpi = 300)
+ggsave(here("figures/figure_4.eps"), plot = p4, width = 24, height = 8, units = "cm", dpi = 300)
+ggsave(here("figures/figure_4.png"), plot = p4, width = 24, height = 8, units = "cm", dpi = 300)
 
 #' 
 #' ## Figure 5 
@@ -369,16 +394,6 @@ ggsave(here("figures/figure_4.pdf"), plot = p4, width = 18, height = 8, units = 
 parsed_suppfiles2 <- parsed_suppfiles_raw %>% 
   mutate(Accession = str_to_upper(str_extract(id, "GS[Ee]\\d+"))) %>% 
   select(Accession, everything())
-
-# set.seed(11)
-# pvalues_sample2 <- parsed_suppfiles2 %>%
-#   filter(!is.na(Conversion)) %>%
-#   mutate(Type = if_else(Type == "raw", "raw", "filtered")) %>%
-#   select(Accession, id, Type, Class, Set) %>%
-#   pivot_wider(names_from = Type, values_from = Class) %>%
-#   group_by(Accession) %>%
-#   sample_n(1) %>%
-#   ungroup()
 
 pvalues_sample2 <- pvalues %>% 
   select(Accession, id, Set, raw = Class, de_tool) %>% 
@@ -430,7 +445,6 @@ save_sankey_as_webshot <- function(p, path) {
 
 save_sankey_as_webshot(pvalues_sample2 %>% make_sankey(), here("figures/figure_5A.png"))
 
-
 get_props <- function(data) {
   raw <- data %>% 
     rename(Class = raw) %>% 
@@ -476,8 +490,9 @@ names(titles) <- LETTERS[1:6]
 plots2 <- map2(plots, titles, ~ .x + labs(title = .y) + theme(plot.title = element_text(hjust = 0.5, vjust=-6)))
 patchwork <- wrap_plots(plots2) + 
   plot_annotation(tag_levels = "A")
-ggsave(here("figures/figure_5.pdf"), 
-       plot = patchwork, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/figure_5.pdf"), plot = patchwork, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/figure_5.eps"), plot = patchwork, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/figure_5.png"), plot = patchwork, width = 18, height = 12, units = "cm", dpi = 300)
 
 rescue_efficiency <- by_detool %>% 
   select(de_tool, props) %>% 
@@ -670,4 +685,6 @@ pb <- p$log_citations +
 o <- hypothesis(mod, "log_citations > 0")
 
 p <- pa + pb + plot_annotation(tag_levels = "A")
-ggsave(here("figures/figure_6.pdf"), height = 8, width = 12, dpi = 300, units = "cm")
+ggsave(here("figures/figure_6.pdf"), plot = p, height = 8, width = 12, dpi = 300, units = "cm")
+ggsave(here("figures/figure_6.eps"), plot = p, height = 8, width = 12, dpi = 300, units = "cm")
+ggsave(here("figures/figure_6.png"), plot = p, height = 8, width = 12, dpi = 300, units = "cm")
