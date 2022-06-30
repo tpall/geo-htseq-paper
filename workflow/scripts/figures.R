@@ -38,7 +38,7 @@ if (!is_phantomjs_installed()) {
 is_ci <- function() {
   "CI" %in% Sys.getenv()
 }
-chains <- 1 #ifelse(is_ci(), 1, 4)
+chains <- 3 #ifelse(is_ci(), 1, 4)
 cores <- chains
 refresh = 200
 rstan_options(auto_write = TRUE, javascript = FALSE)
@@ -288,8 +288,11 @@ p3a <- p$`year:cats__` +
   facet_wrap(~de_tool, nrow = 1) +
   labs(y = "Proportion",
        x = "Year") +
-  theme(legend.title = element_blank(),
-        legend.position = "bottom")
+  theme(
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)
+  )
 p3a$layers[[1]]$aes_params$alpha <- 0.2
 
 #'
@@ -319,11 +322,13 @@ p <- plot(conditional_effects(mod,
                               effects = "de_tool"), 
           plot = FALSE)
 p3b <- p$`de_tool:cats__` + 
+  facet_wrap(~de_tool, nrow = 1, scales = "free_x") +
   labs(y = "Proportion") +
   theme(axis.title.x = element_blank(), 
         legend.title = element_blank(),
         legend.position = "bottom")
 p3b$layers[[1]]$aes_params$size <- 1
+
 p3 <- p3a / p3b + plot_annotation(tag_levels = "A") +  plot_layout(guides = 'auto')
 ggsave(here("figures/figure_3.pdf"), plot = p3, width = 18, height = 12, units = "cm", dpi = 300)
 ggsave(here("figures/figure_3.eps"), plot = p3, width = 18, height = 12, units = "cm", dpi = 300)
@@ -382,11 +387,58 @@ data %>%
   group_by(cancer) %>% 
   summarise_at("pi0", list(mean = mean, sd = sd))
 
+pvalues_sample %>% 
+  left_join(sequencing_metadata %>% select(Accession, tax_id)) %>% 
+  filter(!is.na(tax_id)) %>% 
+  add_count(tax_id) %>% 
+  filter(n > 30) %>% 
+  ggplot(aes(pi0, factor(tax_id))) +
+  stat_pointinterval(point_interval = mean_qi) +
+  labs(x = expression(pi * 0)) +
+  theme(axis.title.y = element_blank())
+
+data <- pvalues_sample %>% 
+  left_join(sequencing_metadata %>% select(Accession, tax_id)) %>% 
+  filter(!is.na(tax_id)) %>% 
+  add_count(tax_id) %>% 
+  filter(n > 30) %>% 
+  mutate_at("tax_id", as.character)
+mod <- brm(formula = pi0 ~ tax_id, 
+           data = data, 
+           family = family,
+           prior = priors,
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
+           file = here("results/models/pi0_taxid_sample.rds"),
+           file_refit = "on_change"
+)
+p <- plot(conditional_effects(mod, 
+                              effects = "tax_id",
+                              re_formula = NULL),
+          plot = FALSE)
+
+
+tf <- read_csv(here("results/data/transcription_factor.csv")) %>% 
+  mutate(traf = 1)
+data <- pvalues_sample %>% 
+  left_join(tf) %>% 
+  mutate(traf = ifelse(is.na(traf), 0, traf)) %>% 
+  select(Accession, id, pi0, traf) %>% 
+  drop_na()
+p4d <- data %>% 
+  ggplot(aes(pi0, factor(traf))) +
+  stat_histinterval(breaks = 10, point_interval = mean_qi) +
+  labs(x = expression(pi * 0)) +
+  scale_y_discrete(labels = c("non-\ntranscription\nfactor", "transcription\nfactor")) +
+  theme(axis.title.y = element_blank())
+
 #+ Fig4, fig.cap=""
-p4 <- p4a + p4b + p4c + plot_annotation(tag_levels = "A")
-ggsave(here("figures/figure_4.pdf"), plot = p4, width = 24, height = 8, units = "cm", dpi = 300)
-ggsave(here("figures/figure_4.eps"), plot = p4, width = 24, height = 8, units = "cm", dpi = 300)
-ggsave(here("figures/figure_4.png"), plot = p4, width = 24, height = 8, units = "cm", dpi = 300)
+p4 <- (p4a + p4b) / (p4c + p4d) + plot_annotation(tag_levels = "A")
+ggsave(here("figures/figure_4.pdf"), plot = p4, width = 18, height = 16, units = "cm", dpi = 300)
+ggsave(here("figures/figure_4.eps"), plot = p4, width = 18, height = 16, units = "cm", dpi = 300)
+ggsave(here("figures/figure_4.png"), plot = p4, width = 18, height = 16, units = "cm", dpi = 300)
 
 #' 
 #' ## Figure 5 
