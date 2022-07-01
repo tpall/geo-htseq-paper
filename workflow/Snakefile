@@ -27,7 +27,7 @@ rule all:
 
 rule download:
     output:
-        "results/geo-htseq-dataset.tar.gz",
+        "results/geo-htseq.tar.gz",
     log:
         "results/log/download.log",
     resources:
@@ -55,12 +55,15 @@ rule unpack:
     output:
         "results/data/document_summaries.csv",
         "results/data/publications.csv",
-        "results/data/single-cell.csv",
         "results/data/suppfilenames.txt",
         "results/data/parsed_suppfiles.csv",
         "results/data/scopus_citedbycount.csv",
         "results/data/spots.csv",
         "results/data/suppfilenames_filtered.txt",
+        "results/data/cancer.csv",
+        "results/data/transcription_factor.csv",
+        "results/data/single-cell.csv",
+        "results/data/blacklist.txt"
     log:
         "results/log/unpack.log",
     shadow:
@@ -72,6 +75,7 @@ rule unpack:
         "(tar -xzvf {input} "
         " && mkdir -p $(dirname {output[0]})"
         " && cp output/* $(dirname {output[0]})) 2> {log}"
+        " && cp blacklist.txt $(dirname {output[0]})) 2> {log}"
 
 
 rule preprocess_pvalues:
@@ -97,6 +101,7 @@ rule preprocess_pvalues_filtered:
     input:
         "results/data/document_summaries.csv",
         "results/data/parsed_suppfiles.csv",
+        "results/pvalues.csv",
     output:
         "results/pvalues_filtered.csv",
         "results/pvalues_filtered_sample.csv",

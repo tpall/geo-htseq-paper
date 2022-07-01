@@ -162,7 +162,8 @@ hist <- parsed_suppfiles %>%
   select(Accession, id, Set, FDR_pval, hist)
 
 pvalues <- parsed_suppfiles %>% 
-  select(Accession, id, Set, Type, Class) %>% 
+  left_join(acc_year) %>% 
+  select(Accession, id, Set, Type, Class, PDAT) %>% 
   filter(!is.na(Type)) %>% 
   pivot_wider(names_from = Type, values_from = Class) %>% 
   group_by(id, Set) %>% 
@@ -171,7 +172,7 @@ pvalues <- parsed_suppfiles %>%
   mutate( # parsing analysis platform using expression level variable name
     analysis_platform_from_expression = case_when(
       var == "basemean" ~ "deseq",
-      var == "aveexpr" ~ "limma",
+      (var == "aveexpr" & PDAT > "2014-01-01") ~ "limma",
       var == "logcpm" ~ "edger",
       var == "fpkm" & str_detect(Set, "p_value") ~ "cuffdiff",
       TRUE ~ "unknown"
