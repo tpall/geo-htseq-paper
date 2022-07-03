@@ -47,46 +47,46 @@ if (!dir.exists("results/models")) {
 }
 
 #+ data
-conformity_acc <- read_csv(here("results/conformity_acc.csv"))
+# conformity_acc <- read_csv(here("results/conformity_acc.csv"))
 pvalues <- read_csv(here("results/pvalues.csv")) %>% 
   rename(de_tool = analysis_platform)
 pvalues_sample <- read_csv(here("results/pvalues_sample.csv")) %>% 
   rename(de_tool = analysis_platform)
 pvalues_filtered <- read_csv(here("results/pvalues_filtered.csv")) %>% 
   rename(de_tool = analysis_platform)
-pvalues_filtered_sample <- read_csv(here("results/pvalues_filtered_sample.csv")) %>% 
-  rename(de_tool = analysis_platform)
+# pvalues_filtered_sample <- read_csv(here("results/pvalues_filtered_sample.csv")) %>% 
+#   rename(de_tool = analysis_platform)
 sequencing_metadata <- read_csv(here("results/sequencing_metadata_unique_platform.csv"))
 
-#'
-#+ fig1
-f <- conforms ~ year
-# We will rescale years, so that year = 0 is the year of first submission
-data <- conformity_acc %>% 
-  mutate_at("year", ~.x - min(.x))
-family <- bernoulli()
-mod <- brm(formula = f, 
-           data = data, 
-           family = family, 
-           prior = prior("normal(0, 2)", class = "b"),
-           refresh = refresh,
-           chains = chains,
-           cores = cores,
-           control = list(adapt_delta = 0.95, max_treedepth = 12),
-           iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/conforms_year.rds"),
-           file_refit = "on_change")
-
-p <- plot(conditional_effects(mod), plot = FALSE, line_args = list(color = "black", size = 1/2))$year
-p <- p + 
-  geom_point(
-    data = data %>% group_by(year) %>% summarise_at("conforms", list(conforms = mean)), 
-    aes(year, conforms), 
-    inherit.aes = FALSE,
-    size = 1/2) +
-  labs(x = "Year", y = "Proportion of submissions conforming\nwith GEO submission guidelines") +
-  scale_x_continuous(breaks = seq(0, 12, by = 2), labels = seq(2008, 2020, by = 2))
-ggsave(here("figures/figure_1.pdf"), plot = p, height = 6, width = 7, dpi = 300, units = "cm")
+#' #'
+#' #+ fig1
+#' f <- conforms ~ year
+#' # We will rescale years, so that year = 0 is the year of first submission
+#' data <- conformity_acc %>% 
+#'   mutate_at("year", ~.x - min(.x))
+#' family <- bernoulli()
+#' mod <- brm(formula = f, 
+#'            data = data, 
+#'            family = family, 
+#'            prior = prior("normal(0, 2)", class = "b"),
+#'            refresh = refresh,
+#'            chains = chains,
+#'            cores = cores,
+#'            control = list(adapt_delta = 0.95, max_treedepth = 12),
+#'            iter = ifelse(is_ci(), 400, 2000),
+#'            file = here("results/models/conforms_year.rds"),
+#'            file_refit = "on_change")
+#' 
+#' p <- plot(conditional_effects(mod), plot = FALSE, line_args = list(color = "black", size = 1/2))$year
+#' p <- p + 
+#'   geom_point(
+#'     data = data %>% group_by(year) %>% summarise_at("conforms", list(conforms = mean)), 
+#'     aes(year, conforms), 
+#'     inherit.aes = FALSE,
+#'     size = 1/2) +
+#'   labs(x = "Year", y = "Proportion of submissions conforming\nwith GEO submission guidelines") +
+#'   scale_x_continuous(breaks = seq(0, 12, by = 2), labels = seq(2008, 2020, by = 2))
+#' ggsave(here("figures/figure_1.pdf"), plot = p, height = 6, width = 7, dpi = 300, units = "cm")
 
 #' 
 #+ fig2
@@ -108,26 +108,27 @@ parsed_suppfiles <- parsed_suppfiles_raw %>%
   select(Accession, everything())
 
 
-pvalues_acc <- read_csv(here("results/pvalues_acc.csv"))
-suppfiles_sample <- parsed_suppfiles %>% 
-  inner_join(pvalues_acc)
+# # pvalues_acc <- read_csv(here("results/pvalues_acc.csv"))
+# suppfiles_sample <- pvalues_sample %>% select(Accession, id, Set)
+#   parsed_suppfiles %>% 
+#   inner_join()
+# 
+# 
+# files_to_check <- parsed_suppfiles %>% 
+#   filter(Type == "raw") %>% 
+#   filter(near(pi0, 1)) %>% 
+#   select(id, pi0, FDR_pval, Set) %>% 
+#   pull(id) %>% 
+#   str_split(" from ") %>% 
+#   flatten_chr()
+# 
+# 
+# files_to_check[str_detect(files_to_check, "^GSE")] %>% 
+#   unique() %>% 
+#   str_c("output/suppl/", .) %>% 
+#   write_lines(here("results/files_to_check_pi0.txt"))
 
-
-files_to_check <- parsed_suppfiles %>% 
-  filter(Type == "raw") %>% 
-  filter(near(pi0, 1)) %>% 
-  select(id, pi0, FDR_pval, Set) %>% 
-  pull(id) %>% 
-  str_split(" from ") %>% 
-  flatten_chr()
-
-
-files_to_check[str_detect(files_to_check, "^GSE")] %>% 
-  unique() %>% 
-  str_c("output/suppl/", .) %>% 
-  write_lines(here("results/files_to_check_pi0.txt"))
-
-
+# fig1
 qc_threshold <- function(x, fdr) {
   bins <- length(x)
   qbinom(1 - 1 / bins * fdr, sum(x), 1 / bins)
@@ -150,12 +151,11 @@ hist_data_plots <- hist_data %>%
   select(Accession, id, Class, hist) %>%
   mutate(QC_thr = map_dbl(hist, qc_threshold, fdr = 0.05))
 
-
-class_counts <- suppfiles_sample %>% 
+class_counts <- pvalues_sample %>% 
   count(Class, name = "N")
 
 fit <- brm(Class ~ 1, 
-           data = suppfiles_sample, 
+           data = pvalues_sample, 
            family = categorical(), 
            chains = chains, 
            cores = cores, 
@@ -185,11 +185,11 @@ plot_data <- hist_data_plots %>%
   select(Class, N, `Fraction [95% CI]`) %>% 
   ungroup()
 
-fig2a <- tableGrob(
+fig1a <- tableGrob(
   arrange(plot_data, Class), 
   rows = NULL, 
   theme = ttheme_minimal(base_size = 8))
-fig2a <- gtable_add_grob(fig2a,
+fig1a <- gtable_add_grob(fig1a,
                          grobs = segmentsGrob( # line across the bottom
                            x0 = unit(0,"npc"),
                            y0 = unit(0,"npc"),
@@ -198,7 +198,7 @@ fig2a <- gtable_add_grob(fig2a,
                            gp = gpar(lwd = 2.0)),
                          t = 1, b = 1, l = 1, r = 3)
 
-fig2b <- hist_data_plots %>% 
+fig1b <- hist_data_plots %>% 
   mutate(
     data = map(hist, ~tibble(x = seq(0, 1, length.out = length(.x)), y = .x)),
     Class = factor(Class, levels = c("uniform", "bimodal", "other", "anti-conservative", "conservative"))
@@ -220,15 +220,16 @@ A###
 ABBB
 A###
 "
-p2 <- wrap_elements(fig2b)  + wrap_elements(fig2a) + 
+
+fig1 <- wrap_elements(fig1b)  + wrap_elements(fig1a) + 
   plot_annotation(tag_levels = "A") +
   plot_layout(design = layout)
-ggsave(here("figures/figure_2.pdf"), plot = p2, width = 12, height = 8, units = "cm", dpi = 300)
-ggsave(here("figures/figure_2.eps"), plot = p2, width = 12, height = 8, units = "cm", dpi = 300)
-ggsave(here("figures/figure_2.png"), plot = p2, width = 12, height = 8, units = "cm", dpi = 300)
+ggsave(here("figures/Fig1.pdf"), plot = fig1, width = 12, height = 8, units = "cm", dpi = 300)
+ggsave(here("figures/Fig1.eps"), plot = fig1, width = 12, height = 8, units = "cm", dpi = 300)
+ggsave(here("figures/Fig1.tiff"), plot = fig1, width = 12, height = 8, units = "cm", dpi = 300)
 
 #'
-#+ fig3
+#+ fig2
 f <- Class ~ year + (year | de_tool)
 family <- categorical()
 # We will rescale years, so that year = 0 is the year of first submission
@@ -236,16 +237,16 @@ data <- pvalues_sample %>%
   mutate_at("year", ~.x - min(.x)) %>%
   select(Class, year, de_tool) %>% 
   drop_na()
-get_prior(f, data, family)
+# get_prior(f, data, family)
 
-data %>% 
-  count(de_tool, Class, year) %>% 
-  group_by(de_tool, year) %>% 
-  mutate(p = n / sum(n)) %>% 
-  ggplot(aes(year, p, color = Class)) +
-  geom_line() +
-  geom_point() +
-  facet_wrap(~de_tool)
+# data %>% 
+#   count(de_tool, Class, year) %>% 
+#   group_by(de_tool, year) %>% 
+#   mutate(p = n / sum(n)) %>% 
+#   ggplot(aes(year, p, color = Class)) +
+#   geom_line() +
+#   geom_point() +
+#   facet_wrap(~de_tool)
 
 priors <- c(
   set_prior("lkj(3)", class = "cor"),
@@ -259,6 +260,7 @@ priors <- c(
   set_prior("normal(0, 0.1)", class = "b", dpar = "muother"),
   set_prior("student_t(3, 0, 0.1)", class = "sd", dpar = "muother")
 )
+
 mod <- brm(formula = f, 
            data = data, 
            family = family, 
@@ -271,29 +273,46 @@ mod <- brm(formula = f,
            file_refit = "on_change"
 )
 
-yrep_fit_posterior <- posterior_predict(mod, ndraws = 10)
-sum(is.na(yrep_fit_posterior))
-length(yrep_fit_posterior)
+# yrep_fit_posterior <- posterior_predict(mod, ndraws = 10)
+# sum(is.na(yrep_fit_posterior))
+# length(yrep_fit_posterior)
 
-conditions <- make_conditions(data, vars = "de_tool")
-rownames(conditions) <- conditions$de_tool
-p <- plot(conditional_effects(mod, 
-                              effects = "year", 
-                              conditions = conditions,
-                              categorical = TRUE,
-                              re_formula = NULL),
-          plot = FALSE)
-p3a <- p$`year:cats__` + 
-  scale_x_continuous(breaks = seq(0, 10, by = 2), labels = seq(range(pvalues_sample$year)[1], range(pvalues_sample$year)[2], 2)) +
-  facet_wrap(~de_tool, nrow = 1) +
+# conditions <- make_conditions(data, vars = "de_tool")
+# rownames(conditions) <- conditions$de_tool
+# p <- plot(conditional_effects(mod, 
+#                               effects = "year", 
+#                               conditions = conditions,
+#                               categorical = TRUE,
+#                               re_formula = NULL),
+#           plot = FALSE)
+# pa <- p$`year:cats__` + 
+#   scale_x_continuous(breaks = seq(0, 10, by = 2), labels = seq(range(pvalues_sample$year)[1], range(pvalues_sample$year)[2], 2)) +
+#   facet_wrap(~de_tool, nrow = 1) +
+#   labs(y = "Proportion",
+#        x = "Year") +
+#   theme(
+#     legend.title = element_blank(),
+#     legend.position = "bottom",
+#     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)
+#   )
+# pa$layers[[1]]$aes_params$alpha <- 0.2
+
+draws <- data %>% 
+  distinct() %>% 
+  add_epred_draws(mod, ndraws = 1000)
+p2a <- draws %>% 
+  ggplot(aes(year + min(pvalues_sample$year), .epred, color = .category, fill = .category)) +
+  stat_lineribbon(alpha = 0.2, .width = 0.95) +
+  stat_summary(geom = "line", fun = mean, size = 1) +
+  facet_wrap(~de_tool, nrow = 1, scales = "free_x") +
   labs(y = "Proportion",
        x = "Year") +
   theme(
     legend.title = element_blank(),
     legend.position = "bottom",
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)
-  )
-p3a$layers[[1]]$aes_params$alpha <- 0.2
+  ) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 4))
 
 #'
 #'
@@ -314,25 +333,40 @@ mod <- brm(formula = f,
            refresh = refresh,
            control = list(adapt_delta = 0.99),
            iter = ifelse(is_ci(), 400, 2000),
-           file = here("results/models/Class_detool_2018-19.rds"),
+           file = here("results/models/Class_detool_2018up.rds"),
            file_refit = "on_change"
 )
-p <- plot(conditional_effects(mod, 
-                              categorical = TRUE, 
-                              effects = "de_tool"), 
-          plot = FALSE)
-p3b <- p$`de_tool:cats__` + 
-  facet_wrap(~de_tool, nrow = 1, scales = "free_x") +
+# p <- plot(conditional_effects(mod, 
+#                               categorical = TRUE, 
+#                               effects = "de_tool"), 
+#           plot = FALSE)
+# pb <- p$`de_tool:cats__` + 
+#   facet_wrap(~de_tool, nrow = 1, scales = "free_x") +
+#   labs(y = "Proportion") +
+#   theme(axis.title.x = element_blank(), 
+#         legend.title = element_blank(),
+#         legend.position = "bottom")
+# pb$layers[[1]]$aes_params$size <- 1
+draws <- data %>% 
+  select(Class, de_tool) %>% 
+  distinct() %>% 
+  add_epred_draws(mod, ndraws = 1000)
+p2b <- draws %>% 
+  ggplot(aes(de_tool, .epred)) +
+  stat_pointinterval(point_size = 1) +
+  facet_wrap(~.category, nrow = 1) +
   labs(y = "Proportion") +
-  theme(axis.title.x = element_blank(), 
-        legend.title = element_blank(),
-        legend.position = "bottom")
-p3b$layers[[1]]$aes_params$size <- 1
+  theme(
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    axis.title.x = element_blank()
+  )
 
-p3 <- p3a / p3b + plot_annotation(tag_levels = "A") +  plot_layout(guides = 'auto')
-ggsave(here("figures/figure_3.pdf"), plot = p3, width = 18, height = 12, units = "cm", dpi = 300)
-ggsave(here("figures/figure_3.eps"), plot = p3, width = 18, height = 12, units = "cm", dpi = 300)
-ggsave(here("figures/figure_3.png"), plot = p3, width = 18, height = 12, units = "cm", dpi = 300)
+p2 <- p2a / p2b + plot_annotation(tag_levels = "A") +  plot_layout(guides = 'auto')
+ggsave(here("figures/Fig2.pdf"), plot = p2, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/Fig2.eps"), plot = p2, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/Fig2.tiff"), plot = p2, width = 18, height = 12, units = "cm", dpi = 300)
 
 #'
 #'
@@ -356,13 +390,13 @@ p <- plot(conditional_effects(mod,
                               effects = "de_tool",
                               re_formula = NULL),
           plot = FALSE)
-p4b <- p$de_tool +
+pb <- p$de_tool +
   labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank())
-p4b$layers[[1]]$aes_params$size <- 1
+pb$layers[[1]]$aes_params$size <- 1
 
 #+
-p4a <- pvalues_sample %>% 
+pa <- pvalues_sample %>% 
   filter(Class %in% c("anti-conservative", "uniform")) %>% 
   ggplot() + 
   geom_histogram(aes(pi0), color = "white", binwidth = 0.1) +
@@ -376,7 +410,7 @@ data <- pvalues_sample %>%
   select(Accession, id, pi0, cancer) %>% 
   drop_na()
 
-p4c <- data %>% 
+pc <- data %>% 
   ggplot(aes(pi0, factor(cancer))) +
   stat_histinterval(breaks = 10, point_interval = mean_qi) +
   labs(x = expression(pi * 0)) +
@@ -427,7 +461,7 @@ data <- pvalues_sample %>%
   mutate(traf = ifelse(is.na(traf), 0, traf)) %>% 
   select(Accession, id, pi0, traf) %>% 
   drop_na()
-p4d <- data %>% 
+pd <- data %>% 
   ggplot(aes(pi0, factor(traf))) +
   stat_histinterval(breaks = 10, point_interval = mean_qi) +
   labs(x = expression(pi * 0)) +
@@ -435,10 +469,10 @@ p4d <- data %>%
   theme(axis.title.y = element_blank())
 
 #+ Fig4, fig.cap=""
-p4 <- (p4a + p4b) / (p4c + p4d) + plot_annotation(tag_levels = "A")
-ggsave(here("figures/figure_4.pdf"), plot = p4, width = 18, height = 16, units = "cm", dpi = 300)
-ggsave(here("figures/figure_4.eps"), plot = p4, width = 18, height = 16, units = "cm", dpi = 300)
-ggsave(here("figures/figure_4.png"), plot = p4, width = 18, height = 16, units = "cm", dpi = 300)
+p <- (pa + pb) / (pc + pd) + plot_annotation(tag_levels = "A")
+ggsave(here("figures/figure_4.pdf"), plot = p, width = 18, height = 16, units = "cm", dpi = 300)
+ggsave(here("figures/figure_4.eps"), plot = p, width = 18, height = 16, units = "cm", dpi = 300)
+ggsave(here("figures/figure_4.png"), plot = p, width = 18, height = 16, units = "cm", dpi = 300)
 
 #' 
 #' ## Figure 5 

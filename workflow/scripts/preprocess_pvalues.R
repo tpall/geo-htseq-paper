@@ -140,7 +140,8 @@ unnested_suppfiles_conforms %>%
       any(conforms) ~ 1,
       TRUE ~ 0
     )) %>% 
-  ungroup()
+  ungroup() %>% 
+  summarise_at("conforms", mean)
 
 
 #' Parse analysis platform
@@ -315,3 +316,4 @@ if (!exists("snakemake")) {
               n,
               p = signif(n / sum(n), 2))
 }
+
