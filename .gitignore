@@ -3,9 +3,13 @@
 .RData
 .Ruserdata
 *Rproj
+.DS_Store
+.vscode
 README.html
 results/
 .snakemake/
 figures/
 resources/data
 blacklist.txt
+*tar.gz
+output
