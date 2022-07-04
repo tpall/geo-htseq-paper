@@ -21,7 +21,7 @@ jobs:
         run: |
           export PATH="/usr/share/miniconda/bin:$PATH"
           conda install -c conda-forge -q mamba
-          mamba create -y -q -c conda-forge -c bioconda -n snakemake snakemake pulp
+          mamba create -y -q -c conda-forge -c bioconda -n snakemake snakemake=7.8.3 pulp
 
       - name: Setup apt dependencies
         run: |
@@ -40,14 +40,14 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@v2
         with:
-          go-version: '1.13'
+          go-version: '1.16'
 
       - name: Setup singularity
         run: |
-          export VERSION=3.6.2
-          wget https://github.com/sylabs/singularity/releases/download/v${VERSION}/singularity-${VERSION}.tar.gz
+          export VERSION=3.8.4
+          wget https://github.com/hpcng/singularity/releases/download/v${VERSION}/singularity-${VERSION}.tar.gz
           tar -xzf singularity-${VERSION}.tar.gz
-          cd singularity
+          cd singularity-${VERSION}
           ./mconfig
           make -C builddir
           sudo make -C builddir install
@@ -58,7 +58,11 @@ jobs:
         run: |
           # activate conda env
           export PATH="/usr/share/miniconda/bin:$PATH"
-          source activate snakemake
+          eval "$(conda shell.bash hook)"
+          conda activate snakemake
           mkdir -p results/models
-          snakemake --use-conda --use-singularity --restart-times 0 -j
+          singularity buildcfg
+          singularity --version
+          singularity version
+          snakemake --use-conda --use-singularity --restart-times 0 --verbose -j1
 

@@ -17,14 +17,14 @@ library(here)
 document_summaries <- read_csv(here("results/data/document_summaries.csv"))
 if (!exists("snakemake")) {
   document_summaries %>% 
-    filter(PDAT<="2019-12-31") %>% 
+    filter(PDAT <= "2020-12-31") %>% 
     pull(Accession) %>% 
     n_distinct()
 }
 
 if (!exists("snakemake")) {
   document_summaries %>% 
-    filter(PDAT<="2019-12-31") %>% 
+    filter(PDAT <= "2020-12-31") %>% 
     group_by(year(PDAT)) %>% 
     count() %>% 
     ungroup() %>% 
@@ -32,7 +32,7 @@ if (!exists("snakemake")) {
            perc = n / cumsum)
 }
 
-#' Supplementary files. We will throw out also all 'filelist.txt' files.
+#' Supplementary files. We discard all 'filelist.txt' files.
 #+
 suppfilenames <- read_lines(here("results/data/suppfilenames.txt")) %>% 
   tibble(suppfilenames = .) %>% 
@@ -45,17 +45,18 @@ acc_year <- document_summaries %>%
   select(Accession, PDAT) %>% 
   mutate(year = year(PDAT))
 
-#' We right join to keep only subset from our time frame.
+#' Keep only subset from our time frame. Recheck inner_join!
 conformity <- suppfilenames %>% 
   mutate(Accession = str_to_upper(str_extract(suppfilenames, "GS[Ee]\\d+"))) %>% 
-  right_join(acc_year) %>%
+  full_join(acc_year) %>%
   mutate(
-    conforms = !(is.na(suppfilenames) | str_detect(str_to_lower(suppfilenames), "readme|_raw.tar$|\\.[bs]am$|\\.bed$|\\.fa(sta)?"))
+    conforms = !(is.na(suppfilenames) | str_detect(str_to_lower(suppfilenames), c("readme", "\\.[bs]am", "\\.bed") %>% str_c("(\\.gz)?", collapse = "|")))
   )
 
 #' Total number of files conforming
 if (!exists("snakemake")) {
   sum(conformity$conforms)
+  mean(conformity$conforms)
 }
 
 #' Total number of GEOs conforming
@@ -95,9 +96,53 @@ if (!exists("snakemake")) {
 #' Number of sets with p-values, 
 parsed_suppfiles_raw <- read_csv(here("results/data/parsed_suppfiles.csv"))
 parsed_suppfiles <- parsed_suppfiles_raw %>% 
-  filter(!str_detect(id, "_RAW.tar")) %>% 
   mutate(Accession = str_to_upper(str_extract(id, "GS[Ee]\\d+"))) %>% 
   select(Accession, everything())
+
+blacklist <- read_lines(here("results/data/blacklist.txt")) %>% 
+  str_trim() %>% 
+  tibble(suppfilenames = .) %>% 
+  mutate(Accession = str_to_upper(str_extract(suppfilenames, "GS[Ee]\\d+"))) %>% 
+  select(Accession, everything())
+
+c(parsed_suppfiles$Accession, blacklist$Accession) %>% 
+  n_distinct()
+
+unnested_suppfiles <- parsed_suppfiles %>% 
+  mutate(
+    splits = str_split(id, " from "),
+    suppfile = map_chr(splits, ~ifelse(str_detect(.x[length(.x)], "RAW.tar$"), .x[length(.x) - 1], .x[length(.x)]))
+  )
+
+#' Number of p value sets per GEO submission
+unnested_suppfiles %>% 
+  filter(Type == "raw") %>% 
+  count(Accession) %>% 
+  summarise_at("n", list(mean = mean, median = median, min = min, max = max))
+
+unnested_suppfiles %>% 
+  filter(Type == "raw") %>% 
+  count(Accession) %>% 
+  summarise(n1 = mean(n == 1),
+            n1_3 = mean(n <=3 ))
+
+unnested_suppfiles_conforms <- unnested_suppfiles %>% 
+  select(Accession, suppfile, note) %>% 
+  distinct() %>% 
+  mutate(
+    conforms = !(is.na(suppfile) | str_detect(str_to_lower(suppfile), c("readme", "\\.[bs]am", "\\.bed") %>% str_c("(\\.gz)?", collapse = "|")))
+  )
+
+unnested_suppfiles_conforms %>% 
+  group_by(Accession) %>% 
+  summarise(
+    conforms = case_when(
+      any(conforms) ~ 1,
+      TRUE ~ 0
+    )) %>% 
+  ungroup() %>% 
+  summarise_at("conforms", mean)
+
 
 #' Parse analysis platform
 get_var <- function(x) {
@@ -118,19 +163,34 @@ hist <- parsed_suppfiles %>%
   select(Accession, id, Set, FDR_pval, hist)
 
 pvalues <- parsed_suppfiles %>% 
+  left_join(acc_year) %>% 
+  select(Accession, id, Set, Type, Class, PDAT) %>% 
   filter(!is.na(Type)) %>% 
-  select(Accession, id, Set, Type, Class) %>%
   pivot_wider(names_from = Type, values_from = Class) %>% 
   group_by(id, Set) %>% 
   mutate(var = get_var(c("logcpm"=logcpm, "rpkm"=rpkm, "fpkm"=fpkm, "basemean"=basemean, "aveexpr"=aveexpr))) %>%
   ungroup() %>% 
-  mutate(analysis_platform = case_when(
-    var == "basemean" ~ "deseq",
-    var == "aveexpr" ~ "limma",
-    var == "logcpm" ~ "edger",
-    var == "fpkm" & str_detect(Set, "p_value") ~ "cuffdiff",
-    TRUE ~ "unknown"
-  )) %>% 
+  mutate( # parsing analysis platform using expression level variable name
+    analysis_platform_from_expression = case_when(
+      var == "basemean" ~ "deseq",
+      (var == "aveexpr" & PDAT > "2014-01-01") ~ "limma",
+      var == "logcpm" ~ "edger",
+      var == "fpkm" & str_detect(Set, "p_value") ~ "cuffdiff",
+      TRUE ~ "unknown"
+    ), # parsing analysis platform using file names
+    analysis_platform_from_filename = case_when(
+      str_detect(str_to_lower(id), "deseq") ~ "deseq",
+      str_detect(str_to_lower(id), "edger") ~ "edger",
+      str_detect(str_to_lower(id), "limma") ~ "limma",
+      str_detect(str_to_lower(id), "cuff") ~ "cuffdiff",
+      TRUE ~ "unknown"
+    ), # assigning analysis platform using file names and expression level variable name
+    analysis_platform = case_when(
+      analysis_platform_from_expression == analysis_platform_from_filename ~ analysis_platform_from_expression,
+      analysis_platform_from_filename == "unknown" ~ analysis_platform_from_expression,
+      TRUE ~ analysis_platform_from_filename
+      )
+  ) %>%
   select(Accession, id, Set, Class = raw, analysis_platform) %>% 
   left_join(acc_year) %>% 
   left_join(pi0) %>% 
@@ -166,6 +226,23 @@ if (!exists("snakemake")) {
   geo_import %>% 
     pull(id) %>% 
     n_distinct()
+
+parse_from <- function(x) {
+  if (str_detect(x, "^sheet")) {
+    nosheet <- str_split(x, " from ") %>% 
+      unlist() %>% 
+      str_subset("^[^sheet]") %>% 
+      str_c(collapse = " from ")
+    return(nosheet)
+  }
+  return(x)
+}
+
+geo_import %>% 
+  mutate(id1 = map_chr(id, parse_from)) %>% 
+  select(id1) %>% 
+  distinct()
+  
 }
 
 #' notes
@@ -239,3 +316,4 @@ if (!exists("snakemake")) {
               n,
               p = signif(n / sum(n), 2))
 }
+
