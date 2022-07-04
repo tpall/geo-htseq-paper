@@ -74,7 +74,7 @@ rule unpack:
     shell:
         "(tar -xzvf {input} "
         " && mkdir -p $(dirname {output[0]})"
-        " && cp output/* $(dirname {output[0]})) 2> {log}"
+        " && cp output/* $(dirname {output[0]}))"
         " && cp blacklist.txt $(dirname {output[0]})) 2> {log}"
 
 
