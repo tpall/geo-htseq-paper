@@ -8,3 +8,4 @@ results/
 .snakemake/
 figures/
 resources/data
+blacklist.txt
