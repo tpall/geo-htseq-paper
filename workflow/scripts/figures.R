@@ -47,7 +47,6 @@ if (!dir.exists("results/models")) {
 }
 
 #+ data
-# conformity_acc <- read_csv(here("results/conformity_acc.csv"))
 pvalues <- read_csv(here("results/pvalues.csv")) %>% 
   rename(de_tool = analysis_platform)
 pvalues_sample <- read_csv(here("results/pvalues_sample.csv")) %>% 
@@ -277,7 +276,7 @@ data <- pvalues_sample %>%
 mod <- brm(
   formula = pi0 ~ de_tool, 
   data = data, 
-  family = student(),
+  family = Beta(),
   prior = priors,
   chains = chains, 
   cores = cores, 
