@@ -6,7 +6,6 @@
 #'    rmarkdown::pdf_document:
 #'        number_sections: FALSE
 #'        toc: FALSE
-#'        keep_tex: TRUE
 #' urlcolor: blue
 #' header-includes:
 #' - \usepackage[font=footnotesize,labelfont=bf]{caption}
@@ -490,7 +489,7 @@ draws_7a <- data %>%
 pa <- draws_7a %>% 
   ggplot(aes(de_tool, .epred)) +
   stat_pointinterval(point_size = 1) +
-  labs(y = y_title) +
+  labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 
@@ -519,7 +518,7 @@ pb <- data %>%
   add_epred_draws(mod) %>% 
   ggplot(aes(de_tool, .epred)) +
   stat_pointinterval(point_size = 1) +
-  labs(y = y_title) +
+  labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 
@@ -553,7 +552,7 @@ pc <- data %>%
   add_epred_draws(mod) %>% 
   ggplot(aes(de_tool, .epred)) +
   stat_pointinterval(point_size = 1) +
-  labs(y = y_title) +
+  labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 
@@ -584,7 +583,7 @@ pd <- draws %>%
   mutate_at("value", inv_logit_scaled) %>% 
   ggplot(aes(de_tool, value)) +
   stat_pointinterval(point_size = 1) +
-  labs(y = y_title) +
+  labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 
@@ -615,7 +614,7 @@ pe <- draws %>%
   mutate_at("value", inv_logit_scaled) %>% 
   ggplot(aes(de_tool, value)) +
   stat_pointinterval(point_size = 1) +
-  labs(y = y_title) +
+  labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 
@@ -1106,7 +1105,6 @@ fig_cap <- glue('__DE analysis tool conditional effects from binomial logistic m
                 (__D__) Model conditioned on studied organism (human/mouse/other): *{pdF}*, N = {pdN}. 
                 (__E__) Varying intercept model *{peF}* where "model" stands for sequencing instrument model, N = {peN}. 
                 (__F__) Varying intercept and slope model *{pfF}*, N = {pfN}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively.
-                (__G__) Effect size of filtering to proportion of anti-conservative p value histograms.
                 The model object related to panel A can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons_detool_filtered.rds. 
                 The model object related to panel B can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons_detool_all_filtered.rds. 
                 The model object related to panel C can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons_year_detool_filtered.rds. 
@@ -1114,12 +1112,12 @@ fig_cap <- glue('__DE analysis tool conditional effects from binomial logistic m
                 The model object related to panel E can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons_detool__1_model_filtered.rds. 
                 The model object related to panel F can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons_detool__detool_model_filtered.rds.')
 
-#+ s16fig, fig.height=6.9,fig.cap=fig_cap
-(pa + pb + pc) / (pd + pe + pf) / (plot_spacer() + pg + plot_spacer()) +  
+#+ s16fig, fig.cap=fig_cap
+(pa + pb + pc) / (pd + pe + pf) +  
   plot_annotation(tag_levels = "A") & 
   theme(plot.tag.position = c(0, 1),
         plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
-ggsave(here("figures/S16Fig.tiff"), height = 21, width = 18, dpi = 300, units = "cm")
+ggsave(here("figures/S16Fig.tiff"), height = 15, width = 18, dpi = 300, units = "cm")
 
 #' 
 #+ s17figaa
@@ -1332,29 +1330,29 @@ pe <- draws %>%
 peN <- prettyNum(summary(mod)$nobs, big.mark=',')
 peF <- deparse(f)
 
-p <- (paa + pa + pb) / (pc + pd + pe) / (plot_spacer() + pg + plot_spacer()) + 
+p <- (paa + pa + pb) / (pc + pd + pe) + 
   plot_annotation(tag_levels = "A") & 
   theme(plot.tag.position = c(0, 1),
         plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
 
 fig_cap <- glue("__DE analysis tool conditional effects from beta regression models of $\\pi_0$ after filtering to remove p values for lowly expressed features.__ 
 Complete data contains all observations where expression level data was available. Sample contains observations from the original unfiltered sample where filtering was possible.
-                (__A__) Simple model *{paF}*, N = {paN}. 
+                (__A__) Simple model *{paaF}*, N = {paaN}. 
                 (__B__) Simple model *{paF}* fitted on complete data, N = {paN}. 
                 (__C__) Model conditioned on year of GEO submission: *{pbF}*, N = {pbN}. 
                 (__D__) Model conditioned on studied organism (human/mouse/other): *{pcF}*, N = {pcN}. 
                 (__E__) Varying intercept model *{pdF}* where 'model' stands for sequencing instrument model, N = {pdN}. 
                 (__F__) Varying intercept/slope model *{peF}*, N = {peN}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively.
-                (__G__) Effect size of filtering to $\\pi_0$.
-                The model object related to panel A can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0_detool_full_data_filtered.rds. 
-                The model object related to panel B can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0_year_detool_filtered.rds. 
-                The model object related to panel C can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0_organism_detool_filtered.rds. 
-                The model object related to panel D can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0_detool__1_model_filtered.rds. 
-                The model object related to panel E can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0_detool__detool_model_filtered.rds.")
+                The model object related to panel A can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0_detool_sample_filtered.rds. 
+                The model object related to panel B can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0_detool_full_data_filtered.rds. 
+                The model object related to panel C can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0_year_detool_filtered.rds. 
+                The model object related to panel D can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0_organism_detool_filtered.rds. 
+                The model object related to panel E can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0_detool__1_model_filtered.rds. 
+                The model object related to panel F can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0_detool__detool_model_filtered.rds.")
 
-#+ fig.height=6.9,fig.cap=fig_cap
+#+ fig.cap=fig_cap
 p
-ggsave(here("figures/S17Fig.tiff"), height = 21, width = 18, dpi = 300, units = "cm")
+ggsave(here("figures/S17Fig.tiff"), height = 15, width = 18, dpi = 300, units = "cm")
 
 
 #' 

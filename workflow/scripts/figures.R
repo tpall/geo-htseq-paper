@@ -433,11 +433,90 @@ titles <- as.list(c("Total", by_detool %>% arrange(path) %>% pull(de_tool)))
 names(titles) <- LETTERS[1:6]
 
 plots2 <- map2(plots, titles, ~ .x + labs(title = .y) + theme(plot.title = element_text(hjust = 0.5, vjust=-2)))
-patchwork <- wrap_plots(plots2) + 
+
+######## adding effect size plots #######
+
+stopifnot("Missing some model objects, please run scripts/figure_supplements.R first!" =
+            all(file.exists(here(c("results/models/anticons_detool.rds", 
+                                   "results/models/anticons_detool_filtered.rds",
+                                   "results/models/pi0_detool_sample.rds",
+                                   "results/models/pi0_detool_sample_filtered.rds")
+            ))))
+
+anticons_det <- read_rds(here("results/models/anticons_detool.rds"))
+anticons_det_filt <- read_rds(here("results/models/anticons_detool_filtered.rds"))
+pi0_det <- read_rds(here("results/models/pi0_detool_sample.rds"))
+pi0_det_filt <- read_rds(here("results/models/pi0_detool_sample_filtered.rds"))
+
+de_tools <- pvalues_sample %>% 
+  select(de_tool) %>% 
+  distinct()
+
+draws_anticons_det <- de_tools %>% 
+  add_epred_draws(anticons_det, value = "raw") %>% 
+  select(de_tool, .draw, raw)
+draws_anticons_det_filt <- de_tools %>% 
+  add_epred_draws(anticons_det_filt, value = "filtered") %>% 
+  select(de_tool, .draw, filtered)
+draws_pi0_det <- de_tools %>% 
+  add_epred_draws(pi0_det, value = "raw") %>% 
+  select(de_tool, .draw, raw)
+draws_pi0_det_filt <- de_tools %>% 
+  add_epred_draws(pi0_det_filt, value = "filtered") %>% 
+  select(de_tool, .draw, filtered)
+
+draws_ac_merged <- draws_anticons_det %>% 
+  left_join(draws_anticons_det_filt)
+
+pg <- draws_ac_merged %>% 
+  pivot_longer(cols = c("raw", "filtered")) %>% 
+  mutate(name = factor(name, levels = c("raw", "filtered"))) %>% 
+  ggplot(aes(value, de_tool)) +
+  stat_halfeye(aes(color = name), point_size = 1) +
+  labs(x = "Prop. anti-cons.") +
+  scale_y_discrete(limits = rev) +
+  scale_color_discrete("P value\nset") +
+  theme(axis.title.y = element_blank())
+
+ph <- draws_ac_merged %>% 
+  mutate(es = filtered - raw) %>% 
+  ggplot(aes(es, de_tool)) +
+  stat_halfeye(point_size = 1) +
+  geom_vline(xintercept = 0, linetype = "dashed", size = 1/3) +
+  labs(x = "Effect size") +
+  scale_y_discrete(limits = rev) +
+  theme(axis.title.y = element_blank())
+
+draws_pi0_merged <- draws_pi0_det %>% 
+  left_join(draws_pi0_det_filt)
+
+pi <- draws_pi0_merged %>% 
+  pivot_longer(cols = c("raw", "filtered")) %>% 
+  mutate(name = factor(name, levels = c("raw", "filtered"))) %>% 
+  ggplot(aes(value, de_tool)) +
+  stat_halfeye(aes(color = name), point_size = 1) +
+  labs(x = expression(pi[0])) +
+  scale_y_discrete(limits = rev) +
+  scale_color_discrete("P value\nset") +
+  theme(axis.title.y = element_blank())
+
+pj <- draws_pi0_merged %>% 
+  mutate(es = filtered - raw) %>% 
+  ggplot(aes(es, de_tool)) +
+  stat_halfeye(point_size = 1) +
+  geom_vline(xintercept = 0, linetype = "dashed", size = 1/3) +
+  labs(x = "Effect size") +
+  scale_y_discrete(limits = rev) +
+  theme(axis.title.y = element_blank())
+
+######## end of effect size plots ######
+
+patchwork <- wrap_plots(plots2) / ((plot_spacer() + (pg + ph + pi + pj + plot_layout(ncol = 2, guides = "collect")) + plot_spacer()) + plot_layout(widths = c(1/12, 5/6, 1/12))) + 
   plot_annotation(tag_levels = "A")
-ggsave(here("figures/Fig4.pdf"), plot = patchwork, width = 12, height = 8, units = "cm", dpi = 300)
-ggsave(here("figures/Fig4.eps"), plot = patchwork, width = 12, height = 8, units = "cm", dpi = 300)
-ggsave(here("figures/Fig4.tiff"), plot = patchwork, width = 12, height = 8, units = "cm", dpi = 300)
+
+ggsave(here("figures/Fig4.pdf"), plot = patchwork, width = 16, height = 16, units = "cm", dpi = 300)
+ggsave(here("figures/Fig4.eps"), plot = patchwork, width = 16, height = 16, units = "cm", dpi = 300)
+ggsave(here("figures/Fig4.tiff"), plot = patchwork, width = 16, height = 16, units = "cm", dpi = 300)
 
 rescue_efficiency <- by_detool %>% 
   select(de_tool, props) %>% 
