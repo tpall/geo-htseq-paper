@@ -335,9 +335,9 @@ p3d <- data %>%
 
 #+ Fig3, fig.cap=""
 p3 <- (p3a + p3b) / (p3c + p3d) + plot_annotation(tag_levels = "A")
-ggsave(here("figures/Fig3.pdf"), plot = p3, width = 18, height = 16, units = "cm", dpi = 300)
-ggsave(here("figures/Fig3.eps"), plot = p3, width = 18, height = 16, units = "cm", dpi = 300)
-ggsave(here("figures/Fig3.tiff"), plot = p3, width = 18, height = 16, units = "cm", dpi = 300)
+ggsave(here("figures/Fig3.pdf"), plot = p3, width = 12, height = 8, units = "cm", dpi = 300)
+ggsave(here("figures/Fig3.eps"), plot = p3, width = 12, height = 8, units = "cm", dpi = 300)
+ggsave(here("figures/Fig3.tiff"), plot = p3, width = 12, height = 8, units = "cm", dpi = 300)
 
 
 pvalues_sample2 <- pvalues %>% 
@@ -373,7 +373,7 @@ make_sankey <- function(data) {
                 Target = "target", 
                 Value = "value", 
                 NodeID = "name", 
-                fontSize = 24, 
+                fontSize = 46, 
                 nodeWidth = 30,
                 nodePadding = 10,
                 margin = list(top = 0, right = 0, bottom = 0, left = 0),
@@ -432,12 +432,12 @@ plots <- imgs %>%
 titles <- as.list(c("Total", by_detool %>% arrange(path) %>% pull(de_tool)))
 names(titles) <- LETTERS[1:6]
 
-plots2 <- map2(plots, titles, ~ .x + labs(title = .y) + theme(plot.title = element_text(hjust = 0.5, vjust=-6)))
+plots2 <- map2(plots, titles, ~ .x + labs(title = .y) + theme(plot.title = element_text(hjust = 0.5, vjust=-2)))
 patchwork <- wrap_plots(plots2) + 
   plot_annotation(tag_levels = "A")
-ggsave(here("figures/Fig4.pdf"), plot = patchwork, width = 18, height = 12, units = "cm", dpi = 300)
-ggsave(here("figures/Fig4.eps"), plot = patchwork, width = 18, height = 12, units = "cm", dpi = 300)
-ggsave(here("figures/Fig4.tiff"), plot = patchwork, width = 18, height = 12, units = "cm", dpi = 300)
+ggsave(here("figures/Fig4.pdf"), plot = patchwork, width = 12, height = 8, units = "cm", dpi = 300)
+ggsave(here("figures/Fig4.eps"), plot = patchwork, width = 12, height = 8, units = "cm", dpi = 300)
+ggsave(here("figures/Fig4.tiff"), plot = patchwork, width = 12, height = 8, units = "cm", dpi = 300)
 
 rescue_efficiency <- by_detool %>% 
   select(de_tool, props) %>% 
