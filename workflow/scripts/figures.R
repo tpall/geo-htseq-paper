@@ -300,9 +300,14 @@ p3b <- draws %>%
 #+
 p3a <- pvalues_sample %>% 
   filter(Class %in% c("anti-conservative", "uniform")) %>% 
+  mutate(bins = cut_width(pi0, 0.1, boundary = 0)) %>% 
+  count(bins) %>% 
+  mutate(p = n / sum(n)) %>% 
   ggplot() + 
-  geom_histogram(aes(pi0), color = "white", binwidth = 0.1) +
-  labs(x = expression(pi * 0), y = "Count")
+  geom_col(aes(bins, p)) +
+  labs(x = expression(pi * 0~bins), y = "Proportion of\nP value sets") +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 
 cancer <- read_csv(here("results/data/cancer.csv")) %>% 
   mutate(cancer = 1)
@@ -316,7 +321,7 @@ p3c <- data %>%
   ggplot(aes(pi0, factor(cancer))) +
   stat_histinterval(breaks = 10, point_interval = mean_qi) +
   labs(x = expression(pi * 0)) +
-  scale_y_discrete(labels = c("non-cancer", "cancer")) +
+  scale_y_discrete(labels = c("non-\ncancer", "cancer")) +
   theme(axis.title.y = element_blank())
 
 tf <- read_csv(here("results/data/transcription_factor.csv")) %>% 
@@ -335,10 +340,9 @@ p3d <- data %>%
 
 #+ Fig3, fig.cap=""
 p3 <- (p3a + p3b) / (p3c + p3d) + plot_annotation(tag_levels = "A")
-ggsave(here("figures/Fig3.pdf"), plot = p3, width = 12, height = 8, units = "cm", dpi = 300)
-ggsave(here("figures/Fig3.eps"), plot = p3, width = 12, height = 8, units = "cm", dpi = 300)
-ggsave(here("figures/Fig3.tiff"), plot = p3, width = 12, height = 8, units = "cm", dpi = 300)
-
+ggsave(here("figures/Fig3.pdf"), plot = p3, width = 12, height = 10, units = "cm", dpi = 300)
+ggsave(here("figures/Fig3.eps"), plot = p3, width = 12, height = 10, units = "cm", dpi = 300)
+ggsave(here("figures/Fig3.tiff"), plot = p3, width = 12, height = 10, units = "cm", dpi = 300)
 
 pvalues_sample2 <- pvalues %>% 
   select(Accession, id, Set, raw = Class, de_tool) %>% 
@@ -468,11 +472,12 @@ draws_pi0_det_filt <- de_tools %>%
 draws_ac_merged <- draws_anticons_det %>% 
   left_join(draws_anticons_det_filt)
 
+pd <- position_dodge(0.6)
 pg <- draws_ac_merged %>% 
   pivot_longer(cols = c("raw", "filtered")) %>% 
   mutate(name = factor(name, levels = c("raw", "filtered"))) %>% 
   ggplot(aes(value, de_tool)) +
-  stat_halfeye(aes(color = name), point_size = 1) +
+  stat_pointinterval(aes(color = name), point_size = 1, position = pd) +
   labs(x = "Prop. anti-cons.") +
   scale_y_discrete(limits = rev) +
   scale_color_discrete("P value\nset") +
@@ -481,10 +486,11 @@ pg <- draws_ac_merged %>%
 ph <- draws_ac_merged %>% 
   mutate(es = filtered - raw) %>% 
   ggplot(aes(es, de_tool)) +
-  stat_halfeye(point_size = 1) +
+  stat_pointinterval(point_size = 1) +
   geom_vline(xintercept = 0, linetype = "dashed", size = 1/3) +
   labs(x = "Effect size") +
   scale_y_discrete(limits = rev) +
+  scale_x_continuous(limits = c(-0.1, 0.45)) +
   theme(axis.title.y = element_blank())
 
 draws_pi0_merged <- draws_pi0_det %>% 
@@ -494,7 +500,7 @@ pi <- draws_pi0_merged %>%
   pivot_longer(cols = c("raw", "filtered")) %>% 
   mutate(name = factor(name, levels = c("raw", "filtered"))) %>% 
   ggplot(aes(value, de_tool)) +
-  stat_halfeye(aes(color = name), point_size = 1) +
+  stat_pointinterval(aes(color = name), point_size = 1, position = pd) +
   labs(x = expression(pi[0])) +
   scale_y_discrete(limits = rev) +
   scale_color_discrete("P value\nset") +
@@ -503,10 +509,11 @@ pi <- draws_pi0_merged %>%
 pj <- draws_pi0_merged %>% 
   mutate(es = filtered - raw) %>% 
   ggplot(aes(es, de_tool)) +
-  stat_halfeye(point_size = 1) +
+  stat_pointinterval(point_size = 1) +
   geom_vline(xintercept = 0, linetype = "dashed", size = 1/3) +
   labs(x = "Effect size") +
   scale_y_discrete(limits = rev) +
+  scale_x_continuous(limits = c(-0.1, 0.45)) +
   theme(axis.title.y = element_blank())
 
 ######## end of effect size plots ######
