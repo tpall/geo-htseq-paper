@@ -4,19 +4,13 @@ localrules:
     all,
     staple,
 
-FIGS=list(range(1, 7))
+FIGS=list(range(1, 6))
 
 rule all:
     input:
-        "results/figure_supplements.pdf",
+        "results/supporting_information.pdf",
         "results/main.pdf",
-        expand("figures/figure_{n}.pdf", n=FIGS),
-        expand(
-            "figures/figure_{fig}_figure_supplement_{supp}.tiff",
-            zip,
-            fig=[2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5],
-            supp=[1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 1],
-        ),
+        expand("figures/Fig{n}.pdf", n=FIGS),
         "results/pall_et_al.pdf",
         "results/geo_suppfiles.csv",
         "results/imported_suppfiles.csv",
@@ -139,10 +133,9 @@ rule figures:
         "results/pvalues_acc.csv",
         "results/data/scopus_citedbycount.csv",
         "results/data/publications.csv",
-        "results/figure_supplements.pdf",
+        "results/supporting_information.pdf",
     output:
-        expand("figures/figure_{n}.pdf", n=[1, 2, 3, 4, 6]),
-        "results/files_to_check_pi0.txt",
+        expand("figures/Fig{n}.{ext}", n=FIGS, ext = ["pdf", "tiff", "eps"]),
     log:
         "results/log/figures.log",
     resources:
@@ -153,24 +146,7 @@ rule figures:
         "scripts/figures.R"
 
 
-rule figure5:
-    input:
-        "results/data/parsed_suppfiles.csv",
-    output:
-        "figures/figure_5.pdf",
-        expand("figures/figure_5{n}.png", n=["A","B","C","D","E","F"]),
-        temp(expand("figures/figure_5{n}.html", n=["A","B","C","D","E","F"])),
-    log:
-        "results/log/figure5.log",
-    resources:
-        runtime=1440,
-        mem_mb=8000,
-    threads: 4
-    script:
-        "scripts/pvalue_classes_sankey.R"
-
-
-rule figure_supplements:
+rule supporting_information:
     input:
         "results/pvalues.csv",
         "results/pvalues_sample.csv",
@@ -178,29 +154,23 @@ rule figure_supplements:
         "results/sequencing_metadata_unique_platform.csv",
         "results/data/de_simulation_results.csv",
     output:
-        expand(
-            "figures/figure_{fig}_figure_supplement_{supp}.tiff",
-            zip,
-            fig=[2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5],
-            supp=[1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 1],
-        ),
-        "results/figure_supplements.pdf", 
+        "results/supporting_information.pdf", 
     log:
-        "results/log/figure_supplements.log",
+        "results/log/supporting_information.log",
     resources:
         runtime=1440,
         mem_mb=8000,
     threads: 4
     shell:
         """
-        Rscript -e 'rmarkdown::render(here::here("workflow/scripts/figure_supplements.R"), output_dir = here::here("results"))'
+        Rscript -e 'rmarkdown::render(here::here("workflow/scripts/supporting_information.R"), output_dir = here::here("results"))'
         """
 
 
 rule main:
     input:
-        expand("figures/figure_{n}.pdf", n=FIGS),
-        "results/figure_supplements.pdf",
+        expand("figures/Fig{n}.eps", n=FIGS),
+        "results/supporting_information.pdf",
     output:
         "results/main.pdf",
     resources:
@@ -216,7 +186,7 @@ rule main:
 rule staple:
     input:
         "results/main.pdf",
-        "results/figure_supplements.pdf",
+        "results/supporting_information.pdf",
     output:
         "results/pall_et_al.pdf",
     log:

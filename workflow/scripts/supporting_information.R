@@ -1,11 +1,10 @@
 #' ---
-#' title: Figure supplements
-#' date: ""
+#' title: Supporting Information
 #' author: ""
+#' date: ""
 #' output:
-#'    rmarkdown::pdf_document:
-#'        number_sections: FALSE
-#'        toc: FALSE
+#'    bookdown::pdf_document2:
+#'       toc: FALSE
 #' urlcolor: blue
 #' header-includes:
 #' - \usepackage[font=footnotesize,labelfont=bf]{caption}
@@ -13,6 +12,7 @@
 #' - \captionsetup{labelformat=supplement,labelsep=quad}
 #' bibliography: main/references.bib
 #' ---
+
 
 #+ include=FALSE
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE)
@@ -48,9 +48,9 @@ chains <- ifelse(is_ci(), 1, 4)
 cores <- chains
 refresh <- 0
 rstan_options(auto_write = TRUE, javascript = FALSE)
-if (!dir.exists("results/models")) {
+if (!dir.exists(here("results/models"))) {
   message("Creating results/models dir..")
-  dir.create("results/models", recursive = TRUE)
+  dir.create(here("results/models"), recursive = TRUE)
 }
 
 #+ data
@@ -98,7 +98,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/log10_n_pvalues ~ anticons.rds"),
-  file_refit = "on_change"
+  file_refit = "never"
 )
 
 draws <- data %>% 
@@ -142,7 +142,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_year.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 p <- plot(conditional_effects(mod, 
                               effects = "year", 
                               conditions = conditions),
@@ -173,7 +173,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons_year__year_detool.rds"),
-           file_refit = "on_change"
+           file_refit = "never"
 )
 
 draws <- data %>% 
@@ -214,7 +214,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons_year__year_model.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 draws <- data %>% 
   filter(!(model %in% c("454 gs flx", "454 gs flx titanium", "dnbseq-g400", "dnbseq-g50", "illumina miniseq", "ion s5", "helicos heliscope"))) %>% 
@@ -273,7 +273,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_detool.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 draws_6a <- data %>% 
   select(de_tool) %>% 
@@ -301,7 +301,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_detool_all.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 pb <- data %>% 
   select(de_tool) %>% 
@@ -329,7 +329,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_year_detool.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 pc <- data %>% 
   select(de_tool, year) %>%
@@ -364,7 +364,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_organism_detool.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 pd <- data %>% 
   select(de_tool, organism) %>%
@@ -395,7 +395,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons_detool__1_model.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 draws <- as.data.frame(mod)
 pe <- draws %>% 
@@ -426,7 +426,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons_detool__detool_model.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 draws <- as.data.frame(mod)
 pf <- draws %>% 
@@ -480,7 +480,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/pi0_detool_full_data.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 draws_7a <- data %>% 
   select(de_tool) %>% 
@@ -509,7 +509,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/pi0_year_detool.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 pb <- data %>% 
   select(de_tool, year) %>%
@@ -543,7 +543,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            file = here("results/models/pi0_organism_detool.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 pc <- data %>% 
   select(de_tool, organism) %>%
@@ -572,7 +572,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0_detool__1_model.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 draws <- as.data.frame(mod)
 pd <- draws %>% 
@@ -603,7 +603,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0_detool__detool_model.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 draws <- as.data.frame(mod)
 pe <- draws %>% 
@@ -656,7 +656,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0__model.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 p <- data %>% 
   select(model) %>% 
   distinct() %>% 
@@ -685,7 +685,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0__librarystrategy.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 p <- data %>% 
   select(library_strategy) %>% 
@@ -714,7 +714,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0__libraryselection.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 p <- data %>% 
   select(library_selection) %>% 
@@ -743,7 +743,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0__1_librarylayout.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 p <- data %>% 
   select(library_layout) %>% 
@@ -775,7 +775,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons__1_model.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 p <- data %>% 
   select(model) %>% 
@@ -805,7 +805,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons__librarystrategy.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 p <- data %>% 
   select(library_strategy) %>% 
@@ -834,7 +834,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons__libraryselection.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 p <- data %>% 
   select(library_selection) %>% 
@@ -863,7 +863,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons__librarylayout.rds"),
-           file_refit = "on_change")
+           file_refit = "never")
 
 p <- data %>% 
   select(library_layout) %>% 
@@ -905,7 +905,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/anticons_detool_filtered.rds"),
-  file_refit = "on_change"
+  file_refit = "never"
 )
 
 draws_16a <- data %>% 
@@ -953,7 +953,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/anticons_detool_all_filtered.rds"),
-  file_refit = "on_change"
+  file_refit = "never"
 )
 
 pb <- data %>% 
@@ -981,7 +981,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/anticons_year_detool_filtered.rds"),
-  file_refit = "on_change"
+  file_refit = "never"
 )
 
 pc <- data %>% 
@@ -1011,7 +1011,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/anticons_organism_detool_filtered.rds"),
-  file_refit = "on_change"
+  file_refit = "never"
 )
 
 pd <- data %>% 
@@ -1043,7 +1043,7 @@ mod <- brm(
   iter = ifelse(is_ci(), 400, 2000),
   control = list(adapt_delta = 0.99, max_treedepth = 12),
   file = here("results/models/anticons_detool__1_model_filtered.rds"),
-  file_refit = "on_change"
+  file_refit = "never"
 )
 
 draws <- as.data.frame(mod)
@@ -1077,7 +1077,7 @@ mod <- brm(
   iter = ifelse(is_ci(), 400, 2000),
   control = list(adapt_delta = 0.99, max_treedepth = 12),
   file = here("results/models/anticons_detool__detool_model_filtered.rds"),
-  file_refit = "on_change"
+  file_refit = "never"
 )
 
 draws <- as.data.frame(mod)
@@ -1133,7 +1133,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/pi0_detool_sample_filtered.rds"),
-  file_refit = "on_change"
+  file_refit = "never"
 )
 
 draws_17aa <- pvalues_filtered_sample %>% 
@@ -1187,7 +1187,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/pi0_detool_full_data_filtered.rds"),
-  file_refit = "on_change"
+  file_refit = "never"
 )
 
 draws_17a <- data %>% 
@@ -1217,7 +1217,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/pi0_year_detool_filtered.rds"),
-  file_refit = "on_change"
+  file_refit = "never"
 )
 
 pb <- data %>% 
@@ -1246,7 +1246,7 @@ mod <- brm(
   cores = cores, 
   refresh = refresh,
   file = here("results/models/pi0_organism_detool_filtered.rds"),
-  file_refit = "on_change"
+  file_refit = "never"
 )
 
 pc <- data %>% 
@@ -1277,7 +1277,7 @@ mod <- brm(
   iter = ifelse(is_ci(), 400, 2000),
   control = list(adapt_delta = 0.99, max_treedepth = 12),
   file = here("results/models/pi0_detool__1_model_filtered.rds"),
-  file_refit = "on_change"
+  file_refit = "never"
 )
 
 draws <- as.data.frame(mod)
@@ -1310,7 +1310,7 @@ mod <- brm(
   iter = ifelse(is_ci(), 400, 2000),
   control = list(adapt_delta = 0.99, max_treedepth = 12),
   file = here("results/models/pi0_detool__detool_model_filtered.rds"),
-  file_refit = "on_change"
+  file_refit = "never"
 )
 
 draws <- as.data.frame(mod)
