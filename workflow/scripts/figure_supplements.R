@@ -120,7 +120,7 @@ median_number_of_pvalues_formatted <- prettyNum(round(median(number_of_pvalues$n
 
 fig_cap <- glue("__Reduced number of features in anti-conservative and uniform p value sets.__ 
                 (__A__) P value set size distribution. Dashed line denotes the median ({median_number_of_pvalues_formatted}) number of features. From each GEO series only one random set was considered, N = {number_of_pvalues_formatted} p value sets. 
-                (__B__) Robust linear modeling of number of features in anti-conservative and uniform vs. non-anti-conservative p value sets [log10_n_pvalues ~ anticons], student’s t likelihood, N = {number_of_pvalues_formatted}. 
+                (__B__) Robust linear modeling of number of features in anti-conservative and uniform vs. non-anti-conservative p value sets [log10_n_pvalues ~ anticons, student’s t likelihood], N = {number_of_pvalues_formatted}. 
                 Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible region, respectively.
                 The model object related to panel B can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/log_n_pvalues%20~%20anticons.rds."
                 )
@@ -724,7 +724,7 @@ p <- data %>%
   stat_pointinterval(point_size = 1) +
   labs(x = expression(pi[0]), y = "Library selection")
 
-fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library selection__ [{deparse(f)}], beta distribution, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0__libraryselection.rds.")
+fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library selection__ [{deparse(f)}, beta likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0__libraryselection.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -753,7 +753,7 @@ p <- data %>%
   stat_pointinterval(point_size = 1) +
   labs(x = expression(pi[0]), y = "Library layout")
 
-fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library layout__ [{deparse(f)}], beta distribution, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0__librarylayout.rds.")
+fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library layout__ [{deparse(f)}, beta likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0__librarylayout.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -786,7 +786,7 @@ p <- data %>%
   labs(x = "Proportion of anti-conservative histograms") +
   theme(axis.title.y = element_blank())
 
-fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histograms on sequencing platform__ [{deparse(f)}], bernoulli distribution, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons__model.rds.")
+fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histograms on sequencing platform__ [{deparse(f)}, bernoulli likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons__model.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -815,7 +815,7 @@ p <- data %>%
   stat_pointinterval(point_size = 1) +
   labs(x = "Proportion of anti-conservative histograms", y = "Library strategy")
 
-fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histograms on library strategy__ [{deparse(f)}], bernoulli distribution, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons__librarystrategy.rds.")
+fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histograms on library strategy__ [{deparse(f)}, bernoulli likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons__librarystrategy.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -844,7 +844,7 @@ p <- data %>%
   stat_pointinterval(point_size = 1) +
   labs(x = "Proportion of anti-conservative histograms", y = "Library selection")
 
-fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histograms on library selection__ [{deparse(f)}], bernoulli distribution, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons__libraryselection.rds.")
+fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histograms on library selection__ [{deparse(f)}, bernoulli likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons__libraryselection.rds.")
 
 #+ fig.cap=fig_cap
 p
@@ -873,7 +873,7 @@ p <- data %>%
   stat_pointinterval(point_size = 1) +
   labs(x = "Proportion of anti-conservative histograms", y = "Library layout")
 
-fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histograms on library layout__ [{deparse(f)}], bernoulli distribution, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons__librarylayout.rds.")
+fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histograms on library layout__ [{deparse(f)}, bernoulli likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons__librarylayout.rds.")
 
 #+ fig.cap=fig_cap
 p
