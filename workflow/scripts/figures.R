@@ -155,11 +155,7 @@ fig1b <- hist_data_plots %>%
   geom_col(aes(x, y)) +
   geom_hline(aes(yintercept = QC_thr), hist_data_plots, color = "red") +
   facet_wrap(~Class, ncol = 1,scales = "free") +
-  theme_minimal_vgrid(font_size = 8) +
-  theme(axis.title = element_blank(),
-        axis.text = element_blank(),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+  theme_void()
 
 layout <- "
 A###
@@ -670,7 +666,7 @@ citescore_es <- data %>%
   unnest(cols = c(`0.1`, `60`)) %>% 
   transmute(es = `0.1` - `60`)
 citescore_es %>% 
-  median_qi()
+  mode_hdci()
 citescore_es %>% 
   ggplot() +
   geom_density(aes(es)) +
