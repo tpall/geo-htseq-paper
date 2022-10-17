@@ -170,14 +170,25 @@ pvalues <- parsed_suppfiles %>%
   group_by(id, Set) %>% 
   mutate(var = get_var(c("logcpm"=logcpm, "rpkm"=rpkm, "fpkm"=fpkm, "basemean"=basemean, "aveexpr"=aveexpr))) %>%
   ungroup() %>% 
-  mutate( # parsing analysis platform using expression level variable name
+  mutate_at("Set", str_to_lower) %>% 
+  mutate_at("Set", str_remove_all, '"') %>% 
+  rowwise() %>% 
+  mutate(
     analysis_platform_from_expression = case_when(
-      var == "basemean" ~ "deseq",
-      (var == "aveexpr" & PDAT > "2014-01-01") ~ "limma",
-      var == "logcpm" ~ "edger",
+      any(str_detect(Set, "deseq(?!2)"), str_detect(str_to_lower(id), "deseq(?!2)")) ~ "deseq",
+      var == "basemean" & str_detect(Set, "pval(?!ue)") ~ "deseq",
+      any(str_detect(Set, "deseq2"), str_detect(str_to_lower(id), "deseq2")) ~ "deseq2",
+      var == "basemean" & str_detect(Set, "value") ~ "deseq2",
+      str_detect(Set, "degseq") ~ "degseq",
+      str_detect(Set, "baggerley") ~ "clc genomics",
+      any(str_detect(Set, "edger?|tagwise"), var == "logcpm", str_detect(str_to_lower(id), "edger")) ~ "edger",
+      any(str_detect(Set, "cuff(diff)?"), str_detect(str_to_lower(id), "cuff")) ~ "cuffdiff",
+      any(var == "aveexpr" & PDAT > "2014-01-01", str_detect(str_to_lower(id), "limma|voom")) ~ "limma",
       var == "fpkm" & str_detect(Set, "p_value") ~ "cuffdiff",
       TRUE ~ "unknown"
-    ), # parsing analysis platform using file names
+    )) %>% 
+  mutate(
+    # parsing analysis platform using file names
     analysis_platform_from_filename = case_when(
       str_detect(str_to_lower(id), "deseq") ~ "deseq",
       str_detect(str_to_lower(id), "edger") ~ "edger",
