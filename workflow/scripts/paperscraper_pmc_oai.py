@@ -41,7 +41,7 @@ def pmc_query(ids, verbose=False):
 
 def parse_record(xml):
     ex = re.compile(
-        "deseq2?|de(g|x)seq|rockhopper|cuff(diff|links)|edger|clc ?genomics|igeak|bayseq|samseq|noiseq|bayseq|ebseq|limma|voom|sleuth"
+        "deseq2?|de(g|x)seq|rockhopper|cuff(diff|links)|edger|clc(bio)? ?genomics|igeak|bayseq|samseq|noiseq|bayseq|ebseq|limma|voom|sleuth|partek|(nrsa|nascent rna seq)|median ratio norm|rmats|ballgown|biojupie|seurat|exdega"
     )
     soup = BeautifulSoup(xml, features="xml")
     if soup.find("error"):

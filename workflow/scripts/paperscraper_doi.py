@@ -24,10 +24,7 @@ class Pubmed:
         self.driver.close()
 
     def get_detool(self, id):
-        self.driver.get("https://pubmed.ncbi.nlm.nih.gov/%s/" % id)
-        soup = BeautifulSoup(self.driver.page_source, "html.parser")
-        pmc = soup.find("a", {"class": "link-item pmc"})["href"]
-        self.driver.get(pmc)
+        self.driver.get("https://doi.org/%s" % id)
         soup = BeautifulSoup(self.driver.page_source, "html.parser")
         if soup.find("error"):
             return {id: {"detool": "", "context": soup.find("error").getText()}}
@@ -69,11 +66,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Scrapes differential expression analysis platform from Pubmed full text."
     )
-    parser.add_argument("--infile", "-i", help="CSV file with PubMedIds", required=True)
+    parser.add_argument("--infile", "-i", help="CSV file with DOIs", required=True)
     parser.add_argument(
         "--var",
-        help="Variable name for PubMedIds. Defaults to PubMedIds.",
-        default="PubMedIds",
+        help="Variable name for DOI. Defaults to DOI.",
+        default="DOI",
     )
     parser.add_argument("--outfile", "-o", help="Output file", required=True)
     parser.add_argument("-v", "--verbose", action="store_true")

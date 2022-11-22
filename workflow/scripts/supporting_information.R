@@ -35,6 +35,7 @@ library(patchwork)
 library(brms)
 library(rstan)
 library(tidybayes)
+library(forcats)
 library(here)
 library(glue)
 old <- theme_set(theme_cowplot(font_size = 10, font_family = "Helvetica"))
@@ -54,14 +55,60 @@ if (!dir.exists(here("results/models"))) {
 }
 
 #+ data
+parse_detool <- . %>% 
+  mutate(
+    de_tool = case_when(
+      is.na(de_tool) ~ "unknown",
+      de_tool == "cufflinks-edger" ~ "edger",
+      de_tool == "cufflinks-deseq" ~ "deseq",
+      de_tool == "cufflinks-deseq2" ~ "deseq2",
+      de_tool == "cufflinks-limma" ~ "limma",
+      TRUE ~ de_tool
+    ),
+    de_tool = fct_lump(de_tool, 10, other_level = "other")
+  )
 pvalues <- read_csv(here("results/pvalues.csv")) %>% 
-  rename(de_tool = analysis_platform)
+  rename(de_tool = analysis_platform) %>% 
+  parse_detool()
 pvalues_sample <- read_csv(here("results/pvalues_sample.csv")) %>% 
-  rename(de_tool = analysis_platform)
+  rename(de_tool = analysis_platform) %>% 
+  parse_detool()
 pvalues_filtered <- read_csv(here("results/pvalues_filtered.csv")) %>% 
-  rename(de_tool = analysis_platform)
+  rename(de_tool = analysis_platform) %>% 
+  parse_detool()
 sequencing_metadata <- read_csv(here("results/sequencing_metadata_unique_platform.csv"))
 de_simulation_results <- read_csv(here("results/data/de_simulation_results.csv"))
+
+#
+#+
+spots <- read_csv(here("output/spots.csv")) #Parsing proxy for number of samples
+n_libs <- spots %>% 
+  rename(Accession = geo_accession) %>% 
+  count(Accession, name = "n_libs")
+n_pvsets <- pvalues %>% 
+  count(Accession, name = "n_pvsets")
+n_samples <- n_libs %>% 
+  inner_join(n_pvsets) %>% 
+  mutate(N = n_libs / (n_pvsets + 1))
+
+#'
+#'
+#+ pi0detoolsample, include=FALSE
+priors <- set_prior("normal(0, 2)", class="b")
+data <- pvalues_sample %>% 
+  drop_na(pi0, de_tool)
+mod <- brm(
+  formula = pi0 ~ de_tool, 
+  data = data, 
+  family = Beta(),
+  prior = priors,
+  chains = chains, 
+  cores = cores, 
+  refresh = refresh,
+  iter = ifelse(is_ci(), 400, 2000),
+  file = here("results/models/pi0_detool_sample.rds"),
+  file_refit = "on_change"
+)
 
 #' 
 #+ s1fig
@@ -80,7 +127,7 @@ pa <- number_of_pvalues %>%
     anticons = ifelse(anticons == "anti-conservative", "anti-conservative\nand uniform", anticons)) %>% 
   ggplot() +
   geom_histogram(aes(n_pvalues), binwidth = 0.1) +
-  geom_vline(xintercept = median(number_of_pvalues$n_pvalues), linetype = "dashed") +
+  geom_vline(xintercept = median(number_of_pvalues$n_pvalues, na.rm = TRUE), linetype = "dashed") +
   facet_wrap(~anticons, scales = "free_y") +
   scale_x_log10() +
   labs(x = expression(Number~of~p~values~(log[10])), y = "Count") +
@@ -98,7 +145,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/log10_n_pvalues ~ anticons.rds"),
-  file_refit = "never"
+  file_refit = "on_change"
 )
 
 draws <- data %>% 
@@ -142,7 +189,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_year.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 p <- plot(conditional_effects(mod, 
                               effects = "year", 
                               conditions = conditions),
@@ -173,7 +220,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons_year__year_detool.rds"),
-           file_refit = "never"
+           file_refit = "on_change"
 )
 
 draws <- data %>% 
@@ -214,7 +261,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons_year__year_model.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 draws <- data %>% 
   filter(!(model %in% c("454 gs flx", "454 gs flx titanium", "dnbseq-g400", "dnbseq-g50", "illumina miniseq", "ion s5", "helicos heliscope"))) %>% 
@@ -273,7 +320,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_detool.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 draws_6a <- data %>% 
   select(de_tool) %>% 
@@ -301,7 +348,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_detool_all.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 pb <- data %>% 
   select(de_tool) %>% 
@@ -329,7 +376,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_year_detool.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 pc <- data %>% 
   select(de_tool, year) %>%
@@ -364,7 +411,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/anticons_organism_detool.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 pd <- data %>% 
   select(de_tool, organism) %>%
@@ -395,17 +442,18 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons_detool__1_model.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 draws <- as.data.frame(mod)
 pe <- draws %>% 
   mutate_at(vars(starts_with("b_de_tool")), ~.x + draws$b_Intercept) %>% 
-  select(cuffdiff = b_Intercept, starts_with("b_de_tool")) %>% 
+  select(b_Intercept, starts_with("b_de_tool")) %>% 
   rename_all(str_remove, "b_de_tool") %>% 
   pivot_longer(cols = colnames(.), names_to = "de_tool") %>% 
   mutate_at("value", inv_logit_scaled) %>% 
   ggplot(aes(de_tool, value)) +
   stat_pointinterval(point_size = 1) +
+  scale_x_discrete(labels = sort(unique(data$de_tool))) +
   labs(y = y_title) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
@@ -426,17 +474,18 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons_detool__detool_model.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 draws <- as.data.frame(mod)
 pf <- draws %>% 
   mutate_at(vars(starts_with("b_de_tool")), ~.x + draws$b_Intercept) %>% 
-  select(cuffdiff = b_Intercept, starts_with("b_de_tool")) %>% 
+  select(b_Intercept, starts_with("b_de_tool")) %>% 
   rename_all(str_remove, "b_de_tool") %>% 
   pivot_longer(cols = colnames(.), names_to = "de_tool") %>% 
   mutate_at("value", inv_logit_scaled) %>% 
   ggplot(aes(de_tool, value)) +
   stat_pointinterval(point_size = 1) +
+  scale_x_discrete(labels = sort(unique(data$de_tool))) +
   labs(y = y_title) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
@@ -466,6 +515,62 @@ fig_cap <- glue('__DE analysis tool conditional effects from binomial logistic m
         plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
 ggsave(here("figures/S6Fig.tiff"), height = 14, width = 18, dpi = 300, units = "cm")
 
+
+#'
+#'
+#+
+data <- pvalues_sample %>% 
+  inner_join(sequencing_metadata) %>% 
+  mutate(organism = case_when(
+    tax_id == 9606 ~ "human",
+    tax_id == 10090 ~ "mouse",
+    TRUE ~ "other"
+  )) %>% 
+  inner_join(n_samples)
+f <- anticons ~ organism + (N | de_tool)
+mod <- brm(formula = f, 
+           data = data, 
+           family = bernoulli(), 
+           prior = prior("student_t(3, 0, 1)", class = "b"),
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
+           file = here("results/models/anticons ~ organism + (N | de_tool).rds"),
+           file_refit = "on_change")
+
+# data %>% 
+#   select(de_tool, organism, N) %>%
+#   distinct() %>% 
+#   add_epred_draws(mod) %>% 
+#   ggplot(aes(N, .epred)) +
+#   stat_summary(fun = mean, aes(color = de_tool), geom = "line", size = 1) +
+#   stat_summary(fun.data = mean_hdci, aes(fill = de_tool), geom = "ribbon", alpha = 0.5) +
+#   facet_grid(organism~de_tool) +
+#   labs(y = "Prop. anti-cons.", caption = "anticons ~ organism + (N | de_tool)")
+
+f <- pi0 ~ organism + (N | de_tool)
+mod <- brm(formula = f, 
+           data = data, 
+           family = Beta(), 
+           prior = prior("student_t(3, 0, 1)", class = "b"),
+           chains = chains, 
+           cores = cores, 
+           refresh = refresh,
+           iter = ifelse(is_ci(), 400, 2000),
+           file = here("results/models/pi0 ~ organism + (N | de_tool).rds"),
+           file_refit = "on_change")
+# pp_check(mod)
+# data %>% 
+#   select(de_tool, organism, N) %>%
+#   distinct() %>% 
+#   add_epred_draws(mod) %>% 
+#   ggplot(aes(N, .epred)) +
+#   stat_summary(fun = mean, aes(color = de_tool), geom = "line", size = 1) +
+#   stat_summary(fun.data = mean_hdci, aes(fill = de_tool), geom = "ribbon", alpha = 0.5) +
+#   facet_grid(organism~de_tool) +
+#   labs(y = expression(pi*0), caption = "pi0 ~ organism + (N | de_tool)")
+
 #' 
 #+ s7figa
 f <- pi0 ~ de_tool
@@ -480,7 +585,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/pi0_detool_full_data.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 draws_7a <- data %>% 
   select(de_tool) %>% 
@@ -509,7 +614,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/pi0_year_detool.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 pb <- data %>% 
   select(de_tool, year) %>%
@@ -543,7 +648,7 @@ mod <- brm(formula = f,
            cores = cores, 
            refresh = refresh,
            file = here("results/models/pi0_organism_detool.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 pc <- data %>% 
   select(de_tool, organism) %>%
@@ -572,17 +677,18 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0_detool__1_model.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 draws <- as.data.frame(mod)
 pd <- draws %>% 
   mutate_at(vars(starts_with("b_de_tool")), ~.x + draws$b_Intercept) %>% 
-  select(cuffdiff = b_Intercept, starts_with("b_de_tool")) %>% 
+  select(b_Intercept, starts_with("b_de_tool")) %>% 
   rename_all(str_remove, "b_de_tool") %>% 
   pivot_longer(cols = colnames(.), names_to = "de_tool") %>% 
   mutate_at("value", inv_logit_scaled) %>% 
   ggplot(aes(de_tool, value)) +
   stat_pointinterval(point_size = 1) +
+  scale_x_discrete(labels = sort(unique(data$de_tool))) +
   labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
@@ -603,17 +709,18 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0_detool__detool_model.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 draws <- as.data.frame(mod)
 pe <- draws %>% 
   mutate_at(vars(starts_with("b_de_tool")), ~.x + draws$b_Intercept) %>% 
-  select(cuffdiff = b_Intercept, starts_with("b_de_tool")) %>% 
+  select(b_Intercept, starts_with("b_de_tool")) %>% 
   rename_all(str_remove, "b_de_tool") %>% 
   pivot_longer(cols = colnames(.), names_to = "de_tool") %>% 
   mutate_at("value", inv_logit_scaled) %>% 
   ggplot(aes(de_tool, value)) +
   stat_pointinterval(point_size = 1) +
+  scale_x_discrete(labels = sort(unique(data$de_tool))) +
   labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
@@ -656,7 +763,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0__model.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 p <- data %>% 
   select(model) %>% 
   distinct() %>% 
@@ -685,7 +792,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0__librarystrategy.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 p <- data %>% 
   select(library_strategy) %>% 
@@ -693,7 +800,8 @@ p <- data %>%
   add_epred_draws(mod) %>% 
   ggplot(aes(.epred, reorder(library_strategy, .epred, median))) +
   stat_pointinterval(point_size = 1) +
-  labs(x = expression(pi[0]), y = "Library strategy")
+  labs(x = expression(pi[0]), y = "Library strategy") +
+  scale_x_continuous(limits = c(0, 1))
 
 fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library strategy__ [{deparse(f)}], beta distribution, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0__librarystrategy.rds.")
 
@@ -714,7 +822,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0__libraryselection.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 p <- data %>% 
   select(library_selection) %>% 
@@ -722,7 +830,8 @@ p <- data %>%
   add_epred_draws(mod) %>% 
   ggplot(aes(.epred, reorder(library_selection, .epred, median))) +
   stat_pointinterval(point_size = 1) +
-  labs(x = expression(pi[0]), y = "Library selection")
+  labs(x = expression(pi[0]), y = "Library selection") +
+  scale_x_continuous(limits = c(0, 1))
 
 fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library selection__ [{deparse(f)}, beta likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0__libraryselection.rds.")
 
@@ -743,7 +852,7 @@ mod <- brm(formula = f,
            refresh = refresh,
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/pi0__1_librarylayout.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 p <- data %>% 
   select(library_layout) %>% 
@@ -751,7 +860,8 @@ p <- data %>%
   add_epred_draws(mod) %>% 
   ggplot(aes(.epred, reorder(library_layout, .epred, median))) +
   stat_pointinterval(point_size = 1) +
-  labs(x = expression(pi[0]), y = "Library layout")
+  labs(x = expression(pi[0]), y = "Library layout") +
+  scale_x_continuous(limits = c(0, 1))
 
 fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library layout__ [{deparse(f)}, beta likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0__librarylayout.rds.")
 
@@ -775,7 +885,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons__1_model.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 p <- data %>% 
   select(model) %>% 
@@ -805,7 +915,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons__librarystrategy.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 p <- data %>% 
   select(library_strategy) %>% 
@@ -834,7 +944,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons__libraryselection.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 p <- data %>% 
   select(library_selection) %>% 
@@ -863,7 +973,7 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            control = list(adapt_delta = 0.99, max_treedepth = 12),
            file = here("results/models/anticons__librarylayout.rds"),
-           file_refit = "never")
+           file_refit = "on_change")
 
 p <- data %>% 
   select(library_layout) %>% 
@@ -905,7 +1015,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/anticons_detool_filtered.rds"),
-  file_refit = "never"
+  file_refit = "on_change"
 )
 
 draws_16a <- data %>% 
@@ -953,7 +1063,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/anticons_detool_all_filtered.rds"),
-  file_refit = "never"
+  file_refit = "on_change"
 )
 
 pb <- data %>% 
@@ -981,7 +1091,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/anticons_year_detool_filtered.rds"),
-  file_refit = "never"
+  file_refit = "on_change"
 )
 
 pc <- data %>% 
@@ -1011,7 +1121,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/anticons_organism_detool_filtered.rds"),
-  file_refit = "never"
+  file_refit = "on_change"
 )
 
 pd <- data %>% 
@@ -1043,19 +1153,19 @@ mod <- brm(
   iter = ifelse(is_ci(), 400, 2000),
   control = list(adapt_delta = 0.99, max_treedepth = 12),
   file = here("results/models/anticons_detool__1_model_filtered.rds"),
-  file_refit = "never"
+  file_refit = "on_change"
 )
 
 draws <- as.data.frame(mod)
 pe <- draws %>% 
   mutate_at(vars(starts_with("b_de_tool")), ~.x + draws$b_Intercept) %>% 
-  select(cuffdiff = b_Intercept, starts_with("b_de_tool")) %>% 
+  select(b_Intercept, starts_with("b_de_tool")) %>% 
   rename_all(str_remove, "b_de_tool") %>% 
   pivot_longer(cols = colnames(.), names_to = "de_tool") %>% 
   mutate_at("value", inv_logit_scaled) %>% 
   ggplot(aes(de_tool, value)) +
   stat_pointinterval(point_size = 1) +
-  # scale_y_continuous(limits = c(0, 1)) +
+  scale_x_discrete(labels = sort(unique(data$de_tool))) +
   labs(y = y_title) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
@@ -1077,19 +1187,19 @@ mod <- brm(
   iter = ifelse(is_ci(), 400, 2000),
   control = list(adapt_delta = 0.99, max_treedepth = 12),
   file = here("results/models/anticons_detool__detool_model_filtered.rds"),
-  file_refit = "never"
+  file_refit = "on_change"
 )
 
 draws <- as.data.frame(mod)
 pf <- draws %>% 
   mutate_at(vars(starts_with("b_de_tool")), ~.x + draws$b_Intercept) %>% 
-  select(cuffdiff = b_Intercept, starts_with("b_de_tool")) %>% 
+  select(b_Intercept, starts_with("b_de_tool")) %>% 
   rename_all(str_remove, "b_de_tool") %>% 
   pivot_longer(cols = colnames(.), names_to = "de_tool") %>% 
   mutate_at("value", inv_logit_scaled) %>% 
   ggplot(aes(de_tool, value)) +
   stat_pointinterval(point_size = 1) +
-  # scale_y_continuous(limits = c(0, 1)) +
+  scale_x_discrete(labels = sort(unique(data$de_tool))) +
   labs(y = y_title) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
@@ -1133,7 +1243,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/pi0_detool_sample_filtered.rds"),
-  file_refit = "never"
+  file_refit = "on_change"
 )
 
 draws_17aa <- pvalues_filtered_sample %>% 
@@ -1187,7 +1297,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/pi0_detool_full_data_filtered.rds"),
-  file_refit = "never"
+  file_refit = "on_change"
 )
 
 draws_17a <- data %>% 
@@ -1217,7 +1327,7 @@ mod <- brm(
   refresh = refresh,
   iter = ifelse(is_ci(), 400, 2000),
   file = here("results/models/pi0_year_detool_filtered.rds"),
-  file_refit = "never"
+  file_refit = "on_change"
 )
 
 pb <- data %>% 
@@ -1246,7 +1356,7 @@ mod <- brm(
   cores = cores, 
   refresh = refresh,
   file = here("results/models/pi0_organism_detool_filtered.rds"),
-  file_refit = "never"
+  file_refit = "on_change"
 )
 
 pc <- data %>% 
@@ -1277,18 +1387,19 @@ mod <- brm(
   iter = ifelse(is_ci(), 400, 2000),
   control = list(adapt_delta = 0.99, max_treedepth = 12),
   file = here("results/models/pi0_detool__1_model_filtered.rds"),
-  file_refit = "never"
+  file_refit = "on_change"
 )
 
 draws <- as.data.frame(mod)
 pd <- draws %>% 
   mutate_at(vars(starts_with("b_de_tool")), ~.x + draws$b_Intercept) %>% 
-  select(cuffdiff = b_Intercept, starts_with("b_de_tool")) %>% 
+  select(b_Intercept, starts_with("b_de_tool")) %>% 
   rename_all(str_remove, "b_de_tool") %>% 
   pivot_longer(cols = colnames(.), names_to = "de_tool") %>% 
   mutate_at("value", inv_logit_scaled) %>% 
   ggplot(aes(de_tool, value)) +
   stat_pointinterval(point_size = 1) +
+  scale_x_discrete(labels = sort(unique(pvalues_filtered_sample$de_tool))) +
   labs(y = y_title) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
@@ -1310,18 +1421,19 @@ mod <- brm(
   iter = ifelse(is_ci(), 400, 2000),
   control = list(adapt_delta = 0.99, max_treedepth = 12),
   file = here("results/models/pi0_detool__detool_model_filtered.rds"),
-  file_refit = "never"
+  file_refit = "on_change"
 )
 
 draws <- as.data.frame(mod)
 pe <- draws %>% 
   mutate_at(vars(starts_with("b_de_tool")), ~.x + draws$b_Intercept) %>% 
-  select(cuffdiff = b_Intercept, starts_with("b_de_tool")) %>% 
+  select(b_Intercept, starts_with("b_de_tool")) %>% 
   rename_all(str_remove, "b_de_tool") %>% 
   pivot_longer(cols = colnames(.), names_to = "de_tool") %>% 
   mutate_at("value", inv_logit_scaled) %>% 
   ggplot(aes(de_tool, value)) +
   stat_pointinterval(point_size = 1) +
+  scale_x_discrete(labels = sort(unique(pvalues_filtered_sample$de_tool))) +
   labs(y = y_title) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))

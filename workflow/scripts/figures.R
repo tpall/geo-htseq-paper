@@ -26,6 +26,7 @@ library(modelr)
 library(magick)
 library(networkD3)
 library(webshot)
+library(forcats)
 library(here)
 old <- theme_set(theme_cowplot(font_size = 8, font_family = "Helvetica"))
 
@@ -47,12 +48,27 @@ if (!dir.exists("results/models")) {
 }
 
 #+ data
+parse_detool <- . %>% 
+  mutate(
+    de_tool = case_when(
+      is.na(de_tool) ~ "unknown",
+      de_tool == "cufflinks-edger" ~ "edger",
+      de_tool == "cufflinks-deseq" ~ "deseq",
+      de_tool == "cufflinks-deseq2" ~ "deseq2",
+      de_tool == "cufflinks-limma" ~ "limma",
+      TRUE ~ de_tool
+    ),
+    de_tool = fct_lump(de_tool, 10, other_level = "other")
+  )
 pvalues <- read_csv(here("results/pvalues.csv")) %>% 
-  rename(de_tool = analysis_platform)
+  rename(de_tool = analysis_platform) %>% 
+  parse_detool()
 pvalues_sample <- read_csv(here("results/pvalues_sample.csv")) %>% 
-  rename(de_tool = analysis_platform)
+  rename(de_tool = analysis_platform) %>% 
+  parse_detool()
 pvalues_filtered <- read_csv(here("results/pvalues_filtered.csv")) %>% 
-  rename(de_tool = analysis_platform)
+  rename(de_tool = analysis_platform) %>% 
+  parse_detool()
 sequencing_metadata <- read_csv(here("results/sequencing_metadata_unique_platform.csv"))
 
 #' 
@@ -287,10 +303,13 @@ draws <- data %>%
   distinct() %>% 
   add_epred_draws(mod)
 p3b <- draws %>% 
-  ggplot(aes(de_tool, .epred)) +
+  ggplot(aes(reorder(de_tool, .epred, median), .epred)) +
   stat_pointinterval(point_size = 1) +
   labs(y = expression(pi[0])) +
-  theme(axis.title.x = element_blank())
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)
+    )
 
 
 #+
@@ -414,11 +433,12 @@ by_detool <- pvalues_sample2 %>%
   mutate(sankey = map(data, make_sankey),
          props = map(data, get_props))
 
-by_detool$path <- c("figures/Fig4B.png", "figures/Fig4C.png", "figures/Fig4E.png", "figures/Fig4F.png", "figures/Fig4D.png")
+
+by_detool$path <- str_c("figures/Fig4", LETTERS[2:(nrow(by_detool) + 1)], ".png")
 by_detool %>% 
   mutate(res = map2(sankey, path, ~save_sankey_as_webshot(.x, here(.y))))
 
-imgs <- glue::glue("figures/Fig4{LETTERS[1:6]}.png")
+# imgs <- glue::glue("figures/Fig4{LETTERS[1:6]}.png")
 png_to_ggplot <- function(path) {
   img <- image_read(here(path))
   ggplot() + 
@@ -426,17 +446,17 @@ png_to_ggplot <- function(path) {
     theme(axis.line = element_blank())
 }
 
-plots <- imgs %>% 
+plots <- c("figures/Fig4A.png", by_detool$path) %>% 
   map(png_to_ggplot)
 
 titles <- as.list(c("Total", by_detool %>% arrange(path) %>% pull(de_tool)))
-names(titles) <- LETTERS[1:6]
+names(titles) <- LETTERS[2:(nrow(by_detool) + 1)]
 
 plots2 <- map2(plots, titles, ~ .x + labs(title = .y) + theme(plot.title = element_text(hjust = 0.5, vjust=-2)))
 
 ######## adding effect size plots #######
 
-stopifnot("Missing some model objects, please run scripts/figure_supplements.R first!" =
+stopifnot("Missing some model objects, please run scripts/supporting_information.R first!" =
             all(file.exists(here(c("results/models/anticons_detool.rds", 
                                    "results/models/anticons_detool_filtered.rds",
                                    "results/models/pi0_detool_sample.rds",
@@ -519,6 +539,7 @@ patchwork <- wrap_plots(plots2) / ((plot_spacer() + (pg + ph + pi + pj + plot_la
 
 ggsave(here("figures/Fig4.pdf"), plot = patchwork, width = 16, height = 16, units = "cm", dpi = 300)
 ggsave(here("figures/Fig4.eps"), plot = patchwork, width = 16, height = 16, units = "cm", dpi = 300)
+
 ggsave(here("figures/Fig4.tiff"), plot = patchwork, width = 16, height = 16, units = "cm", dpi = 300)
 
 rescue_efficiency <- by_detool %>% 
