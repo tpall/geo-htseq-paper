@@ -160,8 +160,13 @@ pb <- draws %>%
   theme(axis.title.x = element_blank())
 
 p <- pa + pb + plot_layout(widths = c(2/3, 1/3)) + plot_annotation(tag_levels = "A")
-ggsave(here("figures/S1Fig.tiff"), plot = p, width = 12, height = 8, units = "cm", dpi = 300)
 
+#+ include=FALSE
+tiff(here("figures/S1Fig.tiff"), width = 12, height = 8, units = "cm", res = 300)
+p
+dev.off()
+
+#+
 number_of_pvalues_formatted <- prettyNum(nrow(number_of_pvalues), big.mark=',')
 median_number_of_pvalues_formatted <- prettyNum(round(median(number_of_pvalues$n_pvalues)), big.mark=',')
 
@@ -202,11 +207,15 @@ fig_cap <- glue("__The increasing proportion of anti-conservative histograms.__
                 The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons_year.rds.")
 
 #+ fig.cap=fig_cap
-p$year + 
+py <- p$year + 
   scale_x_continuous(breaks = seq(2010, 2020, by = 2)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Year")
-ggsave(here("figures/S2Fig.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+py
+#+ include=FALSE
+tiff(here("figures/S2Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+py
+dev.off()
 
 #' 
 #+ s3fig
@@ -230,20 +239,24 @@ p <- draws %>%
   ggplot(aes(year, .epred, group = 1)) +
   stat_lineribbon(point_interval = median_qi, .width = 0.95, fill = "gray65")
 
-fig_cap <- glue("__All differential expression analysis tools are associated with temporally increasing anti-conservative p value histograms__, 
+fig_cap <- glue("__Trends of anti-conservative p value histograms across differential expression analysis tools__, 
                 two-level binomial logistic model [{deparse(f)}], 
                 N = {prettyNum(summary(mod)$nobs, big.mark=',')}.
                 Lines denote best fit of linear model. Shaded area denotes 95% credible region.
                 The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons_year__year_detool.rds.")
 
 #+fig.cap=fig_cap
-p + 
+pat <- p + 
   scale_x_continuous(breaks = seq(2010, 2020, by = 2)) +
   labs(y = "Proportion of anti-conservative\np value histograms",
        x = "Year") +
   facet_wrap(~ de_tool) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-ggsave(here("figures/S3Fig.tiff"), height = 12, width = 18, dpi = 300, units = "cm")
+pat
+#+ include=FALSE
+tiff(here("figures/S3Fig.tiff"), height = 12, width = 18, units = "cm", res = 300)
+pat
+dev.off()
 
 #' 
 #+ s4fig
@@ -277,13 +290,17 @@ fig_cap <- glue("__All sequencing instrument models are associated with temporal
                 single sequencing platform were used for model fitting. Lines denote best fit of linear model. Shaded area denotes 95% credible region. 
                 The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons_year__year_model.rds.")
 
-#+ fig.height=8, fig.cap=fig_cap
-p + 
+#+ fig.height=8, fig.cap=fig_cap, include=FALSE
+pim <- p + 
   scale_x_continuous(breaks = seq(2010, 2020, by = 2)) +
   labs(y = "Proportion of anti-conservative p value histograms",
        x = "Year") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), strip.text = element_text(size = 8))
-ggsave(here("figures/S4Fig.tiff"), height = 23, width = 18, dpi = 300, units = "cm")
+pim
+#+ include=FALSE
+tiff(here("figures/S4Fig.tiff"), height = 23, width = 18, units = "cm", res = 300)
+pim
+dev.off()
 
 #'
 #+ s5fig
@@ -305,7 +322,10 @@ fig_cap <- glue("__No single differential expression analysis tool dominates the
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/S5Fig.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+#+ include=FALSE
+tiff(here("figures/S5Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+p
+dev.off()
 
 #+ s6figa
 y_title <- "Prop. anti-cons."
@@ -509,11 +529,15 @@ fig_cap <- glue('__DE analysis tool conditional effects from binomial logistic m
                 The model object related to panel F can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/anticons_detool__detool_model.rds.')
 
 #+ s6fig, fig.cap=fig_cap
-(pa + pb + pc) / (pd + pe + pf) + 
+pde <- (pa + pb + pc) / (pd + pe + pf) + 
   plot_annotation(tag_levels = "A") & 
-  theme(plot.tag.position = c(0, 1),
-        plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
-ggsave(here("figures/S6Fig.tiff"), height = 14, width = 18, dpi = 300, units = "cm")
+  theme(plot.tag = element_text(size = 10, hjust = 1, vjust = -1), plot.margin = unit(c(0.5,0.2,0.2,0.2), "cm"))
+pde
+
+#+ include=FALSE
+tiff(here("figures/S5Fig.tiff"), height = 14, width = 18, units = "cm", res = 300)
+pde
+dev.off()
 
 
 #'
@@ -539,15 +563,6 @@ mod <- brm(formula = f,
            file = here("results/models/anticons ~ organism + (N | de_tool).rds"),
            file_refit = "on_change")
 
-# data %>% 
-#   select(de_tool, organism, N) %>%
-#   distinct() %>% 
-#   add_epred_draws(mod) %>% 
-#   ggplot(aes(N, .epred)) +
-#   stat_summary(fun = mean, aes(color = de_tool), geom = "line", size = 1) +
-#   stat_summary(fun.data = mean_hdci, aes(fill = de_tool), geom = "ribbon", alpha = 0.5) +
-#   facet_grid(organism~de_tool) +
-#   labs(y = "Prop. anti-cons.", caption = "anticons ~ organism + (N | de_tool)")
 
 f <- pi0 ~ organism + (N | de_tool)
 mod <- brm(formula = f, 
@@ -560,16 +575,6 @@ mod <- brm(formula = f,
            iter = ifelse(is_ci(), 400, 2000),
            file = here("results/models/pi0 ~ organism + (N | de_tool).rds"),
            file_refit = "on_change")
-# pp_check(mod)
-# data %>% 
-#   select(de_tool, organism, N) %>%
-#   distinct() %>% 
-#   add_epred_draws(mod) %>% 
-#   ggplot(aes(N, .epred)) +
-#   stat_summary(fun = mean, aes(color = de_tool), geom = "line", size = 1) +
-#   stat_summary(fun.data = mean_hdci, aes(fill = de_tool), geom = "ribbon", alpha = 0.5) +
-#   facet_grid(organism~de_tool) +
-#   labs(y = expression(pi*0), caption = "pi0 ~ organism + (N | de_tool)")
 
 #' 
 #+ s7figa
@@ -746,7 +751,16 @@ fig_cap <- glue("__DE analysis tool conditional effects from beta regression mod
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/S7Fig.tiff"), height = 14, width = 18, dpi = 300, units = "cm")
+
+#+ include=FALSE
+tiff(here("figures/S7Fig.tiff"), height = 14, width = 18, units = "cm", res = 300)
+p
+dev.off()
+
+#'
+#' Siia tuleb taavi_fdr_05-12-22.Rmd
+#+
+
 
 #' 
 #+ s8fig
@@ -768,16 +782,21 @@ p <- data %>%
   select(model) %>% 
   distinct() %>% 
   add_epred_draws(mod) %>% 
-  ggplot(aes(.epred, reorder(model, .epred, median))) +
+  ggplot(aes(.epred, model)) +
   stat_pointinterval(point_size = 1) +
   labs(x = expression(pi[0])) +
-  theme(axis.title.y = element_blank())
+  theme(axis.title.y = element_blank()) +
+  scale_x_continuous(limits = c(0, 1))
 
 fig_cap <- glue("__Modeling dependency of $\\pi_0$ on sequencing instrument model__ [{deparse(f)}], beta distribution, N = {prettyNum(summary(mod)$nobs, big.mark=',')}. Points denote best fit of linear model. Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0__model.rds.")
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/S8Fig.tiff"), height = 12, width = 18, dpi = 300, units = "cm")
+
+#+ include=FALSE
+tiff(here("figures/S8Fig.tiff"), height = 12, width = 18, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s9fig
@@ -798,7 +817,7 @@ p <- data %>%
   select(library_strategy) %>% 
   distinct() %>% 
   add_epred_draws(mod) %>% 
-  ggplot(aes(.epred, reorder(library_strategy, .epred, median))) +
+  ggplot(aes(.epred, library_strategy)) +
   stat_pointinterval(point_size = 1) +
   labs(x = expression(pi[0]), y = "Library strategy") +
   scale_x_continuous(limits = c(0, 1))
@@ -807,7 +826,11 @@ fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library strategy__ [{depar
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/S9Fig.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+
+#+ include=FALSE
+tiff(here("figures/S9Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s10fig
@@ -828,7 +851,7 @@ p <- data %>%
   select(library_selection) %>% 
   distinct() %>% 
   add_epred_draws(mod) %>% 
-  ggplot(aes(.epred, reorder(library_selection, .epred, median))) +
+  ggplot(aes(.epred, library_selection)) +
   stat_pointinterval(point_size = 1) +
   labs(x = expression(pi[0]), y = "Library selection") +
   scale_x_continuous(limits = c(0, 1))
@@ -837,7 +860,11 @@ fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library selection__ [{depa
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/S10Fig.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+
+#+ include=FALSE
+tiff(here("figures/S10Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s11fig
@@ -858,7 +885,7 @@ p <- data %>%
   select(library_layout) %>% 
   distinct() %>% 
   add_epred_draws(mod) %>% 
-  ggplot(aes(.epred, reorder(library_layout, .epred, median))) +
+  ggplot(aes(.epred, library_layout)) +
   stat_pointinterval(point_size = 1) +
   labs(x = expression(pi[0]), y = "Library layout") +
   scale_x_continuous(limits = c(0, 1))
@@ -867,7 +894,11 @@ fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library layout__ [{deparse
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/S11Fig.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+
+#+ include=FALSE
+tiff(here("figures/S11Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s12fig
@@ -891,7 +922,7 @@ p <- data %>%
   select(model) %>% 
   distinct() %>% 
   add_epred_draws(mod) %>% 
-  ggplot(aes(.epred, reorder(model, .epred, median))) +
+  ggplot(aes(.epred, model)) +
   stat_pointinterval(point_size = 1) +
   labs(x = "Proportion of anti-conservative histograms") +
   theme(axis.title.y = element_blank())
@@ -900,7 +931,11 @@ fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histog
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/S12Fig.tiff"), height = 12, width = 18, dpi = 300, units = "cm")
+
+#+ include=FALSE
+tiff(here("figures/S12Fig.tiff"), height = 12, width = 18, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s13fig
@@ -921,7 +956,7 @@ p <- data %>%
   select(library_strategy) %>% 
   distinct() %>% 
   add_epred_draws(mod) %>% 
-  ggplot(aes(.epred, reorder(library_strategy, .epred, median))) +
+  ggplot(aes(.epred, library_strategy)) +
   stat_pointinterval(point_size = 1) +
   labs(x = "Proportion of anti-conservative histograms", y = "Library strategy")
 
@@ -929,7 +964,11 @@ fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histog
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/S13Fig.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+
+#+ include=FALSE
+tiff(here("figures/S13Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s14fig
@@ -950,7 +989,7 @@ p <- data %>%
   select(library_selection) %>% 
   distinct() %>% 
   add_epred_draws(mod) %>% 
-  ggplot(aes(.epred, reorder(library_selection, .epred, median))) +
+  ggplot(aes(.epred, library_selection)) +
   stat_pointinterval(point_size = 1) +
   labs(x = "Proportion of anti-conservative histograms", y = "Library selection")
 
@@ -958,7 +997,11 @@ fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histog
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/S14Fig.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+
+#+ include=FALSE
+tiff(here("figures/S14Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s15fig
@@ -979,7 +1022,7 @@ p <- data %>%
   select(library_layout) %>% 
   distinct() %>% 
   add_epred_draws(mod) %>% 
-  ggplot(aes(.epred, reorder(library_layout, .epred, median))) +
+  ggplot(aes(.epred, library_layout)) +
   stat_pointinterval(point_size = 1) +
   labs(x = "Proportion of anti-conservative histograms", y = "Library layout")
 
@@ -987,7 +1030,11 @@ fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histog
 
 #+ fig.cap=fig_cap
 p
-ggsave(here("figures/S15Fig.tiff"), height = 7, width = 10, dpi = 300, units = "cm")
+
+#+ include=FALSE
+tiff(here("figures/S15Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+p
+dev.off()
 
 #'
 #'
@@ -1227,7 +1274,11 @@ p16 <- (pa + pb + pc) / (pd + pe + pf) +
   plot_annotation(tag_levels = "A") & 
   theme(plot.tag.position = c(0, 1),
         plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
-ggsave(here("figures/S16Fig.tiff"), plot = p16, height = 15, width = 18, dpi = 300, units = "cm")
+
+#+ include=FALSE
+tiff(here("figures/S16Fig.tiff"), height = 15, width = 18, units = "cm", res = 300)
+p16
+dev.off()
 
 #' 
 #+ s17figaa
@@ -1462,8 +1513,10 @@ Complete data contains all observations where expression level data was availabl
                 The model object related to panel E can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0_detool__1_model_filtered.rds. 
                 The model object related to panel F can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/raw/26619a4b74aa3781ac6a244edcc24e0ad6eb064b/models/pi0_detool__detool_model_filtered.rds.")
 
-#+ 
-ggsave(here("figures/S17Fig.tiff"), plot = p17, height = 15, width = 18, dpi = 300, units = "cm")
+#+ include=FALSE
+tiff(here("figures/S17Fig.tiff"), height = 15, width = 18, units = "cm", res = 300)
+p17
+dev.off()
 
 
 #' 
@@ -1484,8 +1537,13 @@ p <- de_simulation_results %>%
   geom_hline(yintercept = qc_thr, color = "red") +
   facet_grid(reps~n_eff) +
   scale_x_continuous(breaks = c(0, 0.5, 1))
-ggsave(here("figures/S18Fig.tiff"), plot = p, width = 12, height = 8, units = "cm", dpi = 300)
 
+#+ include=FALSE
+tiff(here("figures/S18Fig.tiff"), height = 8, width = 12, units = "cm", res = 300)
+p
+dev.off()
+
+#+
 fig_cap <- glue('__Simulated RNA-seq data shows that histograms from p value sets with around one hundred 
                  true effects out of 20,000 features can be classified as "uniform".__
                 RNA-seq data was simulated with polyester R package [@frazee2015] on 20,000 transcripts from human transcriptome 
