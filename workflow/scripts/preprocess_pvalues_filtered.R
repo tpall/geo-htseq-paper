@@ -33,7 +33,7 @@ parsed_suppfiles <- parsed_suppfiles_raw %>%
   select(Accession, everything())
 
 parsed_suppfiles_filtered <- parsed_suppfiles %>% 
-  filter(Type != "raw")
+  filter(Type != "raw", !is.na(Type))
 
 analysis_platf <- read_csv(here("results/pvalues.csv")) %>% 
   select(Accession, id, Set, analysis_platform)

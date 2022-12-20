@@ -45,104 +45,106 @@ acc_year <- document_summaries %>%
   select(Accession, PDAT) %>% 
   mutate(year = year(PDAT))
 
-#' Keep only subset from our time frame. Recheck inner_join!
-conformity <- suppfilenames %>% 
-  mutate(Accession = str_to_upper(str_extract(suppfilenames, "GS[Ee]\\d+"))) %>% 
-  full_join(acc_year) %>%
-  mutate(
-    conforms = !(is.na(suppfilenames) | str_detect(str_to_lower(suppfilenames), c("readme", "\\.[bs]am", "\\.bed") %>% str_c("(\\.gz)?", collapse = "|")))
-  )
-
-#' Total number of files conforming
-if (!exists("snakemake")) {
-  sum(conformity$conforms)
-  mean(conformity$conforms)
-}
-
-#' Total number of GEOs conforming
-if (!exists("snakemake")) {
-  conformity %>% 
-    filter(conforms) %>% 
-    pull(Accession) %>% 
-    n_distinct()
-}
-
-#' Number of GEOs conforming per year
-conformity_acc <- conformity %>% 
-  group_by(Accession, year) %>% 
-  summarise(
-    conforms = case_when(
-      any(conforms) ~ 1,
-      TRUE ~ 0
-    )) %>% 
-  ungroup()
-write_csv(conformity_acc, here("results/conformity_acc.csv"))
-
-#' Total number of conforming GEO accessions.
-#+
-total_conforming <- conformity_acc %>% 
-  count(conforms)
-
-#' Conforming GEO submissions per year.
-#+
-if (!exists("snakemake")) {
-  conformity_acc %>% 
-    group_by(year) %>% 
-    summarise(conforms = sum(conforms),
-              n = n(),
-              perc = conforms / n)
-}
+#' #' Keep only subset from our time frame. Recheck inner_join!
+#' conformity <- suppfilenames %>% 
+#'   mutate(Accession = str_to_upper(str_extract(suppfilenames, "GS[Ee]\\d+"))) %>% 
+#'   full_join(acc_year) %>%
+#'   mutate(
+#'     conforms = !(is.na(suppfilenames) | str_detect(str_to_lower(suppfilenames), c("readme", "\\.[bs]am", "\\.bed") %>% str_c("(\\.gz)?", collapse = "|")))
+#'   )
+#' 
+#' #' Total number of files conforming
+#' if (!exists("snakemake")) {
+#'   sum(conformity$conforms)
+#'   mean(conformity$conforms)
+#' }
+#' 
+#' #' Total number of GEOs conforming
+#' if (!exists("snakemake")) {
+#'   conformity %>% 
+#'     filter(conforms) %>% 
+#'     pull(Accession) %>% 
+#'     n_distinct()
+#' }
+#' 
+#' #' Number of GEOs conforming per year
+#' conformity_acc <- conformity %>% 
+#'   group_by(Accession, year) %>% 
+#'   summarise(
+#'     conforms = case_when(
+#'       any(conforms) ~ 1,
+#'       TRUE ~ 0
+#'     )) %>% 
+#'   ungroup()
+#' write_csv(conformity_acc, here("results/conformity_acc.csv"))
+#' 
+#' #' Total number of conforming GEO accessions.
+#' #+
+#' total_conforming <- conformity_acc %>% 
+#'   count(conforms)
+#' 
+#' #' Conforming GEO submissions per year.
+#' #+
+#' if (!exists("snakemake")) {
+#'   conformity_acc %>% 
+#'     group_by(year) %>% 
+#'     summarise(conforms = sum(conforms),
+#'               n = n(),
+#'               perc = conforms / n)
+#' }
 
 #' Number of sets with p-values, 
 parsed_suppfiles_raw <- read_csv(here("results/data/parsed_suppfiles.csv"))
 parsed_suppfiles <- parsed_suppfiles_raw %>% 
-  mutate(Accession = str_to_upper(str_extract(id, "GS[Ee]\\d+"))) %>% 
+  mutate(
+    Accession = str_to_upper(str_extract(id, "GS[Ee]\\d+"))) %>% 
+  mutate_at("Set", str_remove_all, '"') %>% 
   select(Accession, everything())
 
-blacklist <- read_lines(here("results/data/blacklist.txt")) %>% 
-  str_trim() %>% 
-  tibble(suppfilenames = .) %>% 
-  mutate(Accession = str_to_upper(str_extract(suppfilenames, "GS[Ee]\\d+"))) %>% 
-  select(Accession, everything())
-
-c(parsed_suppfiles$Accession, blacklist$Accession) %>% 
-  n_distinct()
-
-unnested_suppfiles <- parsed_suppfiles %>% 
-  mutate(
-    splits = str_split(id, " from "),
-    suppfile = map_chr(splits, ~ifelse(str_detect(.x[length(.x)], "RAW.tar$"), .x[length(.x) - 1], .x[length(.x)]))
-  )
-
-#' Number of p value sets per GEO submission
-unnested_suppfiles %>% 
-  filter(Type == "raw") %>% 
-  count(Accession) %>% 
-  summarise_at("n", list(mean = mean, median = median, min = min, max = max))
-
-unnested_suppfiles %>% 
-  filter(Type == "raw") %>% 
-  count(Accession) %>% 
-  summarise(n1 = mean(n == 1),
-            n1_3 = mean(n <=3 ))
-
-unnested_suppfiles_conforms <- unnested_suppfiles %>% 
-  select(Accession, suppfile, note) %>% 
-  distinct() %>% 
-  mutate(
-    conforms = !(is.na(suppfile) | str_detect(str_to_lower(suppfile), c("readme", "\\.[bs]am", "\\.bed") %>% str_c("(\\.gz)?", collapse = "|")))
-  )
-
-unnested_suppfiles_conforms %>% 
-  group_by(Accession) %>% 
-  summarise(
-    conforms = case_when(
-      any(conforms) ~ 1,
-      TRUE ~ 0
-    )) %>% 
-  ungroup() %>% 
-  summarise_at("conforms", mean)
-
+#' blacklist <- read_lines(here("results/data/blacklist.txt")) %>% 
+#'   str_trim() %>% 
+#'   tibble(suppfilenames = .) %>% 
+#'   mutate(Accession = str_to_upper(str_extract(suppfilenames, "GS[Ee]\\d+"))) %>% 
+#'   select(Accession, everything())
+#' 
+#' c(parsed_suppfiles$Accession, blacklist$Accession) %>% 
+#'   n_distinct()
+#' 
+#' unnested_suppfiles <- parsed_suppfiles %>% 
+#'   mutate(
+#'     splits = str_split(id, " from "),
+#'     suppfile = map_chr(splits, ~ifelse(str_detect(.x[length(.x)], "RAW.tar$"), .x[length(.x) - 1], .x[length(.x)]))
+#'   )
+#' 
+#' #' Number of p value sets per GEO submission
+#' unnested_suppfiles %>% 
+#'   filter(Type == "raw") %>% 
+#'   count(Accession) %>% 
+#'   summarise_at("n", list(mean = mean, median = median, min = min, max = max))
+#' 
+#' unnested_suppfiles %>% 
+#'   filter(Type == "raw") %>% 
+#'   count(Accession) %>% 
+#'   summarise(n1 = mean(n == 1),
+#'             n1_3 = mean(n <=3 ))
+#' 
+#' unnested_suppfiles_conforms <- unnested_suppfiles %>% 
+#'   select(Accession, suppfile, note) %>% 
+#'   distinct() %>% 
+#'   mutate(
+#'     conforms = !(is.na(suppfile) | str_detect(str_to_lower(suppfile), c("readme", "\\.[bs]am", "\\.bed") %>% str_c("(\\.gz)?", collapse = "|")))
+#'   )
+#' 
+#' unnested_suppfiles_conforms %>% 
+#'   group_by(Accession) %>% 
+#'   summarise(
+#'     conforms = case_when(
+#'       any(conforms) ~ 1,
+#'       TRUE ~ 0
+#'     )) %>% 
+#'   ungroup() %>% 
+#'   summarise_at("conforms", mean)
+#' 
 
 #' Parse analysis platform
 get_var <- function(x) {
@@ -156,22 +158,22 @@ get_var <- function(x) {
 get_n_tests <- function(x) {
   x %>% 
     str_remove_all("[\\[\\]]") %>% 
-    str_split(", ", simplify = TRUE) %>% 
+    str_split(",", simplify = TRUE) %>% 
+    str_trim() %>% 
     as.numeric() %>% 
     sum(na.rm = TRUE)
 }
 
 pi0 <- parsed_suppfiles %>% 
-  filter(Type == "raw") %>% 
+  filter(Type == "raw", !is.na(Type)) %>% 
   mutate(
     n_tests = map_dbl(hist, get_n_tests),
     prop_FDR_pval = ifelse(!is.na(pi0), FDR_pval / n_tests, NA_real_)
   ) %>% 
-  select(Accession, id, Set, pi0, prop_FDR_pval) %>% 
-  na.omit()
+  select(Accession, id, Set, pi0, prop_FDR_pval) 
 
 hist <- parsed_suppfiles %>% 
-  filter(Type == "raw") %>% 
+  filter(Type == "raw", !is.na(Type)) %>% 
   select(Accession, id, Set, FDR_pval, hist)
 
 # ##### 
@@ -423,7 +425,7 @@ pvalues <- parsed_suppfiles %>%
   group_by(id, Set) %>% 
   mutate(var = get_var(c("logcpm"=logcpm, "rpkm"=rpkm, "fpkm"=fpkm, "basemean"=basemean, "aveexpr"=aveexpr))) %>%
   ungroup() %>% 
-  mutate_at("Set", str_remove_all, '"') %>% 
+  # mutate_at("Set", str_remove_all, '"') %>% 
   left_join(parse_analysis_platform_output) %>% 
   select(Accession, id, Set, Class = raw, analysis_platform) %>% 
   left_join(acc_year) %>% 
@@ -436,6 +438,12 @@ pvalues <- parsed_suppfiles %>%
   ))
 
 write_csv(pvalues, here("results/pvalues.csv"))
+pvalues %>% 
+  filter(as.logical(anticons)) %>% 
+  pull(id) %>% 
+  str_split(" from ") %>% 
+  map(tail, 1) %>% 
+  write_lines(here("results/anti_conservative_suppfiles.csv"))
 
 #' Number of unique GEO ids imported
 geo_import <- parsed_suppfiles %>% 
@@ -445,7 +453,6 @@ if (!exists("snakemake")) {
     pull(Accession) %>% 
     n_distinct()
 }
-
 
 #' Number of unique files downloaded
 if (!exists("snakemake")) {
