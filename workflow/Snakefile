@@ -4,7 +4,7 @@ localrules:
     all,
     staple,
 
-FIGS=list(range(1, 6))
+FIGS=list(range(1, 7))
 
 rule all:
     input:
@@ -71,17 +71,30 @@ rule unpack:
         " && cp output/* $(dirname {output[0]}))"
         " && cp blacklist.txt $(dirname {output[0]})) 2> {log}"
 
+rule analysis_platform:
+    input:
+        "results/data/document_summaries.csv",
+        "results/detools_from_pmc.csv",
+        "results/data/parsed_suppfiles.csv",
+    output:
+        "results/parse_analysis_platform_output.csv",
+    log:
+        "results/log/analysis_platform.log",
+    resources:
+        runtime=120,
+        mem_mb=4000,
+    script:
+        "scripts/parse_analysis_platform.R"
 
 rule preprocess_pvalues:
     input:
         "results/data/document_summaries.csv",
         "results/data/suppfilenames.txt",
         "results/data/parsed_suppfiles.csv",
+        "results/parse_analysis_platform_output.csv",
     output:
-        "results/conformity_acc.csv",
         "results/pvalues.csv",
         "results/pvalues_sample.csv",
-        "results/pvalues_acc.csv",
     log:
         "results/log/preprocess_pvalues.log",
     resources:
@@ -98,8 +111,6 @@ rule preprocess_pvalues_filtered:
         "results/pvalues.csv",
     output:
         "results/pvalues_filtered.csv",
-        "results/pvalues_filtered_sample.csv",
-        "results/pvalues_filtered_acc.csv",
     log:
         "results/log/preprocess_pvalues_filtered.log",
     resources:
@@ -124,28 +135,6 @@ rule preprocess_sequence_metadata:
         "scripts/preprocess_sequence_metadata.R"
 
 
-rule figures:
-    input:
-        "results/conformity_acc.csv",
-        "results/pvalues_sample.csv",
-        "results/sequencing_metadata_unique_platform.csv",
-        "results/data/parsed_suppfiles.csv",
-        "results/pvalues_acc.csv",
-        "results/data/scopus_citedbycount.csv",
-        "results/data/publications.csv",
-        "results/supporting_information.pdf",
-    output:
-        expand("figures/Fig{n}.{ext}", n=FIGS, ext = ["pdf", "tiff", "eps"]),
-    log:
-        "results/log/figures.log",
-    resources:
-        runtime=1440,
-        mem_mb=8000,
-    threads: 4
-    script:
-        "scripts/figures.R"
-
-
 rule supporting_information:
     input:
         "results/pvalues.csv",
@@ -154,7 +143,7 @@ rule supporting_information:
         "results/sequencing_metadata_unique_platform.csv",
         "results/data/de_simulation_results.csv",
     output:
-        "results/supporting_information.pdf", 
+        "results/supporting_information.pdf",
     log:
         "results/log/supporting_information.log",
     resources:
@@ -165,6 +154,31 @@ rule supporting_information:
         """
         Rscript -e 'rmarkdown::render(here::here("workflow/scripts/supporting_information.R"), output_dir = here::here("results"))'
         """
+
+
+rule figures:
+    input:
+        "results/pvalues.csv",
+        "results/pvalues_sample.csv",
+        "results/pvalues_filtered.csv",
+        "results/data/cancer.csv",
+        "results/data/transcription_factor.csv"
+        "results/n_data.csv",
+        "results/simres_df_parsed.csv",
+        "results/data/parsed_suppfiles_rerun.csv",
+        "results/sequencing_metadata_unique_platform.csv",
+        "results/data/parsed_suppfiles.csv",
+        "results/supporting_information.pdf",
+    output:
+        expand("figures/Fig{n}.{ext}", n=FIGS, ext = "tiff"),
+    log:
+        "results/log/figures.log",
+    resources:
+        runtime=1440,
+        mem_mb=8000,
+    threads: 4
+    script:
+        "scripts/figures.R"
 
 
 rule main:
@@ -198,26 +212,3 @@ rule staple:
     shell:
         "gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/prepress -dNOPAUSE -dQUIET -dBATCH -dDetectDuplicateImages -dCompressFonts=true -r150 -sOutputFile={output[0]} {input} 2> {log}"
 
-
-rule suppl_data:
-    input:
-        "results/data/document_summaries.csv",
-        "results/data/suppfilenames.txt",
-        "results/data/parsed_suppfiles.csv",
-        "results/data/publications.csv",
-        "results/data/scopus_citedbycount.csv",
-        "results/pvalues.csv",
-        "results/sequencing_metadata.csv",
-    output:
-        "results/geo_suppfiles.csv",
-        "results/imported_suppfiles.csv",
-        "results/geo_publications.csv",
-        "results/README.txt",
-    log:
-        "results/log/suppl_data.log",
-    resources:
-        runtime=120,
-        mem_mb=8000,
-    threads: 4
-    script:
-        "scripts/summary_table.R"

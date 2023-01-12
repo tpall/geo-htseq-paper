@@ -73,6 +73,16 @@ pvalues_filtered <- read_csv(here("results/pvalues_filtered.csv")) %>%
   rename(de_tool = analysis_platform) %>% 
   parse_detool()
 sequencing_metadata <- read_csv(here("results/sequencing_metadata_unique_platform.csv"))
+cancer <- read_csv(here("results/data/cancer.csv")) %>% 
+  mutate(cancer = 1)
+tf <- read_csv(here("results/data/transcription_factor.csv")) %>% 
+  mutate(traf = 1)
+n_data <- read_csv(here("results/n_data.csv"))
+simres_df_parsed  <- read_csv(here("results/simres_df_parsed.csv"))
+parsed_suppfiles_rerun <- read_csv(here("results/data/parsed_suppfiles_rerun.csv")) %>% 
+  distinct() %>% 
+  filter(Type == "raw") %>% 
+  select(-Type)
 
 #' 
 #+
@@ -288,8 +298,6 @@ pvalues_sample %>%
   select(Accession, id, pi0, bins) %>% 
   write_csv(here("results/data_files/Figure_3A_Data.csv"))
 
-cancer <- read_csv(here("results/data/cancer.csv")) %>% 
-  mutate(cancer = 1)
 data <- pvalues_sample %>% 
   left_join(cancer) %>% 
   mutate(cancer = ifelse(is.na(cancer), 0, cancer)) %>% 
@@ -306,9 +314,6 @@ p3c <- data %>%
 data %>% 
   write_csv(here("results/data_files/Figure_3C_Data.csv"))
 
-
-tf <- read_csv(here("results/data/transcription_factor.csv")) %>% 
-  mutate(traf = 1)
 data <- pvalues_sample %>% 
   left_join(tf) %>% 
   mutate(traf = ifelse(is.na(traf), 0, traf)) %>% 
@@ -333,7 +338,6 @@ plot(p3)
 dev.off()
 
 #### Fig. 4 RNA-seq power simulation
-n_data <- read_csv(here("results/n_data.csv"))
 nplot <- n_data %>% 
   select(Accession, N) %>% 
   distinct() %>% 
@@ -351,7 +355,6 @@ n_data %>%
   mutate(Nbins = fct_lump(factor(N), 10, other_level = ">10")) %>% 
   write_csv(here("results/data_files/Figure_4A_Data.csv"))
 
-simres_df_parsed  <- read_csv(here("results/simres_df_parsed.csv"))
 powerplot <- simres_df_parsed %>% 
   ggplot() +
   geom_line(aes(ss1, marginal_power, group = 1 - as.numeric(pde), color = 1 - as.numeric(pde)), size = 0.51) +
@@ -468,11 +471,6 @@ plot(nac_fig)
 dev.off()
 
 ### Fig. 6
-parsed_suppfiles_rerun <- read_csv(here("results/data/parsed_suppfiles_rerun.csv")) %>% 
-  distinct() %>% 
-  filter(Type == "raw") %>% 
-  select(-Type)
-
 get_n_tests <- function(x) {
   x %>% 
     str_remove_all("[\\[\\]]") %>% 

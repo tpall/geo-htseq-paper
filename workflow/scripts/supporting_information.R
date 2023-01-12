@@ -83,6 +83,10 @@ pvalues_filtered <- read_csv(here("results/pvalues_filtered.csv")) %>%
   parse_detool()
 sequencing_metadata <- read_csv(here("results/sequencing_metadata_unique_platform.csv"))
 de_simulation_results <- read_csv(here("results/data/de_simulation_results.csv"))
+parsed_suppfiles_rerun <- read_csv(here("results/data/parsed_suppfiles_rerun.csv")) %>% 
+  distinct() %>% 
+  filter(Type == "raw") %>% 
+  select(-Type)
 
 #
 #+
@@ -980,10 +984,6 @@ p
 #'
 #' 
 #+
-parsed_suppfiles_rerun <- read_csv(here("results/data/parsed_suppfiles_rerun.csv")) %>% 
-  distinct() %>% 
-  filter(Type == "raw") %>% 
-  select(-Type)
 pvalues_rerun <- pvalues %>% 
   inner_join(parsed_suppfiles_rerun, by = c("id", "Set"), suffix = c(".orig", ".rerun")) %>% 
   rename_all(str_remove, ".orig") %>% 
