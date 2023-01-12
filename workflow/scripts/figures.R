@@ -211,6 +211,11 @@ p2a <- draws %>%
   scale_x_continuous(breaks = scales::pretty_breaks(n = 4)) +
   scale_colour_manual(values = c("#00BF7D", "#A3A500", "#F8766D", "#00B0F6", "#E76BF3")) +
   scale_fill_manual(values = c("#00BF7D", "#A3A500", "#F8766D", "#00B0F6", "#E76BF3"))
+# Write Figure 2A data to file
+pvalues_sample %>% 
+  select(Accession, id, Class, year, de_tool) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_2A_Data.csv"))
 
 #'
 #'
@@ -233,6 +238,9 @@ p2b <- draws %>%
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
     axis.title.x = element_blank()
   )
+# Write Figure 2B data to file
+mod$data %>% 
+  write_csv(here("results/data_files/Figure_2B_Data.csv"))
 
 p2 <- p2a / p2b + plot_annotation(tag_levels = "A") +  plot_layout(guides = 'auto')
 # ggsave(here("figures/Fig2.pdf"), plot = p2, width = 18, height = 12, units = "cm", dpi = 300)
@@ -256,6 +264,11 @@ p3b <- draws %>%
     axis.title.x = element_blank(),
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)
     )
+# Write Figure 3B (and S7A) data to file
+pvalues_sample %>% 
+  drop_na(pi0, de_tool) %>% 
+  select(Accession, id, pi0, de_tool) %>% 
+  write_csv(here("results/data_files/Figure_3B_S6A_Data.csv"))
 
 #+
 p3a <- pvalues_sample %>% 
@@ -268,6 +281,12 @@ p3a <- pvalues_sample %>%
   labs(x = expression(pi * 0~bins), y = "Proportion of\nP value sets") +
   scale_y_continuous(labels = scales::percent) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+# Figure 3A data
+pvalues_sample %>% 
+  filter(Class %in% c("anti-conservative", "uniform")) %>% 
+  mutate(bins = cut_width(pi0, 0.1, boundary = 0)) %>% 
+  select(Accession, id, pi0, bins) %>% 
+  write_csv(here("results/data_files/Figure_3A_Data.csv"))
 
 cancer <- read_csv(here("results/data/cancer.csv")) %>% 
   mutate(cancer = 1)
@@ -283,6 +302,10 @@ p3c <- data %>%
   labs(x = expression(pi * 0)) +
   scale_y_discrete(labels = c("non-\ncancer", "cancer")) +
   theme(axis.title.y = element_blank())
+# Write Figure 3C data to file
+data %>% 
+  write_csv(here("results/data_files/Figure_3C_Data.csv"))
+
 
 tf <- read_csv(here("results/data/transcription_factor.csv")) %>% 
   mutate(traf = 1)
@@ -297,6 +320,9 @@ p3d <- data %>%
   labs(x = expression(pi * 0)) +
   scale_y_discrete(labels = c("non-\ntranscription\nfactor", "transcription\nfactor")) +
   theme(axis.title.y = element_blank())
+# Write Figure 3D data to file
+data %>% 
+  write_csv(here("results/data_files/Figure_3D_Data.csv"))
 
 #+
 p3 <- (p3a + p3b) / (p3c + p3d) + plot_annotation(tag_levels = "A")
@@ -317,6 +343,13 @@ nplot <- n_data %>%
   ggplot() +
   geom_col(aes(Nbins, n)) +
   labs(x = "N", y = "Count")
+# Write Figure 4A data to file
+n_data %>% 
+  select(Accession, N) %>% 
+  distinct() %>% 
+  filter(!is.na(N)) %>% 
+  mutate(Nbins = fct_lump(factor(N), 10, other_level = ">10")) %>% 
+  write_csv(here("results/data_files/Figure_4A_Data.csv"))
 
 simres_df_parsed  <- read_csv(here("results/simres_df_parsed.csv"))
 powerplot <- simres_df_parsed %>% 
@@ -325,6 +358,10 @@ powerplot <- simres_df_parsed %>%
   labs(x = "N", y = "Power") +
   scale_color_continuous(expression(True~pi*0)) +
   facet_wrap(~str_to_sentence(set))
+# Write Figure 4B data to file
+simres_df_parsed %>% 
+  write_csv(here("results/data_files/Figure_4B_Data.csv"))
+
 power_fig <- nplot + powerplot + plot_annotation(tag_levels = "A")
 # ggsave(here("figures/Fig4.pdf"), plot = power_fig, height = 6, width = 12, dpi = 300, units = "cm")
 # ggsave(here("figures/Fig4.eps"), plot = power_fig, height = 6, width = 12, dpi = 300, units = "cm")
@@ -367,6 +404,10 @@ pnacmod_nb <- nac_mod_draws %>%
   ggplot() +
   stat_pointinterval(aes(Nb, .epred), point_size = 1) +
   labs(x = "N", y = "Proportion of anti-conservative\np value histograms")
+
+# Write Figure 5A data to file
+ndata_ac %>% 
+  write_csv(here("results/data_files/Figure_5A_Data.csv"))
 
 nclassb_data <- n_data %>% 
   filter(Class != "uniform", !is.na(N)) %>% 
@@ -412,7 +453,9 @@ nclassb <- nclassb_draws %>%
     legend.position = "bottom", 
     legend.title = element_blank()
     )
-
+# Write Figure 5B data to file
+nclassb_data %>% 
+  write_csv(here("results/data_files/Figure_5B_Data.csv"))
 
 ### Fig. 5
 nac_fig <- pnacmod_nb + nclassb + 
@@ -460,6 +503,9 @@ p6a <- simres_df_parsed %>%
   scale_y_continuous(limits = c(0, 1)) +
   scale_color_continuous("N") +
   facet_wrap(~ str_to_sentence(set))
+# Write Figure 6A data to file
+simres_df_parsed %>% 
+  write_csv(here("results/data_files/Figure_6A_Data.csv"))
 
 n_data2 <- pvalues %>% 
   filter(!is.na(pi0)) %>%
@@ -495,6 +541,9 @@ p6b <- npi0mod_draw %>%
   ggplot() +
   stat_pointinterval(aes(Nb, .epred), point_size = 1) +
   labs(x = "N", y  = expression(pi[0]))
+# Write Figure 6B data to file
+n_data2 %>% 
+  write_csv(here("results/data_files/Figure_6B_Data.csv"))
 
 p6 <- (p6a + p6b + plot_layout(widths = c(8, 4), nrow = 1)) + plot_annotation(tag_levels = "A")
 
@@ -613,9 +662,31 @@ stopifnot("Missing some model objects, please run scripts/supporting_information
             ))))
 
 anticons_det <- read_rds(here("results/models/anticons_detool.rds"))
+# Write Figure 7 data to file
+pvalues_sample %>% 
+  select(Accession, id, de_tool, anticons) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_7GH_S16AB_raw_Data.csv"))
 anticons_det_filt <- read_rds(here("results/models/anticons_detool_filtered.rds"))
+# Write Figure 7 data to file
+pvalues_filtered %>% 
+  inner_join(pvalues_sample %>% select(Accession, id, Set)) %>% 
+  select(Accession, id, de_tool, anticons) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_7GH_S16AB_filtered_Data.csv"))
 pi0_det <- read_rds(here("results/models/pi0_detool_sample.rds"))
+# Write Figure 7 data to file
+pvalues_sample %>% 
+  drop_na(pi0, de_tool) %>% 
+  select(Accession, id, de_tool, pi0) %>% 
+  write_csv(here("results/data_files/Figure_7IJ_S16CD_raw_Data.csv"))
 pi0_det_filt <- read_rds(here("results/models/pi0_detool_sample_filtered.rds"))
+# Write Figure 7 data to file
+pvalues_filtered %>% 
+  inner_join(pvalues_sample %>% select(Accession, id, Set)) %>% 
+  drop_na(pi0, de_tool) %>% 
+  select(Accession, id, de_tool, pi0) %>% 
+  write_csv(here("results/data_files/Figure_7IJ_S16CD_filtered_Data.csv"))
 
 de_tools <- pvalues_sample %>% 
   select(de_tool) %>% 

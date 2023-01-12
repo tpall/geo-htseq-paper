@@ -144,6 +144,13 @@ pa <- number_of_pvalues %>%
   scale_x_log10() +
   labs(x = expression(Number~of~p~values~(log[10])), y = "Count") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+# Figure S1 Data
+number_of_pvalues %>% 
+  mutate(
+    anticons = ifelse(anticons == "anti-conservative", "anti-conservative\nand uniform", anticons)
+  ) %>% 
+  select(Accession, id, Class, n_pvalues, anticons) %>% 
+  write_csv(here("results/data_files/Figure_S1A_Data.csv"))
 
 data <- number_of_pvalues %>% 
   mutate(log10_n_pvalues = log10(n_pvalues)) %>% 
@@ -171,6 +178,10 @@ pb <- draws %>%
   stat_pointinterval(point_size = 1) +
   labs(y = expression(Number~of~p~values~(log[10])), y = "Count") +
   theme(axis.title.x = element_blank())
+# Figure S1 Data
+data %>% 
+  select(Accession, id, Class, log10_n_pvalues, anticons) %>% 
+  write_csv(here("results/data_files/Figure_S1B_Data.csv"))
 
 p <- pa + pb + plot_layout(widths = c(2/3, 1/3)) + plot_annotation(tag_levels = "A")
 
@@ -218,6 +229,10 @@ fig_cap <- glue("__The increasing proportion of anti-conservative histograms.__
                 Bernoulli model [{deparse(f)}], N = {prettyNum(summary(mod)$nobs, big.mark=',')}. 
                 Lines denote best fit of linear model. Shaded area denotes 95% credible region.
                 The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/src/v0.1/models/anticons_year.rds.")
+# Figure S2 data
+pvalues_sample %>% 
+  select(Accession, id, Class, year, anticons) %>% 
+  write_csv(here("results/data_files/Figure_S2_Data.csv"))
 
 #+ fig.cap=fig_cap
 py <- p$year + 
@@ -318,7 +333,9 @@ p2a <- draws %>%
   scale_x_continuous(breaks = scales::breaks_pretty(n = 3)) +
   scale_colour_manual(values = c("#00BF7D", "#A3A500", "#F8766D", "#00B0F6", "#E76BF3")) +
   scale_fill_manual(values = c("#00BF7D", "#A3A500", "#F8766D", "#00B0F6", "#E76BF3"))
-
+# Figure S3A data
+data %>% 
+  write_csv(here("results/data_files/Figure_S3A_Data.csv"))
 #'
 #'
 #+
@@ -368,6 +385,9 @@ p2b <- draws %>%
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
     axis.title.x = element_blank()
   )
+# Figure S3A data
+data %>% 
+  write_csv(here("results/data_files/Figure_S3B_Data.csv"))
 
 p2_full <- p2a / p2b + plot_annotation(tag_levels = "A") +  plot_layout(guides = 'auto', heights = c(2, 1))
 
@@ -449,10 +469,11 @@ pim
 
 #'
 #+ s5fig
-p <- pvalues_sample %>% 
+figs4data <- pvalues_sample %>% 
   count(year, de_tool) %>% 
   add_count(year, name = "total", wt = n) %>% 
-  mutate(Proportion = n / total) %>% 
+  mutate(Proportion = n / total)
+p <- figs4data %>% 
   ggplot() +
   geom_line(aes(year, Proportion, color = de_tool), size = 1) +
   scale_x_continuous(breaks = seq(2010, 2020, by = 2)) +
@@ -460,6 +481,9 @@ p <- pvalues_sample %>%
   theme(legend.title = element_blank(),
         legend.position = "bottom") +
   guides(color = guide_legend(nrow = 3))
+# Figure S4 data
+figs4data %>% 
+  write_csv(here("results/data_files/Figure_S4_Data.csv"))
 
 fig_cap <- glue("__No single differential expression analysis tool dominates the field.__ 
                 Y-axis shows the proportion of analysis platforms, 
@@ -496,7 +520,11 @@ pa <- draws_6a %>%
   labs(y = y_title) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-
+# Figure S5 data
+pvalues_sample %>% 
+  select(Accession, id, anticons, de_tool) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_S5A_Data.csv"))
 paN <- prettyNum(summary(mod)$nobs, big.mark=',')
 paF <- deparse(f)
 
@@ -522,7 +550,11 @@ pb <- data %>%
   labs(y = y_title) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-
+# Figure S5 data
+pvalues %>% 
+  select(Accession, id, anticons, de_tool) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_S5B_Data.csv"))
 pbN <- prettyNum(summary(mod)$nobs, big.mark=',')
 pbF <- deparse(f)
 
@@ -549,7 +581,11 @@ pc <- data %>%
   labs(y = y_title) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-
+# Figure S5 data
+pvalues_sample %>% 
+  select(Accession, id, anticons, de_tool, year) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_S5C_Data.csv"))
 pcN <- prettyNum(summary(mod)$nobs, big.mark=',')
 pcF <- deparse(f)
 
@@ -582,7 +618,11 @@ pd <- data %>%
   labs(y = y_title) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-
+# Figure S5 data
+data %>% 
+  select(Accession, id, anticons, de_tool, organism) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_S5D_Data.csv"))
 pdN <- prettyNum(summary(mod)$nobs, big.mark=',')
 pdF <- deparse(f)
 
@@ -617,7 +657,11 @@ pe <- draws %>%
   labs(y = y_title) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-
+# Figure S5 data
+data %>% 
+  select(Accession, id, anticons, de_tool, model) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_S5EF_Data.csv"))
 peN <- prettyNum(summary(mod)$nobs, big.mark=',')
 peF <- deparse(f)
 
@@ -764,7 +808,11 @@ pa <- draws_7a %>%
   labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-
+# Figure S6 data
+pvalues %>% 
+  drop_na(pi0, de_tool) %>% 
+  select(Accession, id, pi0, de_tool) %>% 
+  write_csv(here("results/data_files/Figure_S6B_Data.csv"))
 paN <- prettyNum(summary(mod)$nobs, big.mark=',')
 paF <- deparse(f)
 
@@ -792,7 +840,10 @@ pb <- data %>%
   labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-
+# Figure S6 data
+data %>% 
+  select(Accession, id, pi0, de_tool, year) %>% 
+  write_csv(here("results/data_files/Figure_S6C_Data.csv"))
 pbN <- prettyNum(summary(mod)$nobs, big.mark=',')
 pbF <- deparse(f)
 
@@ -825,7 +876,10 @@ pc <- data %>%
   labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-
+# Figure S6 data
+data %>% 
+  select(Accession, id, pi0, organism, de_tool) %>% 
+  write_csv(here("results/data_files/Figure_S6D_Data.csv"))
 pcN <- prettyNum(summary(mod)$nobs, big.mark=',')
 pcF <- deparse(f)
 
@@ -858,7 +912,10 @@ pd <- draws %>%
   labs(y = expression(pi[0])) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-
+# Figure S6 data
+data %>% 
+  select(Accession, id, pi0, de_tool, model) %>% 
+  write_csv(here("results/data_files/Figure_S6EF_Data.csv"))
 pdN <- prettyNum(summary(mod)$nobs, big.mark=',')
 pdF <- deparse(f)
 
@@ -948,7 +1005,11 @@ pi0methodsb <- pvalues_rerun %>%
   geom_point(aes(pi0, pi0.rerun), size = 1/20) +
   geom_abline(linetype = "dashed") +
   labs(x = "Local FDR", y = "Smoother")
-
+# Figure S7 data
+pvalues_rerun %>% 
+  filter(!is.na(pi0)) %>% 
+  select(Accession, id, pi0, pi0.rerun) %>% 
+  write_csv(here("results/data_files/Figure_S7_Data.csv"))
 pi0methodsplot <- pi0methodsa + pi0methodsb + plot_layout(widths = c(3, 2)) + plot_annotation(tag_levels = "A")
 fig_cap <- glue("__Comparison of $\\pi_0$ values computed by two different methods.__ Local FDR method is from limma R package [@limma] function propTrueNull. Smoother method is from qvalue R package [@qvalue]. A, density histogram. B, scatter plot. Dashed line has intercept = 0 and slope = 1.")
 
@@ -984,7 +1045,11 @@ p <- data %>%
   labs(x = expression(pi[0])) +
   theme(axis.title.y = element_blank()) +
   scale_x_continuous(limits = c(0, 1))
-
+# Figure S8 data
+data %>% 
+  select(Accession, id, pi0, model) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_S8_Data.csv"))
 fig_cap <- glue("__Modeling dependency of $\\pi_0$ on sequencing instrument model.__ Points denote best fit of linear model ([{deparse(f)}], beta distribution, N = {prettyNum(summary(mod)$nobs, big.mark=',')}). Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/src/v0.1/models/pi0__model.rds.")
 
 #+ fig.cap=fig_cap
@@ -1017,7 +1082,11 @@ p <- data %>%
   stat_pointinterval(point_size = 1) +
   labs(x = expression(pi[0]), y = "Library strategy") +
   scale_x_continuous(limits = c(0, 1))
-
+# Figure S9 data
+data %>% 
+  select(Accession, id, pi0, library_strategy) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_S9_Data.csv"))
 fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library strategy.__ Points denote best fit of linear model ([{deparse(f)}], beta distribution, N = {prettyNum(summary(mod)$nobs, big.mark=',')}). Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/src/v0.1/models/pi0__librarystrategy.rds.")
 
 #+ fig.cap=fig_cap
@@ -1050,7 +1119,11 @@ p <- data %>%
   stat_pointinterval(point_size = 1) +
   labs(x = expression(pi[0]), y = "Library selection") +
   scale_x_continuous(limits = c(0, 1))
-
+# Figure S10 data
+data %>% 
+  select(Accession, id, pi0, library_selection) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_S10_Data.csv"))
 fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library selection.__ Points denote best fit of linear model ([{deparse(f)}, beta likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}). Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/src/v0.1/models/pi0__libraryselection.rds.")
 
 #+ fig.cap=fig_cap
@@ -1083,7 +1156,11 @@ p <- data %>%
   stat_pointinterval(point_size = 1) +
   labs(x = expression(pi[0]), y = "Library layout") +
   scale_x_continuous(limits = c(0, 1))
-
+# Figure S11 data
+data %>% 
+  select(Accession, id, pi0, library_layout) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_S11_Data.csv"))
 fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library layout.__ Points denote best fit of linear model ([{deparse(f)}, beta likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}). Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/src/v0.1/models/pi0__librarylayout.rds.")
 
 #+ fig.cap=fig_cap
@@ -1120,7 +1197,11 @@ p <- data %>%
   labs(x = "Proportion of anti-conservative histograms") +
   theme(axis.title.y = element_blank()) +
   scale_x_continuous(limits = c(0, 1))
-
+# Figure S12 data
+data %>% 
+  select(Accession, id, anticons, model) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_S12_Data.csv"))
 fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histograms on sequencing platform.__ Points denote best fit of linear model ([{deparse(f)}, bernoulli likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}). Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/src/v0.1/models/anticons__model.rds.")
 
 #+ fig.cap=fig_cap
@@ -1153,7 +1234,11 @@ p <- data %>%
   stat_pointinterval(point_size = 1) +
   labs(x = "Proportion of anti-conservative histograms", y = "Library strategy") +
   scale_x_continuous(limits = c(0, 1))
-
+# Figure S13 data
+data %>% 
+  select(Accession, id, anticons, library_strategy) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_S13_Data.csv"))
 fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histograms on library strategy.__ Points denote best fit of linear model ([{deparse(f)}, bernoulli likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}). Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/src/v0.1/models/anticons__librarystrategy.rds.")
 
 #+ fig.cap=fig_cap
@@ -1186,7 +1271,11 @@ p <- data %>%
   stat_pointinterval(point_size = 1) +
   labs(x = "Proportion of anti-conservative histograms", y = "Library selection") +
   scale_x_continuous(limits = c(0, 1))
-
+# Figure S14 data
+data %>% 
+  select(Accession, id, anticons, library_selection) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_S14_Data.csv"))
 fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histograms on library selection.__ Points denote best fit of linear model ([{deparse(f)}, bernoulli likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}). Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/src/v0.1/models/anticons__libraryselection.rds.")
 
 #+ fig.cap=fig_cap
@@ -1219,7 +1308,11 @@ p <- data %>%
   stat_pointinterval(point_size = 1) +
   labs(x = "Proportion of anti-conservative histograms", y = "Library layout") +
   scale_x_continuous(limits = c(0, 1))
-
+# Figure S15 data
+data %>% 
+  select(Accession, id, anticons, library_layout) %>% 
+  drop_na() %>% 
+  write_csv(here("results/data_files/Figure_S15_Data.csv"))
 fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histograms on library layout.__ Points denote best fit of linear model ([{deparse(f)}, bernoulli likelihood], N = {prettyNum(summary(mod)$nobs, big.mark=',')}). Thick and thin lines denote 66% and 95% credible interval, respectively. The model object related to figure can be downloaded from https://gin.g-node.org/tpall/geo-htseq-paper/src/v0.1/models/anticons__librarylayout.rds.")
 
 #+ fig.cap=fig_cap
