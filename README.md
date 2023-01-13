@@ -32,4 +32,4 @@ Now you should have dataset in "output" subdirectory ready for analysis.
 
 ## Workflow graph
 
-![rulegraph](resources/images/rulegraph.svg)
+![rulegraph](resources/images/rulegraph.pdf)

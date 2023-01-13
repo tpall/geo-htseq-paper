@@ -39,6 +39,18 @@ rule download_simulation:
         "curl -o {output} https://zenodo.org/record/4463804/files/de_simulation_results.csv?download=1 2> {log}"
 
 
+rule download_updates:
+    output:
+        "results/geo-htseq-updates.tar.gz",
+    log:
+        "results/log/download_updates.log",
+    resources:
+        runtime=120,
+        mem_mb=4000,
+    shell:
+        "curl -o {output} https://zenodo.org/record/7529832/files/geo-htseq-updates.tar.gz?download=1 2> {log}"
+
+
 rule unpack:
     input:
         rules.download.output[0],
@@ -66,6 +78,26 @@ rule unpack:
         " && mkdir -p $(dirname {output[0]})"
         " && cp output/* $(dirname {output[0]}))"
         " && cp blacklist.txt $(dirname {output[0]})) 2> {log}"
+
+
+rule unpack_updates:
+    input:
+        rules.download_updates.output[0],
+    output:
+        "results/detools_from_pmc.csv",
+        "results/n_data.csv",
+        "results/simres_df_parsed.csv",
+        "results/data/parsed_suppfiles_rerun.csv",
+    log:
+        "results/log/unpack_updates.log",
+    shadow:
+        "minimal"
+    resources:
+        runtime=120,
+        mem_mb=4000,
+    shell:
+        "tar -xzvf {input} 2> {log}"
+
 
 rule analysis_platform:
     input:
