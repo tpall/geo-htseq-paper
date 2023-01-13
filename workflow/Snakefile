@@ -10,13 +10,9 @@ rule all:
     input:
         "results/supporting_information.pdf",
         "results/main.pdf",
-        expand("figures/Fig{n}.pdf", n=FIGS),
         "results/pall_et_al.pdf",
-        "results/geo_suppfiles.csv",
-        "results/imported_suppfiles.csv",
+        expand("figures/Fig{n}.tiff", n=FIGS),
         "results/sequencing_metadata.csv",
-        "results/geo_publications.csv",
-        "results/README.txt",
 
 
 rule download:
@@ -183,7 +179,7 @@ rule figures:
 
 rule main:
     input:
-        expand("figures/Fig{n}.eps", n=FIGS),
+        expand("figures/Fig{n}.tiff", n=FIGS),
         "results/supporting_information.pdf",
     output:
         "results/main.pdf",
