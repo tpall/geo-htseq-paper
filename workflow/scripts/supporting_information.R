@@ -190,9 +190,9 @@ data %>%
 p <- pa + pb + plot_layout(widths = c(2/3, 1/3)) + plot_annotation(tag_levels = "A")
 
 #+ include=FALSE
-# tiff(here("figures/S1Fig.tiff"), width = 12, height = 8, units = "cm", res = 300)
-# p
-# dev.off()
+tiff(here("figures/S1Fig.tiff"), width = 12, height = 8, units = "cm", res = 300)
+p
+dev.off()
 
 #+
 number_of_pvalues_formatted <- prettyNum(nrow(number_of_pvalues), big.mark=',')
@@ -245,9 +245,9 @@ py <- p$year +
        x = "Year")
 py
 #+ include=FALSE
-# tiff(here("figures/S2Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
-# py
-# dev.off()
+tiff(here("figures/S2Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+py
+dev.off()
 
 #' 
 #+ s3fig
@@ -413,9 +413,9 @@ https://gin.g-node.org/tpall/geo-htseq-paper/src/v0.1/models/n__trials(total_in_
 p2_full
 
 #+ include=FALSE
-# tiff(here("figures/S3Fig.tiff"), height = 12, width = 18, units = "cm", res = 300)
-# p2_full
-# dev.off()
+tiff(here("figures/S3Fig.tiff"), height = 16, width = 18, units = "cm", res = 300)
+p2_full
+dev.off()
 
 #' 
 #+ s4fig
@@ -466,10 +466,6 @@ pim <- p +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), strip.text = element_text(size = 8))
 pim
 
-#+ include=FALSE
-# tiff(here("figures/S4Fig.tiff"), height = 23, width = 18, units = "cm", res = 300)
-# pim
-# dev.off()
 
 #'
 #+ s5fig
@@ -496,9 +492,9 @@ fig_cap <- glue("__No single differential expression analysis tool dominates the
 #+ fig.cap=fig_cap
 p
 #+ include=FALSE
-# tiff(here("figures/S5Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
-# p
-# dev.off()
+tiff(here("figures/S4Fig.tiff"), height = 9, width = 12, units = "cm", res = 300)
+p
+dev.off()
 
 #+ s6figa
 y_title <- "Prop. anti-cons."
@@ -723,9 +719,9 @@ pde <- (pa + pb + pc) / (pd + pe + pf) +
 pde
 
 #+ include=FALSE
-# tiff(here("figures/S6Fig.tiff"), height = 14, width = 18, units = "cm", res = 300)
-# pde
-# dev.off()
+tiff(here("figures/S5Fig.tiff"), height = 14, width = 18, units = "cm", res = 300)
+pde
+dev.off()
 
 
 #'
@@ -977,9 +973,9 @@ fig_cap <- glue("__DE analysis tool conditional effects from beta regression mod
 p
 
 #+ include=FALSE
-# tiff(here("figures/S7Fig.tiff"), height = 14, width = 18, units = "cm", res = 300)
-# p
-# dev.off()
+tiff(here("figures/S6Fig.tiff"), height = 14, width = 18, units = "cm", res = 300)
+p
+dev.off()
 
 #'
 #' 
@@ -1017,9 +1013,9 @@ fig_cap <- glue("__Comparison of $\\pi_0$ values computed by two different metho
 pi0methodsplot
 
 #+ include=FALSE
-# tiff(here("figures/S8Fig.tiff"), height = 9, width = 18, units = "cm", res = 300)
-# pi0methodsplot
-# dev.off()
+tiff(here("figures/S7Fig.tiff"), height = 9, width = 18, units = "cm", res = 300)
+pi0methodsplot
+dev.off()
 
 #' 
 #+ s8fig
@@ -1056,9 +1052,9 @@ fig_cap <- glue("__Modeling dependency of $\\pi_0$ on sequencing instrument mode
 p
 
 #+ include=FALSE
-# tiff(here("figures/S9Fig.tiff"), height = 12, width = 18, units = "cm", res = 300)
-# p
-# dev.off()
+tiff(here("figures/S8Fig.tiff"), height = 12, width = 18, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s9fig
@@ -1093,9 +1089,9 @@ fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library strategy.__ Points
 p
 
 #+ include=FALSE
-# tiff(here("figures/S10Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
-# p
-# dev.off()
+tiff(here("figures/S9Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s10fig
@@ -1130,9 +1126,9 @@ fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library selection.__ Point
 p
 
 #+ include=FALSE
-# tiff(here("figures/S11Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
-# p
-# dev.off()
+tiff(here("figures/S10Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s11fig
@@ -1167,9 +1163,9 @@ fig_cap <- glue("__Modeling dependency of $\\pi_0$ on library layout.__ Points d
 p
 
 #+ include=FALSE
-# tiff(here("figures/S12Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
-# p
-# dev.off()
+tiff(here("figures/S11Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s12fig
@@ -1208,9 +1204,9 @@ fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histog
 p
 
 #+ include=FALSE
-# tiff(here("figures/S13Fig.tiff"), height = 12, width = 18, units = "cm", res = 300)
-# p
-# dev.off()
+tiff(here("figures/S12Fig.tiff"), height = 12, width = 18, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s13fig
@@ -1245,9 +1241,9 @@ fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histog
 p
 
 #+ include=FALSE
-# tiff(here("figures/S14Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
-# p
-# dev.off()
+tiff(here("figures/S13Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s14fig
@@ -1282,9 +1278,9 @@ fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histog
 p
 
 #+ include=FALSE
-# tiff(here("figures/S15Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
-# p
-# dev.off()
+tiff(here("figures/S14Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+p
+dev.off()
 
 #' 
 #+ s15fig
@@ -1319,9 +1315,9 @@ fig_cap <- glue("__Modeling dependency of proportion of anti-conservative histog
 p
 
 #+ include=FALSE
-# tiff(here("figures/S16Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
-# p
-# dev.off()
+tiff(here("figures/S15Fig.tiff"), height = 7, width = 10, units = "cm", res = 300)
+p
+dev.off()
 
 #'
 #'
@@ -1895,6 +1891,12 @@ fig_cap <- glue(
 #+ fig.cap=fig_cap
 patchwork
 
+#+ include=FALSE
+tiff(here("figures/S16Fig.tiff"), height = 14, width = 18, units = "cm", res = 300)
+patchwork
+dev.off()
+
+
 #####
 
 #' 
@@ -1917,9 +1919,9 @@ p <- de_simulation_results %>%
   scale_x_continuous(breaks = c(0, 0.5, 1))
 
 #+ include=FALSE
-# tiff(here("figures/S19Fig.tiff"), height = 8, width = 12, units = "cm", res = 300)
-# p
-# dev.off()
+tiff(here("figures/S17Fig.tiff"), height = 8, width = 12, units = "cm", res = 300)
+p
+dev.off()
 
 #+
 fig_cap <- glue('__Simulated RNA-seq data shows that histograms from p value sets with around one hundred 
